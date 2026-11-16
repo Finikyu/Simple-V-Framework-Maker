@@ -1,0 +1,333 @@
+[
+ {
+  "partsType": 0,
+  "name": "NORMAL",
+  "developId": null,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_normal.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_normal.fpk",
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_dd_male.fpk",
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_dd_female.fpk"
+  }
+ },
+ {
+  "partsType": 1,
+  "name": "NORMAL_SCARF",
+  "developId": null,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_normal_scarf.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_normal_scarf.fpk"
+  }
+ },
+ {
+  "partsType": 2,
+  "name": "SNEAKING_SUIT",
+  "developId": 19040,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_gz_suit.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_gz_suit.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna2_alp"
+ },
+ {
+  "partsType": 3,
+  "name": "HOSPITAL",
+  "noHeadOptions": true,
+  "developId": null,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_hospital.fpk"
+  }
+ },
+ {
+  "partsType": 4,
+  "name": "MGS1",
+  "noHeadOptions": true,
+  "builtInHead": true,
+  "developId": 19071,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_mgs1.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_mgs1.fpk",
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_mgs1.fpk",
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_mgs1.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna6_alp"
+ },
+ {
+  "partsType": 5,
+  "name": "NINJA",
+  "noHeadOptions": true,
+  "builtInHead": true,
+  "developId": 19072,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_ninja.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_ninja.fpk",
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_ninja.fpk",
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_ninja.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna6_alp"
+ },
+ {
+  "partsType": 6,
+  "name": "RAIDEN",
+  "noHeadOptions": true,
+  "builtInHead": true,
+  "developId": 19073,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_raiden.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_raiden.fpk",
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_raiden.fpk",
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_raiden.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_rai0_alp"
+ },
+ {
+  "partsType": 7,
+  "name": "NAKED",
+  "developId": null,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_naked.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_naked.fpk"
+  }
+ },
+ {
+  "partsType": 8,
+  "name": "SNEAKING_SUIT_TPP",
+  "developId": 19050,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/pl_venom.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/pl_venom.fpk",
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_ddm_venom.fpk",
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_ddf_venom.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna4_alp"
+ },
+ {
+  "partsType": 9,
+  "name": "BATTLEDRESS",
+  "developId": 19053,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_battledress.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_battledress.fpk",
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_ddm_battledress.fpk",
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_ddf_battledress.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna5_alp"
+ },
+ {
+  "partsType": 10,
+  "name": "PARASITE",
+  "noHeadOptions": true,
+  "developId": 19060,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_parasite.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_parasite.fpk",
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_ddm_parasite.fpk",
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_ddf_parasite.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna7_alp"
+ },
+ {
+  "partsType": 11,
+  "name": "LEATHER",
+  "developId": 19070,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_leather.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_leather.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna3_alp"
+ },
+ {
+  "partsType": 12,
+  "name": "GOLD",
+  "developId": 19024,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_gold.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_gold.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_gld_alp"
+ },
+ {
+  "partsType": 13,
+  "name": "SILVER",
+  "developId": 19023,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_silver.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_silver.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_sil_alp"
+ },
+ {
+  "partsType": 14,
+  "name": "AVATAR_EDIT_MAN",
+  "noHeadOptions": true,
+  "developId": null,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_avatar_man.fpk"
+  }
+ },
+ {
+  "partsType": 15,
+  "name": "MGS3",
+  "developId": 19080,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_dla0_main0_def_v00.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_dla0_main0_def_v00.fpk",
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_dla0_plym0_def_v00.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dla_alp"
+ },
+ {
+  "partsType": 16,
+  "name": "MGS3_NAKED",
+  "developId": 19080,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_dla1_main0_def_v00.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_dla1_main0_def_v00.fpk",
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_dla1_plym0_def_v00.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dla_alp"
+ },
+ {
+  "partsType": 17,
+  "name": "MGS3_SNEAKING",
+  "developId": 19081,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_dlb0_main0_def_v00.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_dlb0_main0_def_v00.fpk",
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_dlb0_plym0_def_v00.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dlb_alp"
+ },
+ {
+  "partsType": 18,
+  "name": "MGS3_TUXEDO",
+  "developId": 19084,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_dld0_main0_def_v00.fpk",
+   "AVATAR": "/Assets/tpp/pack/player/parts/plparts_dld0_main0_def_v00.fpk",
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_dld0_plym0_def_v00.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dld_alp"
+ },
+ {
+  "partsType": 19,
+  "name": "EVA_CLOSE",
+  "developId": 19086,
+  "packages": {
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_dle0_plyf0_def_v00.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dle_alp"
+ },
+ {
+  "partsType": 20,
+  "name": "EVA_OPEN",
+  "developId": 19086,
+  "packages": {
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_dle1_plyf0_def_v00.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dle_alp"
+ },
+ {
+  "partsType": 21,
+  "name": "BOSS_CLOSE",
+  "developId": 19085,
+  "packages": {
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_dlc0_plyf0_def_v00.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dlc_alp"
+ },
+ {
+  "partsType": 22,
+  "name": "BOSS_OPEN",
+  "developId": 19085,
+  "packages": {
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_dle1_plyf0_def_v00.fpk"
+  },
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dlc_alp"
+ },
+ {
+  "partsType": 23,
+  "name": "SWIMWEAR",
+  "developId": null,
+  "packages": {
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_ddm_swimwear.fpk",
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_ddf_swimwear.fpk"
+  }
+ },
+ {
+  "partsType": 24,
+  "name": "SWIMWEAR_G",
+  "developId": null,
+  "packages": {
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_ddm_swimwear_g.fpk",
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_ddf_swimwear_g.fpk"
+  }
+ },
+ {
+  "partsType": 25,
+  "name": "SWIMWEAR_H",
+  "developId": null,
+  "packages": {
+   "DD_MALE": "/Assets/tpp/pack/player/parts/plparts_ddm_swimwear_h.fpk",
+   "DD_FEMALE": "/Assets/tpp/pack/player/parts/plparts_ddf_swimwear_h.fpk"
+  }
+ },
+ {
+  "partsType": 26,
+  "name": "OCELOT",
+  "noHeadOptions": true,
+  "builtInHead": true,
+  "developId": null,
+  "packages": {
+   "OCELOT": "/Assets/tpp/pack/player/parts/plparts_ocelot.fpk"
+  }
+ },
+ {
+  "partsType": 27,
+  "name": "QUIET",
+  "developId": null,
+  "packages": {
+   "QUIET": "/Assets/tpp/pack/player/parts/plparts_quiet.fpk"
+  }
+ },
+ {
+  "partsType": 28,
+  "name": "NORMAL2",
+  "developId": null,
+  "packages": {}
+ },
+ {
+  "partsType": 29,
+  "name": "NORMAL_SCARF2",
+  "developId": null,
+  "packages": {}
+ },
+ {
+  "partsType": 30,
+  "name": "SNEAKING_SUIT_BB",
+  "developId": null,
+  "packages": {
+   "SNAKE": "/Assets/tpp/pack/player/parts/plparts_sneaking_suit.fpk"
+  }
+ },
+ {
+  "partsType": null,
+  "name": "HOSPITAL2",
+  "noHeadOptions": true,
+  "developId": null,
+  "packages": {}
+ },
+ {
+  "partsType": null,
+  "name": "PARASITE_SUIT2",
+  "noHeadOptions": true,
+  "developId": null,
+  "packages": {}
+ },
+ {
+  "partsType": null,
+  "name": "LEATHER_JACKET2",
+  "developId": null,
+  "packages": {}
+ }
+]

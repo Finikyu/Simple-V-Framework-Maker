@@ -1,0 +1,1095 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:app="using:Svfm.App" xmlns:proj="using:Svfm.Core.Project" x:Class="Svfm.App.EditorView" x:DataType="app:EditorVm" Name="Root">
+  <UserControl.Resources>
+    <!--
+      One item drop-down (issue #5): the category, its count and its slot counter on top, then the selected item's icon and
+      name. The open list has a search box and one row per item. A category the mod has nothing in is greyed, with a
+      dashed outline (the owner: "Unselectable options such as 'head' 'Weapon' should be greyed out").
+    -->
+    <DataTemplate x:Key="CategoryBox" x:DataType="app:CategoryVm">
+      <Button Classes="dd" Classes.on="{Binding IsActive}" Classes.none="{Binding Disabled}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" MinWidth="120" Height="46"
+              ToolTip.Tip="{Binding SlotsTip}" ToolTip.ShowOnDisabled="True" AutomationProperties.Name="{Binding Name}">
+        <Button.Flyout>
+          <Flyout Placement="BottomEdgeAlignedLeft">
+            <StackPanel Width="340" Spacing="8">
+              <TextBox Text="{Binding Search}" PlaceholderText="{Binding Name, StringFormat='Search {0}…'}" AutomationProperties.Name="Search this list" />
+              <ListBox ItemsSource="{Binding Rows}" SelectedItem="{Binding RowSelection}" MaxHeight="360" Background="Transparent" Tapped="Row_Tapped">
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="app:ItemVm">
+                    <!--
+                      Right-click a row to duplicate or remove it (the owner: "You should be able to easily duplicate and
+                      delete outfits by right clicking them, rather than a dedicated button"). Same commands and the same
+                      reasons as the Item menu.
+                    -->
+                    <DockPanel Background="Transparent" ContextRequested="Row_ContextRequested">
+                      <DockPanel.ContextMenu>
+                        <ContextMenu>
+                          <MenuItem Header="Duplicate" Command="{Binding ((app:EditorVm)DataContext).DuplicateCommand, ElementName=Root}" ToolTip.Tip="{Binding ((app:EditorVm)DataContext).DuplicateTip, ElementName=Root}" ToolTip.ShowOnDisabled="True" />
+                          <MenuItem Header="Remove from this mod" Command="{Binding ((app:EditorVm)DataContext).AskRemove, ElementName=Root}" ToolTip.Tip="{Binding ((app:EditorVm)DataContext).RemoveTip, ElementName=Root}" ToolTip.ShowOnDisabled="True" />
+                        </ContextMenu>
+                      </DockPanel.ContextMenu>
+                      <Border DockPanel.Dock="Right" Classes="info" IsVisible="{Binding HasSlotsNote}" ToolTip.Tip="{Binding SlotsNote}" Margin="4,0,0,0" AutomationProperties.Name="The slots the item takes"><TextBlock Text="i" /></Border>
+                      <Border DockPanel.Dock="Right" Classes="info" IsVisible="{Binding ActionsLocked}" ToolTip.Tip="{Binding ActionsNote}" AutomationProperties.Name="Why the item can't be duplicated or removed"><TextBlock Text="!" /></Border>
+                      <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border Width="48" Height="24" CornerRadius="3" Background="#0E1012" ClipToBounds="True"><Grid><Image Source="{Binding Icon}" Stretch="UniformToFill" /><TextBlock Text="{Binding Badge}" IsVisible="{Binding HasBadge}" FontSize="9" Foreground="#A3A8AF" HorizontalAlignment="Center" VerticalAlignment="Center" /></Grid></Border>
+                        <StackPanel>
+                          <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="13" />
+                          <TextBlock Text="{Binding Sub}" Classes="muted" FontSize="11" />
+                        </StackPanel>
+                      </StackPanel>
+                    </DockPanel>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </StackPanel>
+          </Flyout>
+        </Button.Flyout>
+        <Grid>
+          <Rectangle IsVisible="{Binding Disabled}" Stroke="#5A6068" StrokeThickness="1" StrokeDashArray="4,3" RadiusX="6" RadiusY="6" />
+          <StackPanel Margin="10,4" Spacing="2" VerticalAlignment="Center">
+            <TextBlock Text="{Binding Label}" FontSize="10" Classes="muted" TextTrimming="CharacterEllipsis" />
+            <DockPanel IsVisible="{Binding Enabled}">
+              <TextBlock DockPanel.Dock="Right" Text="▾" Classes="muted" Margin="6,0,0,0" />
+              <TextBlock Text="Pick one" Classes="muted" IsVisible="{Binding NoCurrent}" />
+              <!-- A DockPanel, not a StackPanel: the name trims at the box edge instead of running under the ▾ (issue #13). -->
+              <DockPanel IsVisible="{Binding HasCurrent}">
+                <Border DockPanel.Dock="Left" Margin="0,0,6,0" Width="36" Height="18" CornerRadius="2" Background="#0E1012" ClipToBounds="True"><Image Source="{Binding Current.Icon}" Stretch="UniformToFill" /></Border>
+                <TextBlock Text="{Binding Current.Title}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
+              </DockPanel>
+            </DockPanel>
+          </StackPanel>
+        </Grid>
+      </Button>
+    </DataTemplate>
+    <DataTemplate x:Key="TabButton" x:DataType="app:TabVm">
+      <Button Classes="tab" Classes.on="{Binding IsActive}" Classes.changed="{Binding Changed}" Classes.off="{Binding Disabled}" Command="{Binding Select}" IsEnabled="{Binding Enabled}" VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBlock Text="{Binding Number}" Foreground="{StaticResource AmberBrush}" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
+          <!-- Each dot and the "!" sit in a fixed slot (issue #13): a dot that shows or hides does not change the tab width. -->
+          <Panel Width="7"><Ellipse Width="7" Height="7" Fill="{Binding StatusBrush}" VerticalAlignment="Center" IsVisible="{Binding Enabled}" ToolTip.Tip="Status of this tab" /></Panel>
+          <Panel Width="7"><Ellipse Width="7" Height="7" Fill="{StaticResource AmberBrush}" VerticalAlignment="Center" IsVisible="{Binding Changed}" ToolTip.Tip="Changed from the mod's original" /></Panel>
+          <!-- The "i" and "!" badges stay on tabs (owner, Nov 3). Smaller than the card badges so the tab rows fit at 1040 px. -->
+          <Border Classes="info" Width="14" Height="14" ToolTip.Tip="{Binding Info}" ToolTip.ShowOnDisabled="True" AutomationProperties.Name="{Binding Info}"><TextBlock Text="i" FontSize="9" /></Border>
+          <Panel Width="14"><Border Classes="info" Width="14" Height="14" IsVisible="{Binding HasNote}" ToolTip.Tip="{Binding Note}" ToolTip.ShowOnDisabled="True" AutomationProperties.Name="{Binding Note}"><TextBlock Text="!" FontSize="9" /></Border></Panel>
+        </StackPanel>
+      </Button>
+    </DataTemplate>
+  </UserControl.Resources>
+  <Grid RowDefinitions="*,Auto" ColumnDefinitions="*,Auto">
+      <DockPanel>
+        <Border DockPanel.Dock="Top" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="20,6">
+          <StackPanel Spacing="6">
+            <!--
+              Issue #5: the left rail and the items bar are gone. One drop-down per category, all the same size, then the
+              Item menu. Review & build in the header replaces the rail's Build entry.
+            -->
+            <!-- The Item menu sits on the same line as the five drop-downs (owner, Nov 4); the drop-downs share the rest of the width. -->
+            <DockPanel>
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" Margin="8,0,0,0">
+              <Button Name="ItemMenuButton" Content="Item ▾" Height="46" VerticalAlignment="Center" VerticalContentAlignment="Center">
+                <Button.Flyout>
+                  <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                    <MenuItem Name="DuplicateItem" Header="Duplicate item" Command="{Binding DuplicateCommand}" ToolTip.Tip="{Binding DuplicateTip}" ToolTip.ShowOnDisabled="True" />
+                    <MenuItem Name="RemoveItem" Header="Remove from this mod" Command="{Binding AskRemove}" ToolTip.Tip="{Binding RemoveTip}" ToolTip.ShowOnDisabled="True" />
+                    <MenuItem Name="AddFromModItem" Header="+ Add from another mod" Command="{Binding AddFromMod}" ToolTip.Tip="{Binding AddFromModInfo}" />
+                    <MenuItem Name="AddQuietCostumeItem" Header="+ Add a Quiet costume of the game" Command="{Binding AddQuietCostume}" ToolTip.Tip="{Binding AddQuietCostumeInfo}" />
+                    <MenuItem Name="AddAllQuietCostumesItem" Header="+ Add all Quiet costumes of the game" Command="{Binding AddAllQuietCostumes}" ToolTip.Tip="{Binding AddAllQuietCostumesInfo}" />
+                  </MenuFlyout>
+                </Button.Flyout>
+              </Button>
+              <Border Classes="info" IsVisible="{Binding ItemActionsLocked}" ToolTip.Tip="{Binding ItemActionsNote}" AutomationProperties.Name="Why the item can't be duplicated or removed" VerticalAlignment="Center"><TextBlock Text="!" /></Border>
+              <Border Classes="info" ToolTip.Tip="{Binding AddFromModInfo}" AutomationProperties.Name="What 'Add from another mod' does" VerticalAlignment="Center"><TextBlock Text="i" /></Border>
+              <TextBlock Text="{Binding Status}" Classes="muted" VerticalAlignment="Center" Margin="8,0,0,0" MaxWidth="220" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Status}" />
+              </StackPanel>
+              <UniformGrid Rows="1" ColumnSpacing="8">
+                <ContentControl Name="OutfitsDrop" Content="{Binding Categories[0]}" ContentTemplate="{StaticResource CategoryBox}" />
+                <ContentControl Name="HeadsDrop" Content="{Binding Categories[1]}" ContentTemplate="{StaticResource CategoryBox}" />
+                <ContentControl Name="WeaponsDrop" Content="{Binding Categories[2]}" ContentTemplate="{StaticResource CategoryBox}" />
+                <ContentControl Name="ThrowablesDrop" Content="{Binding Categories[3]}" ContentTemplate="{StaticResource CategoryBox}" />
+                <ContentControl Name="BuddiesDrop" Content="{Binding Categories[4]}" ContentTemplate="{StaticResource CategoryBox}" />
+              </UniformGrid>
+            </DockPanel>
+            <Border Name="AddChoicesPanel" IsVisible="{Binding HasAddChoices}" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="8" Padding="14,10">
+              <DockPanel>
+                <Button DockPanel.Dock="Right" Content="Cancel" Command="{Binding CancelAddChoices}" VerticalAlignment="Top" />
+                <StackPanel>
+                  <TextBlock Text="{Binding AddChoicesTitle}" Margin="0,0,0,4" />
+                  <ScrollViewer MaxHeight="160" HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Mods in this download"><ItemsControl ItemsSource="{Binding AddChoices}">
+                    <ItemsControl.ItemTemplate><DataTemplate x:DataType="app:ModChoice"><Button Content="{Binding Label}" Command="{Binding Pick}" Margin="0,2" HorizontalAlignment="Left" /></DataTemplate></ItemsControl.ItemTemplate>
+                  </ItemsControl></ScrollViewer>
+                </StackPanel>
+              </DockPanel>
+            </Border>
+            <Border IsVisible="{Binding Confirming}" Background="#2A1210" BorderBrush="#7A2A26" BorderThickness="1,1,1,1" CornerRadius="8" Padding="14,10">
+              <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                  <Button Classes="danger" Content="Remove it" Command="{Binding DoRemove}" />
+                  <Button Content="Keep it" Command="{Binding KeepIt}" />
+                </StackPanel>
+                <TextBlock Text="{Binding RemoveText}" TextWrapping="Wrap" Foreground="#F8C9C5" VerticalAlignment="Center" Margin="0,0,16,0" />
+              </DockPanel>
+            </Border>
+          </StackPanel>
+        </Border>
+        <ScrollViewer>
+          <StackPanel Margin="24,18" Spacing="14">
+            <Grid ColumnDefinitions="Auto,*" DataContext="{Binding Selected}" x:DataType="app:ItemVm">
+              <Border Width="124" Height="62" CornerRadius="4" Background="Black" ClipToBounds="True" Margin="0,0,18,0"><Image Source="{Binding Icon}" Stretch="Uniform" /></Border>
+              <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6">
+                <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold" TextTrimming="CharacterEllipsis" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <Border Classes="chip"><TextBlock Text="{Binding KeyText}" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" /></Border>
+                  <Border Classes="chip"><TextBlock Text="{Binding KindText}" /></Border>
+                  <Border Classes="chip ok"><TextBlock Text="{Binding DetectedText}" /></Border>
+                  <Border Classes="chip" IsVisible="{Binding IsHead}"><TextBlock Text="{Binding Sub}" /></Border>
+                </StackPanel>
+                <StackPanel IsVisible="{Binding IsBuddy}" Spacing="4">
+                  <ItemsControl ItemsSource="{Binding BuddyChips}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="8" /></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:BuddyChip">
+                    <Border Classes="chip" Classes.sel="{Binding On}" Padding="14,4"><TextBlock Text="{Binding Label}" /></Border>
+                  </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                  <TextBlock Text="{Binding BuddyNote}" Classes="muted" FontSize="12" />
+                </StackPanel>
+              </StackPanel>
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*">
+              <!-- Three tab rows of a fixed height (issues #6 and #19, mock-up .strips; R&D and Deployment share the last): a row that is too long scrolls. It does not wrap. -->
+              <StackPanel Name="TabRows" Spacing="6" AutomationProperties.Name="Tabs">
+                <DockPanel Name="TabRowIdentity" Height="36">
+                  <TextBlock Classes="lbl" Text="IDENTITY" Width="92" FontSize="10" VerticalAlignment="Center" />
+                  <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding IdentityTabs}" ItemTemplate="{StaticResource TabButton}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel></ItemsControl>
+                  </ScrollViewer>
+                </DockPanel>
+                <DockPanel Name="TabRowBehaviour" Height="36">
+                  <TextBlock Classes="lbl" Text="BEHAVIOUR" Width="92" FontSize="10" VerticalAlignment="Center" />
+                  <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding BehaviourTabs}" ItemTemplate="{StaticResource TabButton}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel></ItemsControl>
+                  </ScrollViewer>
+                </DockPanel>
+                <!-- Issue #43: R&D and Deployment are the two tabs of one row, Development. -->
+                <DockPanel Name="TabRowDevelopment" Height="36">
+                  <TextBlock Classes="lbl" Text="DEVELOPMENT" Width="92" FontSize="10" VerticalAlignment="Center" />
+                  <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding DevelopmentTabs}" ItemTemplate="{StaticResource TabButton}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="6" /></ItemsPanelTemplate></ItemsControl.ItemsPanel></ItemsControl>
+                  </ScrollViewer>
+                </DockPanel>
+              </StackPanel>
+              <Border Name="TabPanel" Grid.Row="1" Classes="card" Padding="22,18" Margin="0,12,0,0">
+                <StackPanel Spacing="16">
+                  <DockPanel>
+                    <StackPanel Name="TabActions" DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
+                      <Button Content="{Binding CompareLabel}" Command="{Binding ToggleCompare}" />
+                      <Button Content="Reset tab" Command="{Binding ResetTab}" />
+                    </StackPanel>
+                    <StackPanel Spacing="4">
+                      <TextBlock Text="{Binding SelectedTab.Title}" FontSize="20" FontWeight="SemiBold" />
+                      <TextBlock Text="{Binding TabSubtitle}" Classes="muted" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </DockPanel>
+                  <Border IsVisible="{Binding CompareVisible}" Background="#121417" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="8" Padding="14,10">
+                    <StackPanel Spacing="6">
+                      <TextBlock Classes="lbl" Text="CHANGED FROM THE MOD'S ORIGINAL" />
+                      <TextBlock IsVisible="{Binding NoDifferences}" Classes="muted" Text="Nothing on this tab differs from the original." />
+                      <ScrollViewer MaxHeight="200" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding CompareRows}">
+                          <ItemsControl.ItemTemplate><DataTemplate x:DataType="proj:DiffRow">
+                            <Grid ColumnDefinitions="220,*,*" Margin="0,3">
+                              <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Label}" />
+                              <TextBlock Grid.Column="1" Text="{Binding Was}" Classes="muted" TextWrapping="Wrap" />
+                              <TextBlock Grid.Column="2" Text="{Binding Now}" Foreground="{StaticResource AmberBrush}" TextWrapping="Wrap" />
+                            </Grid>
+                          </DataTemplate></ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </ScrollViewer>
+                    </StackPanel>
+                  </Border>
+        <StackPanel IsVisible="{Binding TabName}"><StackPanel Spacing="14" DataContext="{Binding Selected}" x:DataType="app:ItemVm">
+        <Border Classes="card">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="lbl" Text="NAME IN GAME" />
+            <TextBox Text="{Binding Name}" />
+            <TextBlock Classes="lbl" Text="DESCRIPTION" />
+            <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="90" />
+            <CheckBox Name="TwinSyncBox" IsVisible="{Binding HasTwin}" IsChecked="{Binding TwinSync}" Content="{Binding TwinSyncText}" />
+          </StackPanel>
+        </Border>
+        <!-- The wearer cards (issue #6): Reset and Compare of this tab cover them too (ProjectEdits.TabSections). -->
+        <Border Name="WearCard" Classes="card" IsVisible="{Binding IsOutfit}"><StackPanel Spacing="8" DataContext="{Binding Outfit}" x:DataType="app:OutfitVm">
+          <TextBlock Classes="lbl" Text="WEARERS" />
+          <ItemsControl ItemsSource="{Binding Wearers}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:WearerRow">
+            <StackPanel Opacity="{Binding RowOpacity}" ToolTip.Tip="{Binding Note}">
+              <CheckBox Content="{Binding Label}" IsChecked="{Binding Wears}" IsEnabled="{Binding CanTick}" />
+            </StackPanel>
+          </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Greyed characters have no model in this mod. At least one stays ticked." />
+          <StackPanel Name="CopiesPanel" Spacing="4" IsVisible="{Binding HasCopies}" Margin="0,6,0,0">
+            <TextBlock Classes="lbl" Text="COPIES FOR OTHER WEARERS" />
+            <ItemsControl ItemsSource="{Binding Copies}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:CopyRow">
+              <StackPanel Opacity="{Binding RowOpacity}">
+                <CheckBox Content="{Binding Label}" IsChecked="{Binding Ticked}" IsEnabled="{Binding CanTick}" />
+                <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding Reason}" IsVisible="{Binding HasReason}" Margin="28,0,0,4" />
+              </StackPanel>
+            </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Each copy is a separate item with its own name, which you can change. Untick to remove the copy." />
+            <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="#F8C9C5" Text="{Binding CopyStatus}" IsVisible="{Binding HasCopyStatus}" />
+          </StackPanel>
+        </StackPanel></Border>
+        <Border Name="WornWithCard" Classes="card" IsVisible="{Binding HeadInfo, Converter={x:Static ObjectConverters.IsNotNull}}"><StackPanel Spacing="8" DataContext="{Binding HeadInfo}" x:DataType="app:HeadVm">
+          <TextBlock Classes="lbl" Text="WORN WITH" />
+          <ItemsControl ItemsSource="{Binding Wearers}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:HeadWearRow">
+            <CheckBox Content="{Binding Label}" IsChecked="{Binding Wears}" IsEnabled="{Binding CanTick}" ToolTip.Tip="{Binding Note}" ToolTip.ShowOnDisabled="True" />
+          </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="The characters this head has a model for. At least one stays on. When you turn one on again, it comes back as it was." />
+        </StackPanel></Border>
+        <Border Name="FacesCard" Classes="card" IsVisible="{Binding HeadInfo, Converter={x:Static ObjectConverters.IsNotNull}}"><StackPanel Spacing="8" DataContext="{Binding HeadInfo}" x:DataType="app:HeadVm">
+          <TextBlock Classes="lbl" Text="FACES" />
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Which face each character shows with this head. You cannot change these values." />
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding SnakeNote}" />
+          <ItemsControl ItemsSource="{Binding Faces}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:FaceRow">
+            <Grid ColumnDefinitions="190,*" Margin="0,3"><TextBlock Text="{Binding Who}" FontWeight="Medium" /><TextBlock Grid.Column="1" Text="{Binding Detail}" Classes="muted" TextWrapping="Wrap" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="12" /></Grid>
+          </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+        </StackPanel></Border>
+        <Border Classes="card">
+          <StackPanel Spacing="8">
+            <!--
+              The other languages are a collapsed drop-down, closed by default (the owner: "Language menu should be a drop
+              down menu and hidden by default, with English auto filling in if blank"). English is the only language the
+              mod has to carry; every other one falls back to it, which is what the note and the Fill button say.
+            -->
+            <Expander Header="Other languages" IsExpanded="{Binding ((app:EditorVm)DataContext).ShowLanguages, ElementName=Root}">
+              <StackPanel Spacing="8">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Content="Fill empty languages from English" Command="{Binding ((app:EditorVm)DataContext).FillLanguages, ElementName=Root}" />
+                  <TextBlock Classes="muted" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap" Text="A language left empty uses the English text, so you only need to fill in the ones you want translated." />
+                </DockPanel>
+                <ItemsControl ItemsSource="{Binding Rows}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="app:LangRow">
+                      <Grid ColumnDefinitions="140,*,2*,100" Margin="0,3" IsVisible="{Binding !IsEnglish}">
+                        <TextBlock Text="{Binding Display}" VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1" Text="{Binding Name}" Margin="0,0,8,0" PlaceholderText="Name" />
+                        <TextBox Grid.Column="2" Text="{Binding Description}" Margin="0,0,8,0" PlaceholderText="Description" />
+                        <TextBlock Grid.Column="3" Text="{Binding Tag}" Foreground="{Binding TagBrush}" FontSize="12" VerticalAlignment="Center" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Expander>
+          </StackPanel>
+        </Border>
+        <Border Classes="card">
+          <StackPanel Spacing="12">
+            <TextBlock Classes="lbl" Text="ICON" />
+            <TextBlock Classes="muted" FontSize="12" Text="{Binding SyncedNote}" IsVisible="{Binding TwinSync}" />
+            <Grid ColumnDefinitions="Auto,*">
+              <Border Width="256" Height="128" Background="Black" CornerRadius="4" ClipToBounds="True"><Image Source="{Binding Icon}" Stretch="Uniform" /></Border>
+              <StackPanel Grid.Column="1" Margin="18,0,0,0" VerticalAlignment="Center" Spacing="4">
+                <TextBlock Classes="lbl" Text="CURRENT ICON" />
+                <TextBlock Text="{Binding IconSourceName}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                <TextBlock Classes="muted" FontSize="12" Text="{Binding UploadHint}" IsVisible="{Binding CanUpload}" TextWrapping="Wrap" />
+                <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding IconLockedNote}" IsVisible="{Binding IsExisting}" />
+              </StackPanel>
+            </Grid>
+            <WrapPanel IsVisible="{Binding CanUpload}">
+              <Button Content="Upload an image" Command="{Binding UploadIcon}" Margin="0,0,10,6" />
+              <TextBlock Text="{Binding IconNote}" Foreground="{StaticResource AmberBrush}" VerticalAlignment="Center" />
+            </WrapPanel>
+            <StackPanel Spacing="2">
+              <TextBlock Classes="lbl" Text="REPLACE ICON" />
+              <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Pick where the icon comes from. The change is saved with the project and builds into the mod." />
+            </StackPanel>
+            <!-- The four sources always show (issue #7). A card that can't be used is greyed and gives its reason. -->
+            <WrapPanel Name="IconCards">
+              <Button Name="CardPackaged" Classes="card2" Command="{Binding PickPackaged}" Classes.on="{Binding SourcePackaged}" Width="260" Margin="0,0,12,12" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" VerticalAlignment="Stretch">
+                <StackPanel Spacing="4"><TextBlock Text="Icon packaged with the mod" FontWeight="SemiBold" /><TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="The mod has its own icon. Pick this to use that icon again." /><TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource AmberBrush}" Text="{Binding PackagedReason}" IsVisible="{Binding PackagedReason, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" /></StackPanel>
+              </Button>
+              <Button Name="CardGame" Classes="card2" Command="{Binding OpenGamePicker}" Classes.on="{Binding SourceGame}" Width="260" Margin="0,0,12,12" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" VerticalAlignment="Stretch">
+                <StackPanel Spacing="4"><TextBlock Text="An icon already in the game" FontWeight="SemiBold" /><TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Any icon in the game, whatever its kind. Search for it by name. Nothing is copied into the mod." /><TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource AmberBrush}" Text="{Binding GameReason}" IsVisible="{Binding GameReason, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" /></StackPanel>
+              </Button>
+              <Button Name="CardGenerate" Classes="card2" Command="{Binding PickGenerate}" Classes.on="{Binding SourceGenerate}" Width="260" Margin="0,0,12,12" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" VerticalAlignment="Stretch">
+                <StackPanel Spacing="4"><TextBlock Text="Generate from the model" FontWeight="SemiBold" /><TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Rendered from the item&apos;s own model, like the vanilla icons." /><TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource AmberBrush}" Text="{Binding GenerateReason}" IsVisible="{Binding GenerateReason, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" /></StackPanel>
+              </Button>
+              <Button Name="CardUpload" Classes="card2" Command="{Binding UploadIcon}" Classes.on="{Binding SourceUpload}" Width="260" Margin="0,0,12,12" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" VerticalAlignment="Stretch">
+                <StackPanel Spacing="4"><TextBlock Text="Upload an image" FontWeight="SemiBold" /><TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="PNG or JPG, cropped to the icon window and converted." /><TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource AmberBrush}" Text="{Binding UploadReason}" IsVisible="{Binding UploadReason, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" /></StackPanel>
+              </Button>
+            </WrapPanel>
+            <Border Name="GamePicker" IsVisible="{Binding PickerShown}" Background="#121417" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="8" Padding="14,10">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="8">
+                  <TextBlock Classes="lbl" Text="PICK A GAME ICON" />
+                  <TextBox Text="{Binding GameSearch}" PlaceholderText="Search by game name or file name, e.g. smoke grenade, ui_wp" />
+                  <!-- Issues #16, #24: "In-game name – Category" first, the file name after it in muted text. -->
+                  <ListBox ItemsSource="{Binding GameResults}" SelectedItem="{Binding SelectedGameRow}" MaxHeight="180">
+                    <ListBox.ItemTemplate>
+                      <DataTemplate x:DataType="app:GameIconRow">
+                        <WrapPanel>
+                          <TextBlock Text="{Binding Title}" Margin="0,0,8,0" />
+                          <TextBlock Classes="muted" FontSize="12" Text="{Binding File}" IsVisible="{Binding HasName}" VerticalAlignment="Center" />
+                        </WrapPanel>
+                      </DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="16,0,0,0" Spacing="8">
+                  <Border Width="256" Height="128" Background="Black" CornerRadius="4" ClipToBounds="True"><Image Source="{Binding GamePreview}" Stretch="Uniform" /></Border>
+                </StackPanel>
+              </Grid>
+            </Border>
+                        <TextBlock Text="{Binding IconError}" Foreground="{StaticResource RedBrush}" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+        <!-- Issue #9: the crop and framing controls of an outfit are in Generate mode of the 3D panel. -->
+        <Border Classes="card" IsVisible="{Binding OutlineOn}">
+          <StackPanel Spacing="10">
+            <StackPanel Spacing="8">
+              <!-- Owner, Nov 7: the weapon's attachments and angle are set in the 3D preview (Generate mode), not here. -->
+              <Grid ColumnDefinitions="110,*,60,Auto">
+                <TextBlock Classes="lbl" Text="SIZE" VerticalAlignment="Center" />
+                <Slider Grid.Column="1" Minimum="40" Maximum="500" Value="{Binding FrameZoom}" />
+                <TextBlock Grid.Column="2" Text="{Binding FrameZoom, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                <Button Grid.Column="3" Name="FullSizeButton" Content="100 %" Command="{Binding FullSize}" Margin="8,0,0,0" ToolTip.Tip="Set the size to 100 %" />
+              </Grid>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+        <Border Classes="card" IsVisible="{Binding IsThrown}" Background="#2A1A0C" BorderBrush="#7A4A1A"><StackPanel Spacing="6">
+          <TextBlock Classes="lbl" Foreground="#F08A3A" Text="THE MOD'S MODEL CAN'T COME ALONG" />
+          <TextBlock TextWrapping="Wrap" Text="V Framework 1.7 can't give a custom support weapon a model of its own. A new thrown item has to use a vanilla item's look, so this one looks like the item it is thrown as. Its icon is drawn from that model. The mod's own scripts and values are what carry over." />
+        </StackPanel></Border>
+        </StackPanel></StackPanel>
+        <StackPanel IsVisible="{Binding TabTexts}"><StackPanel Spacing="14" DataContext="{Binding Selected}" x:DataType="app:ItemVm">
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Other texts this mod's script uses. A language left empty uses the English text." />
+          <ItemsControl ItemsSource="{Binding ExtraTexts}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="app:ExtraTextVm">
+                <Border Classes="card" Margin="0,0,0,14">
+                  <StackPanel Spacing="8">
+                    <TextBlock Classes="lbl" Text="{Binding Label}" />
+                    <TextBox Text="{Binding English}" AcceptsReturn="True" TextWrapping="Wrap" />
+                    <Expander Header="Other languages">
+                      <ItemsControl ItemsSource="{Binding Cells}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="app:TextCell">
+                            <Grid ColumnDefinitions="140,*,100" Margin="0,3">
+                              <TextBlock Text="{Binding Display}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Display}" />
+                              <TextBox Grid.Column="1" Text="{Binding Text}" Margin="0,0,8,0" />
+                              <TextBlock Grid.Column="2" Text="{Binding Tag}" Foreground="{Binding TagBrush}" FontSize="12" VerticalAlignment="Center" />
+                            </Grid>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </Expander>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel></StackPanel>
+        <StackPanel IsVisible="{Binding TabStats}"><StackPanel Spacing="14" DataContext="{Binding CurrentStats}" x:DataType="app:StatsVm">
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding Intro}" />
+          <TextBlock TextWrapping="Wrap" IsVisible="{Binding HasSight}" Text="{Binding SightLine}" ToolTip.Tip="{Binding SightTip}" />
+          <Border Classes="card" IsVisible="{Binding HasCamo}"><Expander Header="Camo" IsExpanded="False"><StackPanel Spacing="8">
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="A custom weapon has no camo menu in game, so the camo is painted into the model. The receiver, barrel, stock and under-barrel take it, as in the game; a magazine, sight, laser or the mod's own parts keep their own look." />
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" IsVisible="{Binding HasCamoNote}" Text="{Binding CamoNote}" />
+            <TextBlock Text="{Binding CamoLine}" />
+            <ListBox ItemsSource="{Binding Camos}" SelectedItem="{Binding PickedCamo}" Background="Transparent" MaxHeight="360">
+              <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ListBox.ItemsPanel>
+              <ListBox.ItemTemplate><DataTemplate x:DataType="app:CamoSwatchVm">
+                <Panel Width="56" Height="56" ToolTip.Tip="{Binding Label}">
+                  <Image Source="{Binding Image}" Stretch="UniformToFill" />
+                  <TextBlock Text="{Binding Label}" IsVisible="{Binding Image, Converter={x:Static ObjectConverters.IsNull}}" FontSize="10" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                </Panel>
+              </DataTemplate></ListBox.ItemTemplate>
+            </ListBox>
+          </StackPanel></Expander></Border>
+          <ItemsControl ItemsSource="{Binding Groups}">
+            <ItemsControl.ItemTemplate><DataTemplate x:DataType="app:StatGroupVm">
+              <Border Classes="card" Margin="0,0,0,14"><Expander Header="{Binding Title}" IsExpanded="{Binding Open, Mode=OneTime}"><StackPanel Spacing="8">
+                <ItemsControl ItemsSource="{Binding Rows}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:StatRowVm">
+                  <Grid ColumnDefinitions="300,*" Margin="0,3">
+                    <TextBlock Text="{Binding Label}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Label}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                      <NumericUpDown IsVisible="{Binding IsNumber}" Value="{Binding NumberValue}" Minimum="{Binding Minimum}" Maximum="{Binding Maximum}" Increment="{Binding Increment}" FormatString="0.###" Width="160" />
+                      <CheckBox IsVisible="{Binding IsCheck}" IsChecked="{Binding BoolValue}" />
+                      <ComboBox IsVisible="{Binding IsChoice}" ItemsSource="{Binding Choices}" SelectedItem="{Binding Picked}" MinWidth="240" />
+                      <TextBlock IsVisible="{Binding IsInfo}" Text="{Binding InfoText}" Classes="muted" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="12" VerticalAlignment="Center" />
+                      <TextBlock Text="{Binding Note}" Classes="muted" FontSize="12" VerticalAlignment="Center" />
+                    </StackPanel>
+                  </Grid>
+                </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+              </StackPanel></Expander></Border>
+            </DataTemplate></ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel></StackPanel>
+
+        <StackPanel IsVisible="{Binding TabScript}"><StackPanel Spacing="14" DataContext="{Binding Selected.Script}" x:DataType="app:ScriptVm">
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="V Framework 1.7 runs no effect on a custom thrown item by itself, so what it does is listed here, step by step, for each moment of the throw." />
+          <Border Classes="card" IsVisible="{Binding HasProblems}" Background="#2A1A10" BorderBrush="#7A4A26"><StackPanel Spacing="4">
+            <TextBlock Classes="lbl" Text="TO FIX" />
+            <ItemsControl ItemsSource="{Binding Problems}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" TextWrapping="Wrap" /></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+          </StackPanel></Border>
+          <ItemsControl ItemsSource="{Binding Events}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:EventVm">
+            <Border Classes="card" Margin="0,0,0,12"><StackPanel Spacing="8">
+              <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Text="{Binding Label}" FontWeight="SemiBold" /><TextBlock Text="{Binding Message}" Classes="muted" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="11" VerticalAlignment="Center" /></StackPanel>
+              <TextBlock IsVisible="{Binding Empty}" Classes="muted" Text="Nothing happens." />
+              <ItemsControl ItemsSource="{Binding Steps}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:StepVm">
+                <Border Background="#121417" CornerRadius="6" Padding="10,6" Margin="0,0,0,6"><StackPanel Spacing="6">
+                  <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4"><Button Content="Up" Command="{Binding Up}" /><Button Content="Down" Command="{Binding Down}" /><Button Content="Remove" Command="{Binding Remove}" /></StackPanel>
+                    <TextBlock Text="{Binding Text}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                  </DockPanel>
+                  <ItemsControl ItemsSource="{Binding Params}" IsVisible="{Binding HasParams}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:StepParam">
+                    <Grid ColumnDefinitions="240,*" Margin="0,2">
+                      <TextBlock Text="{Binding Label}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Label}" />
+                      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                        <NumericUpDown IsVisible="{Binding IsNumber}" Value="{Binding NumberValue}" Minimum="0" Maximum="100000" Increment="1" FormatString="0.###" Width="160" />
+                        <CheckBox IsVisible="{Binding IsCheck}" IsChecked="{Binding BoolValue}" />
+                        <TextBox IsVisible="{Binding IsLine}" Text="{Binding TextValue}" MinWidth="320" />
+                        <TextBox IsVisible="{Binding IsCode}" Text="{Binding TextValue}" AcceptsReturn="True" MinWidth="420" MinHeight="80" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" />
+                        <TextBlock Text="{Binding Note}" Classes="muted" FontSize="12" VerticalAlignment="Center" />
+                      </StackPanel>
+                    </Grid>
+                  </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                </StackPanel></Border>
+              </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <ComboBox ItemsSource="{Binding Kinds}" SelectedItem="{Binding SelectedKind}" MinWidth="280" PlaceholderText="Add a step…" />
+                <Button Content="Add" Command="{Binding AddCommand}" />
+              </StackPanel>
+            </StackPanel></Border>
+          </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+        </StackPanel></StackPanel>
+
+        <StackPanel IsVisible="{Binding TabSettings}"><StackPanel Spacing="14" DataContext="{Binding Selected}" x:DataType="app:ItemVm">
+          <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Settings read from this mod's script. Only the settings you change are rewritten; the rest of the script and every file stay exactly as they are." />
+          <TextBlock FontSize="12" TextWrapping="Wrap" IsVisible="{Binding HasInstances}" Text="{Binding InstancesText}" />
+          <ItemsControl ItemsSource="{Binding SettingGroups}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="app:FieldGroupVm">
+                <Border Classes="card" Margin="0,0,0,14">
+                  <StackPanel Spacing="6">
+                    <TextBlock Classes="lbl" Text="{Binding Title}" />
+                    <ItemsControl ItemsSource="{Binding Fields}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="app:FieldVm">
+                          <Grid ColumnDefinitions="4,260,*,Auto" Margin="0,3">
+                            <Border Background="{Binding ChangedBrush}" Width="3" CornerRadius="1" Margin="0,0,6,0" />
+                            <TextBlock Grid.Column="1" Text="{Binding Label}" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+                              <CheckBox IsVisible="{Binding IsBool}" IsChecked="{Binding BoolValue}" IsEnabled="{Binding Editable}" />
+                              <NumericUpDown IsVisible="{Binding IsNumber}" Value="{Binding NumberValue}" Minimum="0" Maximum="9999999" FormatString="0.###" Width="150" IsEnabled="{Binding Editable}" />
+                              <TextBox IsVisible="{Binding IsText}" Text="{Binding TextValue}" Width="200" IsEnabled="{Binding Editable}" />
+                              <TextBlock Text="{Binding Note}" Classes="muted" FontSize="12" VerticalAlignment="Center" />
+                              <TextBlock Text="{Binding LockedNote}" IsVisible="{Binding IsLocked}" Foreground="#FF8A3D" FontSize="12" VerticalAlignment="Center" />
+                            </StackPanel>
+                          </Grid>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel></StackPanel>
+        <StackPanel IsVisible="{Binding TabAbilities}"><StackPanel Spacing="14" DataContext="{Binding Selected.Outfit}" x:DataType="app:OutfitVm">
+          <Border Classes="card" IsVisible="{Binding HasAbilityLooks}"><StackPanel Spacing="10">
+            <TextBlock Classes="lbl" Text="ABILITIES FOR" />
+            <WrapPanel>
+              <ComboBox Name="AbilityLookPick" ItemsSource="{Binding AbilityLooks}" SelectedItem="{Binding AbilityLook}" MinWidth="320" Margin="0,0,10,6" AutomationProperties.Name="Abilities for" />
+              <ComboBox Name="LookAbilityModePick" ItemsSource="{x:Static app:OutfitVm.LookAbilityModes}" SelectedIndex="{Binding LookAbilityMode}" MinWidth="200" Margin="0,0,0,6" IsVisible="{Binding LookChosen}" AutomationProperties.Name="Abilities of this look" />
+            </WrapPanel>
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="A look with its own abilities uses only those: V Framework uses them in place of the outfit's set. The main look always has the outfit's abilities. Concealment and the R&amp;D row stay one for each outfit." />
+          </StackPanel></Border>
+          <Border Classes="card" IsVisible="{Binding ArmAllowed}"><StackPanel Spacing="8">
+            <TextBlock Classes="lbl" Text="PROSTHETIC ARM" />
+            <CheckBox Name="EnableProstheticBox" Content="Enable prosthetic" IsChecked="{Binding EnableProsthetic}" ToolTip.Tip="Off: Snake and the Avatar have no prosthetic arm in the slot that ABILITIES FOR shows (enableArm = false). The outfit is every slot. V Framework has no setting that turns off only its functions." />
+          </StackPanel></Border>
+          <StackPanel Spacing="14" IsEnabled="{Binding AbilitiesEditable}">
+          <Border Classes="card"><StackPanel Spacing="10">
+            <TextBlock Classes="lbl" Text="BEHAVES LIKE" />
+            <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset}" MinWidth="320" />
+            <TextBlock Name="PresetTicksLine" FontSize="12" Text="{Binding PresetTicks}" TextWrapping="Wrap" IsVisible="{Binding PresetTicks.Length}" />
+            <TextBlock Classes="muted" FontSize="12" Text="{Binding PresetNote}" TextWrapping="Wrap" />
+          </StackPanel></Border>
+          <Border Classes="card"><StackPanel Spacing="8">
+            <TextBlock Classes="lbl" Text="MOVEMENT AND SOUND" />
+            <CheckBox Content="Silent footsteps" IsChecked="{Binding SilentFootsteps}" />
+            <CheckBox Content="Quiet movement (also gives Quiet's CQC moves)" IsChecked="{Binding QuietMovement}" />
+            <StackPanel>
+              <CheckBox Content="Raiden run" Name="RaidenRunTick" ToolTip.Tip="{x:Static app:OutfitVm.RaidenRunTip}" IsChecked="{Binding RaidenRun}" IsEnabled="{Binding RaidenAllowed}" />
+              <TextBlock Classes="muted" FontSize="11" Margin="26,0,0,0" Text="{Binding RaidenNote}" TextWrapping="Wrap" IsVisible="{Binding RaidenNote.Length}" />
+            </StackPanel>
+            <CheckBox Content="Sprint sound" Name="SprintSoundTick" ToolTip.Tip="{x:Static app:OutfitVm.SprintSoundTip}" IsChecked="{Binding SprintSound}" />
+            <CheckBox Content="Dash attack" IsChecked="{Binding DashAttack}" />
+            <CheckBox Content="Own sprint speed" IsChecked="{Binding SprintOn}" />
+            <StackPanel Orientation="Horizontal" Spacing="10" Margin="26,0,0,0"><TextBlock Classes="lbl" Text="SPRINT SPEED (0.1 - 10)" VerticalAlignment="Center" /><NumericUpDown Value="{Binding SprintSpeed}" Minimum="0.1" Maximum="10" Increment="0.1" FormatString="0.0" Width="140" IsEnabled="{Binding SprintOn}" /></StackPanel>
+          </StackPanel></Border>
+          <Border Classes="card"><StackPanel Spacing="10">
+            <TextBlock Classes="lbl" Text="PROTECTION" />
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="DAMAGE REDUCTION" VerticalAlignment="Center" Width="190" /><ComboBox ItemsSource="{Binding Levels}" SelectedItem="{Binding Defense}" /><TextBlock Classes="muted" FontSize="12" Text="level N = Battle Dress grade N" VerticalAlignment="Center" /></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="HEALTH REGENERATION" VerticalAlignment="Center" Width="190" /><ComboBox ItemsSource="{Binding Levels}" SelectedItem="{Binding LifeRecovery}" /><TextBlock Classes="muted" FontSize="12" Text="level N = Sneaking Suit grade N" VerticalAlignment="Center" /></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="CLOTH SOUND" VerticalAlignment="Center" Width="190" /><ComboBox ItemsSource="{Binding Rattle}" SelectedItem="{Binding SelectedRattle}" MinWidth="220" /></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="HIT SOUND" VerticalAlignment="Center" Width="190" /><ComboBox ItemsSource="{Binding HitSound}" SelectedItem="{Binding SelectedHit}" MinWidth="220" /></StackPanel>
+          </StackPanel></Border>
+          </StackPanel>
+        </StackPanel></StackPanel>
+
+        <StackPanel IsVisible="{Binding TabRd}" Spacing="14"><TextBlock Name="RdSyncedNote" Classes="muted" FontSize="12" Text="{Binding Selected.SyncedNote}" IsVisible="{Binding Selected.TwinSync}" /><StackPanel Spacing="14" DataContext="{Binding Selected.Develop}" x:DataType="app:DevelopVm">
+          <Border Classes="card"><StackPanel Spacing="6">
+            <TextBlock Classes="lbl" Text="ALREADY DEVELOPED" />
+            <CheckBox Content="Already developed (available from the start)" IsChecked="{Binding AlreadyDeveloped}" />
+            <TextBlock Classes="muted" FontSize="12" Text="{Binding DevelopNote}" TextWrapping="Wrap" />
+            <TextBlock Classes="muted" FontSize="12" Text="When ticked, the costs, unlocks and needs below do not apply." TextWrapping="Wrap" />
+          </StackPanel></Border>
+          <Border Classes="card"><StackPanel Spacing="10">
+            <TextBlock Classes="lbl" Text="COPY FROM A VANILLA ITEM" />
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Pick an item the game already has and its R&amp;D row is copied: grade, costs, time, staff, materials, specialist and blueprint. No IDs to look up." />
+            <!-- WrapPanels on this tab (issue #13): next to the side column of a thrown item, one line did not fit at 1040 px. -->
+            <WrapPanel>
+              <ComboBox ItemsSource="{x:Static app:DevelopVm.VanillaRows}" SelectedItem="{Binding CopyFrom}" MinWidth="380" MaxWidth="520" PlaceholderText="Pick an item…" Margin="0,0,10,6" />
+              <Button Content="Copy its R&amp;D row" Command="{Binding CopyFromRow}" Margin="0,0,10,6" />
+              <TextBlock Classes="muted" FontSize="12" Text="{Binding CopyFromInfo}" VerticalAlignment="Center" Margin="0,0,0,6" />
+            </WrapPanel>
+          </StackPanel></Border>
+          <Border Classes="card" IsEnabled="{Binding !AlreadyDeveloped}"><StackPanel Spacing="10">
+            <TextBlock Classes="lbl" Text="UNLOCKS" />
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="When the item shows in R&amp;D. Most items show from the start. A blueprint item stays hidden until the player gets its blueprint. A story item stays hidden until its mission is cleared." />
+            <WrapPanel><TextBlock Classes="lbl" Text="SHOWN IN R&amp;D" VerticalAlignment="Center" Width="190" Margin="0,0,10,0" /><ComboBox ItemsSource="{x:Static app:DevelopVm.Unlocks}" SelectedIndex="{Binding Unlock}" MinWidth="320" VerticalAlignment="Center" /><Border Classes="info" ToolTip.Tip="{x:Static app:DevelopVm.UnlockInfo}" AutomationProperties.Name="{x:Static app:DevelopVm.UnlockInfo}" VerticalAlignment="Center" Margin="6,0,0,0"><TextBlock Text="!" /></Border></WrapPanel>
+            <WrapPanel Margin="26,0,0,0" IsVisible="{Binding BluePrintPickOn}"><TextBlock Classes="lbl" Text="BLUEPRINT" VerticalAlignment="Center" Width="164" Margin="0,0,10,0" /><ComboBox ItemsSource="{Binding BluePrintList}" SelectedItem="{Binding BluePrintChoice}" MinWidth="380" MaxWidth="520" /></WrapPanel>
+            <WrapPanel Margin="26,0,0,0" IsVisible="{Binding OwnBluePrintOn}"><TextBlock Classes="lbl" Text="BLUEPRINT" VerticalAlignment="Center" Width="164" Margin="0,0,10,0" /><TextBlock Text="{Binding OwnBluePrint}" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="520" /></WrapPanel>
+            <WrapPanel Margin="26,0,0,0" IsVisible="{Binding MissionOn}"><TextBlock Classes="lbl" Text="THE MISSION" VerticalAlignment="Center" Width="164" Margin="0,0,10,0" /><ComboBox ItemsSource="{x:Static app:DevelopVm.Missions}" SelectedItem="{Binding AfterMission}" MinWidth="380" MaxWidth="520" /></WrapPanel>
+            <CheckBox Content="Upgrade of a vanilla R&amp;D row" IsChecked="{Binding UpgradeOn}" />
+            <WrapPanel Margin="26,0,0,0"><TextBlock Classes="lbl" Text="THE ROW IT UPGRADES" VerticalAlignment="Center" Width="164" Margin="0,0,10,0" /><ComboBox ItemsSource="{x:Static app:DevelopVm.VanillaRows}" SelectedItem="{Binding UpgradeOfChoice}" MinWidth="380" MaxWidth="520" IsEnabled="{Binding UpgradeOn}" PlaceholderText="Pick the vanilla item…" /></WrapPanel>
+            <TextBlock Classes="muted" FontSize="12" Margin="26,0,0,0" TextWrapping="Wrap" Text="An upgrade row replaces the vanilla item in R&amp;D: the player develops this one instead of it." />
+            <CheckBox Content="Using it in a mission caps the mission rank" IsChecked="{Binding RankLimited}" />
+            <WrapPanel Margin="26,0,0,0" IsEnabled="{Binding RankLimited}"><TextBlock Classes="lbl" Text="LINE ON THE RESULTS SCREEN" VerticalAlignment="Center" Width="164" TextWrapping="Wrap" Margin="0,0,10,0" /><TextBox Text="{Binding ResultLine}" PlaceholderText="Same as the item's name" MinWidth="380" MaxWidth="520" /></WrapPanel>
+            <Border Classes="note" IsVisible="{Binding RankLimited}"><TextBlock TextWrapping="Wrap" FontSize="12" Text="With this on, finishing a mission while wearing or carrying the item caps the result at rank A, however well the mission went. The results screen tells the player why with the line above, or with the item's name if the line is empty." /></Border>
+          </StackPanel></Border>
+          <Border Classes="card"><StackPanel Spacing="10">
+            <TextBlock Classes="lbl" Text="R&amp;D ROW" />
+            <StackPanel Orientation="Horizontal" Spacing="10" IsEnabled="{Binding !AlreadyDeveloped}"><TextBlock Classes="lbl" Text="DEVELOPMENT COST (GMP)" VerticalAlignment="Center" Width="190" /><NumericUpDown Value="{Binding DevelopCost}" Minimum="0" Maximum="9999999" Increment="500" FormatString="0" Width="160" /></StackPanel>
+            <!-- Issue #25: a head option has no grade row. -->
+            <StackPanel Spacing="10" IsVisible="{Binding GradeShown}">
+              <CheckBox Content="Set a grade" IsChecked="{Binding GradeOn}" />
+              <StackPanel Orientation="Horizontal" Spacing="10" Margin="26,0,0,0"><TextBlock Classes="lbl" Text="GRADE (1 - 15)" VerticalAlignment="Center" Width="164" /><NumericUpDown Value="{Binding Grade}" Minimum="1" Maximum="15" Increment="1" FormatString="0" Width="140" IsEnabled="{Binding GradeOn}" /></StackPanel>
+              <TextBlock Classes="muted" FontSize="12" Text="Without a grade V Framework picks one itself (camo outfits and some costumes have none)." TextWrapping="Wrap" />
+            </StackPanel>
+          </StackPanel></Border>
+          <Border Classes="card" IsEnabled="{Binding !AlreadyDeveloped}"><StackPanel Spacing="10">
+            <TextBlock Classes="lbl" Text="NEEDED TO DEVELOP" />
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="DEVELOPMENT TIME (MINUTES)" VerticalAlignment="Center" Width="190" /><NumericUpDown Value="{Binding TimeMinutes}" Minimum="0" Maximum="9999999" Increment="1" FormatString="0" Width="140" /></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="STAFF LEVEL" VerticalAlignment="Center" Width="190" /><ComboBox ItemsSource="{x:Static app:DevelopVm.Sections}" SelectedIndex="{Binding Section}" MinWidth="170" /><NumericUpDown Value="{Binding SectionLevel}" Minimum="0" Maximum="99" Increment="1" FormatString="0" Width="110" /><TextBlock Classes="muted" FontSize="12" Text="level" VerticalAlignment="Center" /></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="SECOND STAFF LEVEL" VerticalAlignment="Center" Width="190" /><ComboBox ItemsSource="{x:Static app:DevelopVm.Sections}" SelectedIndex="{Binding Section2}" MinWidth="170" /><NumericUpDown Value="{Binding Section2Level}" Minimum="0" Maximum="99" Increment="1" FormatString="0" Width="110" /><TextBlock Classes="muted" FontSize="12" Text="level" VerticalAlignment="Center" /></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="MATERIAL 1" VerticalAlignment="Center" Width="190" /><ComboBox ItemsSource="{x:Static app:DevelopVm.ResourceChoices}" SelectedItem="{Binding Resource1Choice}" MinWidth="170" /><NumericUpDown Value="{Binding Resource1Count}" Minimum="0" Maximum="9999999" Increment="1" FormatString="0" Width="130" /></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="MATERIAL 2" VerticalAlignment="Center" Width="190" /><ComboBox ItemsSource="{x:Static app:DevelopVm.ResourceChoices}" SelectedItem="{Binding Resource2Choice}" MinWidth="170" /><NumericUpDown Value="{Binding Resource2Count}" Minimum="0" Maximum="9999999" Increment="1" FormatString="0" Width="130" /></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="6"><CheckBox Content="Needs a specialist on staff" IsChecked="{Binding SkillOn}" /><Border Classes="info" ToolTip.Tip="{x:Static app:DevelopVm.SkillInfo}" AutomationProperties.Name="{x:Static app:DevelopVm.SkillInfo}" VerticalAlignment="Center"><TextBlock Text="!" /></Border></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10" Margin="26,0,0,0"><TextBlock Classes="lbl" Text="SPECIALIST SKILL" VerticalAlignment="Center" Width="164" /><ComboBox ItemsSource="{Binding SkillList}" SelectedItem="{Binding SkillChoice}" MinWidth="300" IsEnabled="{Binding SkillOn}" PlaceholderText="None" /></StackPanel>
+          </StackPanel></Border>
+        </StackPanel></StackPanel>
+
+        <StackPanel IsVisible="{Binding TabDeploy}"><StackPanel Spacing="14" DataContext="{Binding Selected.Develop}" x:DataType="app:DevelopVm">
+          <Border Classes="card"><StackPanel Spacing="10">
+            <TextBlock Classes="lbl" Text="DEPLOYMENT" />
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="GMP PER DEPLOYMENT" VerticalAlignment="Center" Width="190" /><NumericUpDown Value="{Binding UsageCost}" Minimum="0" Maximum="9999999" Increment="100" FormatString="0" Width="160" /></StackPanel>
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Paid each time the item is taken on a sortie. 0 is free (the vanilla Bandana costs 3400)." />
+          </StackPanel></Border>
+          <Border Classes="card"><StackPanel Spacing="10">
+            <TextBlock Classes="lbl" Text="RESOURCES PER DEPLOYMENT" />
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="RESOURCE 1" VerticalAlignment="Center" Width="190" /><ComboBox ItemsSource="{x:Static app:DevelopVm.ResourceChoices}" SelectedItem="{Binding Usage1Choice}" MinWidth="170" /><NumericUpDown Value="{Binding Usage1Count}" Minimum="0" Maximum="9999999" FormatString="0" Width="130" /></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="RESOURCE 2" VerticalAlignment="Center" Width="190" /><ComboBox ItemsSource="{x:Static app:DevelopVm.ResourceChoices}" SelectedItem="{Binding Usage2Choice}" MinWidth="170" /><NumericUpDown Value="{Binding Usage2Count}" Minimum="0" Maximum="9999999" FormatString="0" Width="130" /></StackPanel>
+          </StackPanel></Border>
+        </StackPanel></StackPanel>
+
+        <StackPanel IsVisible="{Binding TabCamo}"><StackPanel Spacing="14" DataContext="{Binding Selected.Outfit}" x:DataType="app:OutfitVm">
+          <Border Classes="card"><StackPanel Spacing="10">
+            <TextBlock Classes="lbl" Text="CAMO CONCEALMENT" />
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="How well the outfit hides the player. Pick a vanilla camo to hide exactly like it, or tick the grounds below to set your own." />
+            <ComboBox ItemsSource="{Binding CamoTypes}" SelectedItem="{Binding SelectedCamo}" MinWidth="420" />
+            <TextBlock Classes="muted" FontSize="12" Text="{Binding CamoNote}" TextWrapping="Wrap" />
+          </StackPanel></Border>
+          <!-- Issue #22: the grounds show for a preset too, with its value per ground; a changed value makes the choice Custom. -->
+          <Border Classes="card"><StackPanel Spacing="8">
+            <TextBlock Classes="lbl" Text="GROUNDS IT HIDES ON" />
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Tick a ground to hide on it. The game's own camos give a ground 50 and leave the rest at 0, so that is what a tick does. A change to a preset makes the choice Custom." />
+            <ItemsControl ItemsSource="{Binding Grounds}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:GroundPreset">
+              <Grid ColumnDefinitions="26,190,60,*,Auto" Margin="0,3">
+                <CheckBox IsChecked="{Binding On}" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding Title}" FontWeight="Medium" VerticalAlignment="Center" />
+                  <!-- Issue #89: the vanilla outfits that fit, on mouse hover only. -->
+                  <TextBlock Text="!" FontWeight="Bold" Foreground="#5AA9F0" VerticalAlignment="Center" IsVisible="{Binding HasFits}" ToolTip.Tip="{Binding Fits}" Background="Transparent" />
+                </StackPanel>
+                <TextBlock Grid.Column="2" Text="{Binding Value}" FontFamily="fonts:Plex#IBM Plex Mono" VerticalAlignment="Center" ToolTip.Tip="Concealment value of this ground" />
+                <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,12,0">
+                  <TextBlock Text="{Binding Note}" Classes="muted" FontSize="12" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding AutoNote}" FontSize="11" Foreground="#5AA9F0" TextWrapping="Wrap" IsVisible="{Binding HasAutoNote}" />
+                </StackPanel>
+                <TextBlock Grid.Column="4" Text="{Binding Count}" Classes="muted" FontSize="11" VerticalAlignment="Center" />
+              </Grid>
+            </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+            <Expander Header="Set each surface by hand">
+              <StackPanel Spacing="6">
+                <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="The game's own table: a bonus per ground surface the player lies on (vanilla uses 0 or 50). Set a whole group, or open it to set each surface." />
+                <ItemsControl ItemsSource="{Binding MaterialGroups}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:MaterialGroup">
+                  <StackPanel Margin="0,0,0,4">
+                    <Grid ColumnDefinitions="*,80,*,Auto" Margin="0,6">
+                      <TextBlock Text="{Binding Title}" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" />
+                      <TextBox Grid.Column="1" Text="{Binding Value}" Width="70" FontFamily="fonts:Plex#IBM Plex Mono" />
+                      <TextBlock Grid.Column="2" Text="{Binding Summary}" Classes="muted" FontSize="12" VerticalAlignment="Center" Margin="12,0" />
+                      <Button Grid.Column="3" Content="{Binding ToggleLabel}" Command="{Binding Toggle}" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding Rows}" IsVisible="{Binding Open}" Margin="14,0,0,8">
+                      <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate><DataTemplate x:DataType="app:MaterialRow">
+                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,2,16,2" Width="270"><TextBlock Text="{Binding Label}" Width="150" VerticalAlignment="Center" FontSize="12" /><NumericUpDown Value="{Binding Value}" Minimum="0" Maximum="100" Increment="50" FormatString="0" Width="110" /></StackPanel>
+                      </DataTemplate></ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+              </StackPanel>
+            </Expander>
+          </StackPanel></Border>
+        </StackPanel></StackPanel>
+
+        <StackPanel IsVisible="{Binding TabSlots}" Spacing="14">
+          <!-- A mockup of the game's Sortie Prep uniform list (.docs/Research_Sortie_Menu_Mockup.md): the vanilla suits the
+               project adds looks to, in game order, then the project's own outfits at the bottom. Only a mod row's icon can be changed here (issue #29). -->
+          <Border Classes="card" DataContext="{Binding Sortie}" x:DataType="app:SortieVm"><StackPanel Spacing="8">
+            <TextBlock Classes="lbl" Text="IN GAME (MOCKUP)" />
+            <Border Background="#101210" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Padding="14"><StackPanel Spacing="10">
+              <TextBlock Text="UNIFORMS" Foreground="#E8E8E8" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="15" FontWeight="SemiBold" />
+              <TextBlock Classes="muted" FontSize="12" Text="This project adds no uniforms and no looks to a vanilla uniform." IsVisible="{Binding IsEmpty}" />
+              <Grid ColumnDefinitions="*,16,260" IsVisible="{Binding !IsEmpty}">
+                <ListBox Name="SortieList" ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected}" Background="Transparent" SelectionMode="Multiple"
+                         AutomationProperties.Name="Sortie Prep uniform list" ToolTip.Tip="Left and Right cycle the looks of the selected uniform. Ctrl or Shift picks more than one.">
+                  <ListBox.KeyBindings>
+                    <KeyBinding Gesture="Left" Command="{Binding Prev}" />
+                    <KeyBinding Gesture="Right" Command="{Binding Next}" />
+                  </ListBox.KeyBindings>
+                  <ListBox.Styles>
+                    <Style Selector="ListBoxItem"><Setter Property="Padding" Value="6,4" /><Setter Property="Margin" Value="0,0,0,2" /></Style>
+                    <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="#3A3F38" /></Style>
+                    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="#262A25" /></Style>
+                    <!-- The game's own looks (NAKED, STANDARD, SCARF) cannot be changed: grey, so they are not mistaken for new outfits. -->
+                    <Style Selector="TextBlock.look"><Setter Property="Foreground" Value="#C8CCC4" /></Style>
+                    <Style Selector="TextBlock.look.game"><Setter Property="Foreground" Value="#6A7066" /></Style>
+                  </ListBox.Styles>
+                  <ListBox.ItemTemplate><DataTemplate x:DataType="app:SortieRow">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                      <!-- Every row has the same item box (owner, Nov 4: one shape and tone): the icon or the letter sits in it. -->
+                      <Border Width="64" Height="32" Margin="0,0,10,0" VerticalAlignment="Center" Padding="2" IsVisible="{Binding !CanChangeIcon}"
+                              Background="#2A2E29" BorderBrush="#4A5048" BorderThickness="1">
+                        <Panel>
+                          <Image Source="{Binding Icon}" IsVisible="{Binding HasIcon}" Stretch="Uniform" />
+                          <TextBlock IsVisible="{Binding !HasIcon}" Text="{Binding Letter}" Foreground="#9AA096" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                     FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" ToolTip.Tip="The game icon of this uniform is not found" />
+                        </Panel>
+                      </Border>
+                      <!-- Issue #29: a click on a mod row's icon opens the 4 icon sources of the item. A vanilla row has no button. -->
+                      <Button Name="SortieIconButton" IsVisible="{Binding CanChangeIcon}" Width="64" Height="32" Margin="0,0,10,0" Padding="2" VerticalAlignment="Center"
+                              Background="#2A2E29" BorderBrush="#4A5048" BorderThickness="1" CornerRadius="0"
+                              ToolTip.Tip="Click to change the icon" AutomationProperties.Name="Change the icon">
+                        <Panel>
+                          <Image Source="{Binding Icon}" IsVisible="{Binding HasIcon}" Stretch="Uniform" />
+                          <TextBlock IsVisible="{Binding !HasIcon}" Text="{Binding Letter}" Foreground="#9AA096" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                     FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" />
+                        </Panel>
+                        <Button.Flyout>
+                          <Flyout Placement="RightEdgeAlignedTop">
+                            <StackPanel Name="SortieIconSources" Width="320" Spacing="6">
+                              <TextBlock Classes="lbl" Text="CHANGE THE ICON" />
+                              <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding Item.IconSourceName, StringFormat='Now: {0}'}" />
+                              <Button Name="SortiePickGame" Command="{Binding Item.OpenGamePicker}" Classes.on="{Binding Item.SourceGame}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Content="An icon already in the game" />
+                              <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource AmberBrush}" Text="{Binding Item.GameReason}" IsVisible="{Binding Item.GameReason, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                              <StackPanel Spacing="6" IsVisible="{Binding Item.PickerShown}">
+                                <TextBlock Classes="lbl" Text="SLOT ICON" />
+                                <TextBox Text="{Binding Item.GameSearch}" PlaceholderText="Search by game name or file name" />
+                                <ListBox ItemsSource="{Binding Item.GameResults}" SelectedItem="{Binding Item.SelectedGameRow}" MaxHeight="140">
+                                  <ListBox.ItemTemplate><DataTemplate x:DataType="app:GameIconRow"><WrapPanel><TextBlock Text="{Binding Title}" Margin="0,0,8,0" /><TextBlock Classes="muted" FontSize="12" Text="{Binding File}" IsVisible="{Binding HasName}" VerticalAlignment="Center" /></WrapPanel></DataTemplate></ListBox.ItemTemplate>
+                                </ListBox>
+                                <Border Width="128" Height="64" Background="Black" HorizontalAlignment="Left"><Image Source="{Binding Item.GamePreview}" Stretch="Uniform" /></Border>
+                              </StackPanel>
+                              <Button Name="SortieUpload" Command="{Binding Item.UploadIcon}" Classes.on="{Binding Item.SourceUpload}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Content="Upload an image" />
+                              <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource AmberBrush}" Text="{Binding Item.UploadReason}" IsVisible="{Binding Item.UploadReason, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                              <Button Name="SortieGenerate" Command="{Binding Generate}" Classes.on="{Binding Item.SourceGenerate}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Content="Generate from the model" />
+                              <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource AmberBrush}" Text="{Binding Item.GenerateReason}" IsVisible="{Binding Item.GenerateReason, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                              <Button Name="SortiePackaged" Command="{Binding Item.PickPackaged}" Classes.on="{Binding Item.SourcePackaged}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Content="Icon packaged with the mod" />
+                              <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource AmberBrush}" Text="{Binding Item.PackagedReason}" IsVisible="{Binding Item.PackagedReason, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                              <TextBlock Text="{Binding Item.IconError}" Foreground="{StaticResource RedBrush}" TextWrapping="Wrap" IsVisible="{Binding Item.IconError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                            </StackPanel>
+                          </Flyout>
+                        </Button.Flyout>
+                      </Button>
+                      <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" Foreground="#E8E8E8" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="13" TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                          <Button Content="&#x25C0;" Command="{Binding Prev}" Padding="4,0" Background="Transparent" BorderThickness="0" Foreground="{StaticResource AmberBrush}"
+                                  IsVisible="{Binding HasCycle}" Opacity="{Binding $parent[ListBoxItem].IsSelected, Converter={x:Static app:SortieRow.Shown}}" AutomationProperties.Name="Previous look" />
+                          <TextBlock Name="SortieLook" Classes="look" Classes.game="{Binding IsGameLook}" Text="{Binding Look}" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="11" MinWidth="90" TextAlignment="Center" VerticalAlignment="Center" />
+                          <Button Content="&#x25B6;" Command="{Binding Next}" Padding="4,0" Background="Transparent" BorderThickness="0" Foreground="{StaticResource AmberBrush}"
+                                  IsVisible="{Binding HasCycle}" Opacity="{Binding $parent[ListBoxItem].IsSelected, Converter={x:Static app:SortieRow.Shown}}" AutomationProperties.Name="Next look" />
+                        </StackPanel>
+                        <!-- #87: the icon file of the shown slot. -->
+                        <TextBlock Name="SortieIconName" Text="{Binding IconName, StringFormat='ICON {0}'}" IsVisible="{Binding IconName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                   Foreground="#6A7066" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="10" TextTrimming="CharacterEllipsis" ToolTip.Tip="The icon this slot shows in Sortie Prep" />
+                      </StackPanel>
+                      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center" Margin="10,0,0,0">
+                        <TextBlock Foreground="#C8CCC4" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="12" VerticalAlignment="Center"><Run Text="GMP " /><Run Text="{Binding Gmp}" /></TextBlock>
+                      </StackPanel>
+                    </Grid>
+                  </DataTemplate></ListBox.ItemTemplate>
+                </ListBox>
+                <StackPanel Grid.Column="2" IsVisible="{Binding HasSelected}">
+                  <Border Background="#C8CCC4" Padding="8,4"><Panel>
+                    <TextBlock Text="{Binding Selected.Title}" IsVisible="{Binding !Selected.CanEditText}" Foreground="#101210" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <!-- Issue #49: a mod row's name and description are the fields of the Name, text and icon tab. -->
+                    <TextBox Name="SortieNameBox" Text="{Binding Selected.EditName}" IsVisible="{Binding Selected.CanEditText}" Padding="2" Foreground="#E8E8E8" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="12" FontWeight="SemiBold" AutomationProperties.Name="Name in game" />
+                  </Panel></Border>
+                  <Border Background="#1A1D19" Padding="8" MinHeight="120"><Panel>
+                    <TextBlock Text="{Binding Selected.Description}" IsVisible="{Binding !Selected.CanEditText}" Foreground="#C8CCC4" FontSize="12" TextWrapping="Wrap" />
+                    <TextBox Name="SortieDescBox" Text="{Binding Selected.EditDescription}" IsVisible="{Binding Selected.CanEditText}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="100" Padding="2" Foreground="#C8CCC4" FontSize="12" AutomationProperties.Name="Description" />
+                  </Panel></Border>
+                  <!-- Greyed out: a DD-only outfit has no bionic arm (issue #12). -->
+                  <TextBlock Name="SortieArmNote" Text="{Binding Selected.ArmNote}" IsVisible="{Binding Selected.HasArmNote}" Foreground="#6A7066" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0" />
+                  <!-- #87: the name of the shown slot, when the mod adds it. The game's own slots are read-only. -->
+                  <StackPanel Spacing="2" Margin="0,8,0,0" IsVisible="{Binding Selected.CanRenameSlot}">
+                    <TextBlock Classes="lbl" Text="SLOT NAME" />
+                    <TextBox Name="SortieSlotNameBox" Text="{Binding Selected.SlotText}" AutomationProperties.Name="Slot name" />
+                  </StackPanel>
+                  <!-- Issue #30: Clone and Remove act on the look shown on the selected row. The game's own slots have neither. -->
+                  <WrapPanel Margin="0,8,0,0">
+                    <Button Name="SortieClone" Content="Clone" Command="{Binding CloneChosen}" IsVisible="{Binding Selected.HasSlotEdit}" ToolTip.Tip="Add a copy of this slot after it" Margin="0,0,6,6" />
+                    <Button Name="SortieRemove" Content="Remove" Command="{Binding RemoveChosen}" IsVisible="{Binding Selected.HasSlotEdit}" ToolTip.Tip="{Binding Selected.RemoveTip}" ToolTip.ShowOnDisabled="True" Margin="0,0,6,6" />
+                    <Button Name="SortieMoveLeft" Content="◀ Move" Command="{Binding Selected.MoveLeft}" IsVisible="{Binding Selected.HasSlotEdit}" ToolTip.Tip="Move this slot one place to the left" Margin="0,0,6,6" />
+                    <Button Name="SortieMoveRight" Content="Move ▶" Command="{Binding Selected.MoveRight}" IsVisible="{Binding Selected.HasSlotEdit}" ToolTip.Tip="Move this slot one place to the right" Margin="0,0,6,6" />
+                    <Button Name="SortieAdd" Content="Add slot" Command="{Binding Selected.AddSlot}" ToolTip.Tip="{Binding Selected.AddTip}" ToolTip.ShowOnDisabled="True" Margin="0,0,6,6" />
+                  </WrapPanel>
+                </StackPanel>
+              </Grid>
+            </StackPanel></Border>
+          </StackPanel></Border>
+
+          <Panel IsVisible="{Binding Selected.IsOutfit}"><StackPanel Spacing="14" DataContext="{Binding Selected.Outfit}" x:DataType="app:OutfitVm">
+          <Border Classes="card"><StackPanel Spacing="8">
+            <TextBlock Classes="lbl" Text="SORTIE SLOTS (THE LOOKS ON THE CYCLE BUTTON)" />
+            <TextBlock Classes="muted" FontSize="12" Text="The top one is shown first in the list. Choose which one is worn when the outfit is first picked." TextWrapping="Wrap" />
+            <TextBlock Name="VanillaOnlyNote" Classes="muted" FontSize="12" IsVisible="{Binding VanillaOnly}" TextWrapping="Wrap"
+                       Text="This outfit has no slot of its own. It shows only in its slots under vanilla outfits, with no suit cell and no R&amp;D row. These looks are the source of those slots. Add slot in the Sortie mock-up gives the outfit its Main look again." />
+            <ItemsControl ItemsSource="{Binding LookRows}">
+              <ItemsControl.ItemTemplate><DataTemplate x:DataType="app:LookRow">
+                <!-- Drag a row onto another to move it there; the grip on the left is the handle. -->
+                <!-- Two lines (issue #13): one line of nine columns overlapped when the window was not maximised. The
+                     second line wraps, so nothing overlaps down to 1040 px. -->
+                <Grid ColumnDefinitions="Auto,Auto,2*,*" RowDefinitions="Auto,Auto" Margin="0,4" Background="Transparent"
+                      PointerMoved="LookRow_PointerMoved" PointerReleased="LookRow_PointerReleased"
+                      ToolTip.Tip="Drag the grip on the left onto another row to move it">
+                  <!-- The press is on the grip alone: starting a drag from anywhere in the row meant that selecting text in
+                       the label box, or opening a drop-down, could reorder the slots by accident. -->
+                  <TextBlock Grid.Column="0" Text="⠿" Classes="muted" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" Cursor="SizeAll"
+                             PointerPressed="LookRow_PointerPressed" ToolTip.Tip="Drag onto another row to move this slot" />
+                  <RadioButton Grid.Column="1" GroupName="deflook" Content="Worn first" IsVisible="{Binding CanBeDefault}" IsChecked="{Binding IsDefault, Mode=OneWay}" Command="{Binding MakeDefault}" Margin="0,0,10,0" />
+                  <TextBox Grid.Column="2" Text="{Binding Label}" PlaceholderText="Label" Margin="0,0,10,0" />
+                  <TextBlock Grid.Column="3" Text="{Binding Where}" Classes="muted" FontSize="11" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Where}" />
+                  <WrapPanel Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Margin="0,6,0,0">
+                    <!-- Issue #79: hidden until the app supports two arms (the bionic arm work is parked). The preview ARM switch stays. -->
+                    <ComboBox IsVisible="False" ItemsSource="{x:Static app:LookRow.Arms}" SelectedIndex="{Binding Arm}" Margin="0,0,10,4" MinWidth="150" IsEnabled="{Binding ArmOn}" ToolTip.Tip="{Binding ArmTip}" ToolTip.ShowOnDisabled="True" AutomationProperties.Name="Arm" />
+                    <!-- The icon this slot shows in the suit list. V Framework's per-look iconFtexPath: "As the outfit",
+                         the mod's own .ftex sheets by file name, then the vanilla suit icons. -->
+                    <ComboBox ItemsSource="{Binding Logos}" SelectedIndex="{Binding Logo}" Margin="0,0,10,4" MinWidth="170" ToolTip.Tip="{Binding LogoHint}" />
+                    <Button Content="Up" Command="{Binding Up}" Margin="0,0,4,4" />
+                    <Button Content="Down" Command="{Binding Down}" Margin="0,0,4,4" />
+                    <Button Content="Remove" Command="{Binding Remove}" Margin="0,0,0,4" />
+                  </WrapPanel>
+                </Grid>
+              </DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Name="SlotsArmReason" Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding ArmReason}" IsVisible="False" />
+          </StackPanel></Border>
+
+          <!-- "Also under other outfits" lives here rather than in its own tab: the owner asked for it to be part of the
+               sortie, so the outfits a look is added to are seen in the same place as the slots, and a look can be added
+               to an existing outfit without using a new slot. -->
+          <StackPanel Spacing="14" IsVisible="{Binding HasAlso}">
+          <Border Classes="card" DataContext="{Binding Also}" x:DataType="app:AlsoVm"><StackPanel Spacing="10">
+            <TextBlock Classes="lbl" Text="OTHER OUTFITS (NO NEW SLOT USED)" />
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="A slot under an outfit here is added as an extra variation of that vanilla outfit, so it uses no new sortie slot and makes no new R&amp;D row. For mods that change many suits at once, such as arm or motion packs. Only outfits all wearers can wear are listed." />
+            <StackPanel Spacing="4" IsVisible="{Binding HasInScript}"><TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Already in the mod's script (shown read-only here):" /><ItemsControl ItemsSource="{Binding InScript}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock FontSize="12" TextWrapping="Wrap" Text="{Binding}" /></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></StackPanel>
+            <WrapPanel>
+              <TextBox Text="{Binding Query}" PlaceholderText="Search outfits, e.g. tigerstripe, swimwear" MinWidth="260" Margin="0,0,8,6" />
+              <ComboBox ItemsSource="{Binding Choices}" SelectedItem="{Binding Pick}" MinWidth="260" MaxWidth="380" Margin="0,0,8,6"><ComboBox.ItemTemplate><DataTemplate x:DataType="app:AlsoChoice"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+              <Button Content="Add" Command="{Binding Add}" Margin="0,0,8,6" />
+              <Button Name="AlsoAddFatigues" Content="Add all fatigues" Command="{Binding AddAllFatigues}" ToolTip.Tip="Adds every vanilla fatigues outfit that all wearers can wear. Outfits already added stay." Margin="0,0,8,6" />
+              <TextBlock Classes="muted" FontSize="12" Text="{Binding Count}" VerticalAlignment="Center" Margin="0,0,0,6" />
+            </WrapPanel>
+            <ItemsControl ItemsSource="{Binding Targets}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:AlsoTargetChip">
+              <Border BorderBrush="#2E333A" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,0,0,6"><StackPanel Spacing="4">
+                <Grid ColumnDefinitions="*,Auto">
+                  <Button Content="{Binding Header}" Command="{Binding Select}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="0,2" Background="Transparent" BorderThickness="0" FontWeight="SemiBold" ToolTip.Tip="Open or close the slot settings under this outfit" />
+                  <Button Grid.Column="1" Content="✕" Command="{Binding Remove}" Padding="4,0" Background="Transparent" BorderThickness="0" ToolTip.Tip="Remove this outfit" />
+                </Grid>
+                <ItemsControl ItemsSource="{Binding Rows}" IsVisible="{Binding Selected}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:AlsoSlotRow">
+                  <Grid ColumnDefinitions="Auto,170,Auto,*,Auto,Auto" Margin="0,3"><TextBlock Text="Look:" Classes="muted" VerticalAlignment="Center" Margin="0,0,6,0" /><ComboBox Grid.Column="1" ItemsSource="{Binding Looks}" SelectedIndex="{Binding Look}" HorizontalAlignment="Stretch" ToolTip.Tip="The look of the outfit this slot shows" AutomationProperties.Name="Slot look" /><Border Grid.Column="2" Name="MainLookInfo" Classes="info" IsVisible="{Binding IsMain}" Margin="4,0,8,0" ToolTip.Tip="The outfit as it is, with no alternate look." AutomationProperties.Name="The outfit as it is, with no alternate look."><TextBlock Text="!" /></Border><TextBox Grid.Column="3" Text="{Binding Name}" Margin="8,0,0,0" /><ComboBox Grid.Column="4" ItemsSource="{x:Static app:AlsoSlotRow.AbilityChoices}" SelectedIndex="{Binding Abilities}" Margin="8,0,0,0" MinWidth="170" ToolTip.Tip="The abilities this slot has in game" AutomationProperties.Name="Slot abilities" /><Button Grid.Column="5" Name="AlsoSlotRemove" Content="Remove" Command="{Binding Remove}" Margin="8,0,0,0" ToolTip.Tip="Remove this slot. With no slot left under any vanilla outfit, the outfit gets its own slot back." /></Grid>
+                </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                <Button Name="AlsoAddSlot" Content="Add slot" Command="{Binding AddSlot}" IsVisible="{Binding Selected}" HorizontalAlignment="Left" ToolTip.Tip="Add a slot under this outfit. It shows the Main look; change the look in its row." />
+              </StackPanel></Border>
+            </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+            <TextBlock Classes="muted" FontSize="12" Text="No other outfits added." IsVisible="{Binding NoTargets}" />
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Open an outfit. Each row is one slot under it: pick the look it shows and name it as it should read in Sortie Prep. Body and camo come from the look." IsVisible="{Binding HasSelected}" />
+          </StackPanel></Border>
+          </StackPanel>
+        </StackPanel></Panel></StackPanel>
+
+        <StackPanel IsVisible="{Binding TabHeads}"><StackPanel Spacing="14" DataContext="{Binding Selected.Outfit}" x:DataType="app:OutfitVm">
+          <TextBlock Classes="muted" TextWrapping="Wrap" Text="Heads that can be worn with this outfit. The game's own heads are always available and aren't part of the mod." />
+          <StackPanel Spacing="2">
+            <CheckBox Name="HideHead" Content="Hide the wearer's head" IsChecked="{Binding HideHead}" ToolTip.Tip="Writes enableHead = false: the game loads no face. Use it for a body model that has its own head." />
+            <TextBlock Name="HideHeadWarning" Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding HideHeadWarning}" IsVisible="{Binding HideHead}" />
+          </StackPanel>
+          <TextBlock Name="NoHeadNote" TextWrapping="Wrap" IsVisible="{Binding NoHeadNote, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" Text="{Binding NoHeadNote}" />
+          <Border Classes="card" IsVisible="{Binding HasModHeads}"><StackPanel Spacing="6">
+            <TextBlock Classes="lbl" Text="HEADS IN THIS MOD" />
+            <ItemsControl Name="ModHeadList" ItemsSource="{Binding ModHeadRows}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:ModHeadRow">
+              <CheckBox Content="{Binding Label}" IsChecked="{Binding Listed}" />
+            </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+          </StackPanel></Border>
+          <Border Classes="card" IsVisible="{Binding CanListBandana}"><StackPanel Spacing="6">
+            <TextBlock Classes="lbl" Text="SNAKE: BANDANA AND DEVELOPMENT" />
+            <CheckBox Name="ListBandana" Content="Selectable bandana" IsChecked="{Binding ListBandana}" />
+            <CheckBox Name="GateBandanas" Content="A bandana is only wearable once the vanilla one is developed" IsChecked="{Binding GateBandanas}" IsEnabled="{Binding GateEnabled}" />
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding BandanaNote}" />
+          </StackPanel></Border>
+          <Border Classes="card" IsVisible="{Binding CanListBandanaAvatar}"><StackPanel Spacing="6">
+            <TextBlock Classes="lbl" Text="AVATAR: BANDANA" />
+            <CheckBox Name="ListBandanaAvatar" Content="Selectable bandana" IsChecked="{Binding ListBandanaAvatar}" />
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{x:Static app:OutfitVm.AvatarBandanaNote}" />
+          </StackPanel></Border>
+          <ItemsControl Name="HeadGroupList" ItemsSource="{Binding HeadGroups}">
+            <ItemsControl.ItemTemplate><DataTemplate x:DataType="app:BranchHeads">
+              <Border Classes="card" Margin="0,0,0,10"><StackPanel Spacing="6">
+                <TextBlock Classes="lbl" Text="{Binding Title}" />
+                <ItemsControl ItemsSource="{Binding Rows}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:HeadRow">
+                  <StackPanel><CheckBox Content="{Binding Label}" IsChecked="{Binding Listed}" /><TextBlock Classes="muted" FontSize="11" Margin="26,0,0,4" Text="{Binding Note}" /></StackPanel>
+                </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+              </StackPanel></Border>
+            </DataTemplate></ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel></StackPanel>
+                  <Border IsVisible="{Binding CanCopy}" BorderBrush="#363C44" BorderThickness="1" CornerRadius="8" Padding="14,10">
+                    <StackPanel Spacing="8">
+                      <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Classes="lbl" Text="COPY THESE SETTINGS TO OTHER ITEMS" VerticalAlignment="Center" />
+                        <Border Classes="info" ToolTip.Tip="{Binding CopyInfo}" AutomationProperties.Name="What copying settings does"><TextBlock Text="i" /></Border></StackPanel>
+                      <ScrollViewer MaxHeight="140"><ItemsControl ItemsSource="{Binding CopyTargets}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:CopyTarget"><CheckBox Content="{Binding Label}" IsChecked="{Binding On}" /></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></ScrollViewer>
+                      <Button Content="Copy to ticked items" Command="{Binding CopySettings}" HorizontalAlignment="Left" />                    </StackPanel>
+                  </Border>
+                </StackPanel>
+              </Border>
+              <StackPanel Grid.Column="1" Grid.RowSpan="2" Width="300" Margin="14,0,0,0" Spacing="12" DataContext="{Binding Selected}" x:DataType="app:ItemVm" IsVisible="{Binding HasSide}">
+                <Border Classes="card"><StackPanel Spacing="6" DataContext="{Binding Script}" x:DataType="app:ScriptVm">
+                  <TextBlock Classes="lbl" Text="CHECKS" />
+                  <Border IsVisible="{Binding NoProblems}" Background="#10261A" BorderBrush="#1F5A3A" BorderThickness="1" CornerRadius="6" Padding="10,6"><TextBlock Text="The script has no problems." Foreground="#6FD39E" /></Border>
+                  <ItemsControl ItemsSource="{Binding Problems}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><Border Background="#2A1A10" BorderBrush="#7A4A26" BorderThickness="1" CornerRadius="6" Padding="10,6" Margin="0,0,0,4"><TextBlock Text="{Binding}" TextWrapping="Wrap" /></Border></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                </StackPanel></Border>
+                <Border Classes="card"><StackPanel Spacing="6">
+                  <TextBlock Classes="lbl" Text="WHAT GETS WRITTEN" />
+                  <ItemsControl ItemsSource="{Binding SideWritten}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="0,0,0,6" /></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                </StackPanel></Border>
+                <Border Classes="card"><StackPanel Spacing="6">
+                  <TextBlock Classes="lbl" Text="GOOD TO KNOW" />
+                  <ItemsControl ItemsSource="{Binding SideKnow}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="0,0,0,6" /></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                </StackPanel></Border>
+              </StackPanel>
+            </Grid>
+            <StackPanel Spacing="6" DataContext="{Binding Selected}" x:DataType="app:ItemVm" IsVisible="{Binding IsBuddy}">
+              <TextBlock Classes="lbl" Text="NOT OFFERED" />
+              <Border Classes="card"><TextBlock Text="{Binding NotOfferedNote}" TextWrapping="Wrap" /></Border>
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </DockPanel>
+    <!-- Issue #8: the 3D panel is a column on the right. It collapses to a strip with one button. -->
+    <Border Name="PreviewPanel" Grid.Column="1" Width="{Binding ((app:EditorVm)DataContext).Preview.DockWidth, ElementName=Root}" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1,0,0,0" Padding="14,10" DataContext="{Binding Preview}" x:DataType="app:PreviewVm" IsVisible="{Binding Visible}">
+      <DockPanel>
+      <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+        <Button Name="PreviewToggle" Content="{Binding DockLabel}" Command="{Binding ToggleDock}" ToolTip.Tip="Show or hide the 3D panel" />
+        <Button Content="{Binding MaximiseLabel}" Command="{Binding ToggleMaximise}" IsVisible="{Binding DockOpen}" ToolTip.Tip="Make the 3D preview larger (60 % of the editor width), drawn at twice the resolution" />
+        <ToggleButton Name="IconToggle" Content="Icon" IsChecked="{Binding ShowIconFrame}" IsVisible="{Binding DockOpen}" ToolTip.Tip="Show or hide the icon border. It does not change the icon." />
+      </StackPanel>
+      <ScrollViewer IsVisible="{Binding DockOpen}" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Spacing="10" Width="{Binding WeaponBoxWidth}" HorizontalAlignment="Left">
+        <Border x:Name="StillBox" Width="{Binding BoxWidth}" Height="{Binding BoxHeight}" Background="Black" CornerRadius="4" ClipToBounds="True" Focusable="True" IsVisible="{Binding StillsOn}" Cursor="SizeAll"
+                AutomationProperties.Name="Outfit preview: drag to turn, right-drag to move it, wheel to zoom, or use the arrow keys">
+          <Panel>
+            <Image Source="{Binding Image}" Stretch="Uniform" />
+            <!--
+              The 256×128 icon window, so the user can see which part of the model the icon is cut from. It is drawn in a
+              Canvas sized to the picture so the rectangle can follow the camera: turning, zooming and dragging all move
+              it. The owner: "We need a box to indicate where on the model the logo will be on the 3D preview, that
+              adjusts to its movements. It should be toggleable on the 3d preview settings."
+            -->
+            <Canvas IsVisible="{Binding FrameShown}" IsHitTestVisible="False">
+              <Border BorderBrush="White" BorderThickness="1" Opacity="0.85"
+                      Canvas.Left="{Binding IconFrameLeft}" Canvas.Top="{Binding IconFrameTop}"
+                      Width="{Binding IconFrameWidth}" Height="{Binding IconFrameHeight}" />
+            </Canvas>
+          </Panel>
+        </Border>
+        <Border x:Name="WeaponBox" Width="{Binding WeaponBoxWidth}" Height="{Binding WeaponBoxHeight}" Background="Black" CornerRadius="4" ClipToBounds="True" VerticalAlignment="Top" IsVisible="{Binding WeaponStillsOn}" Cursor="SizeAll" Focusable="True" AutomationProperties.Name="Weapon preview: drag to turn, right-drag to move it, wheel to zoom">
+          <Panel>
+            <Image Source="{Binding Image}" Stretch="Uniform" />
+            <Canvas IsVisible="{Binding ShowIconFrame}" IsHitTestVisible="False">
+              <Border BorderBrush="White" BorderThickness="1" Opacity="0.85"
+                      Canvas.Left="{Binding IconFrameLeft}" Canvas.Top="{Binding IconFrameTop}"
+                      Width="{Binding IconFrameWidth}" Height="{Binding IconFrameHeight}" />
+            </Canvas>
+          </Panel>
+        </Border>
+        <!--
+          Issues #9 and #17: Generate mode. The picture shows the icon framing. A drag or the wheel moves the framing, and the
+          sliders show the same values. Each "Generate now" makes the icon, and the mode stays open until "Done". A head
+          option has no framing: its icon is drawn in the head-icon style at the preview's view (issue #23).
+        -->
+        <Border Classes="card" IsVisible="{Binding GenerateMode}">
+          <StackPanel Spacing="8">
+            <TextBlock Classes="lbl" Text="GENERATE MODE" />
+            <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" IsVisible="{Binding !Generating.FollowsView}" Text="Drag the picture to move the model in the icon. Use the wheel to zoom. The icon does not change until you click Generate now." />
+            <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" IsVisible="{Binding Generating.GeneratesFromView}" Text="Turn, tilt, zoom and move the picture. The icon is a line drawing from this view. The icon does not change until you click Generate now." />
+            <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" IsVisible="{Binding Generating.IsWeaponIcon}" Text="Turn and tilt the picture, and switch the attachments on or off. The icon is a line drawing from this view, with these attachments. The weapon in the game does not change. The icon does not change until you click Generate now." />
+            <Button Name="DefaultViewButton" Content="Default view" Command="{Binding DefaultView}" IsVisible="{Binding Generating.FollowsView}" HorizontalAlignment="Left" ToolTip.Tip="Turn the picture back to the default view" />
+            <StackPanel Spacing="8" IsVisible="{Binding !Generating.FollowsView}">
+            <WrapPanel>
+              <RadioButton GroupName="gensource" Content="3D render" IsChecked="{Binding Generating.RenderOn}" Margin="0,0,10,4" />
+              <RadioButton GroupName="gensource" Content="Camo crop" IsChecked="{Binding Generating.CropOn}" IsVisible="{Binding Generating.CanCrop}" Margin="0,0,10,4" />
+              <Button Content="Default framing" Command="{Binding DefaultView}" Margin="0,0,0,4" ToolTip.Tip="The framing (or the crop) of the automatic icon, and the view of the game icon" />
+            </WrapPanel>
+            <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding Generating.SlotOn}">
+              <TextBlock Classes="lbl" Text="SLOT" VerticalAlignment="Center" />
+              <ComboBox Name="GenerateSlotBox" MinWidth="200" ItemsSource="{Binding Generating.SlotChoices}" SelectedIndex="{Binding Generating.SlotIndex}"
+                        ToolTip.Tip="Outfit icon: every slot with no slot icon. A slot: Generate now gives that slot an icon of its own." />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding Generating.ScarfOn}">
+              <TextBlock Classes="lbl" Text="SLOT DRAWN" VerticalAlignment="Center" />
+              <RadioButton GroupName="genslot" Content="Standard" IsChecked="{Binding Generating.StandardSlot}" />
+              <RadioButton GroupName="genslot" Content="Scarf" IsChecked="{Binding Generating.ScarfSlot}" />
+            </StackPanel>
+            <Grid ColumnDefinitions="100,*,44" RowDefinitions="Auto,Auto,Auto" IsVisible="{Binding Generating.RenderOn}">
+              <TextBlock Classes="lbl" Text="MOVE SIDEWAYS" VerticalAlignment="Center" Margin="0,4" />
+              <Slider Grid.Column="1" Minimum="-50" Maximum="50" Value="{Binding Generating.FrameX}" />
+              <TextBlock Grid.Column="2" Text="{Binding Generating.FrameX, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+              <TextBlock Grid.Row="1" Classes="lbl" Text="MOVE UP/DOWN" VerticalAlignment="Center" Margin="0,4" />
+              <Slider Grid.Row="1" Grid.Column="1" Minimum="-50" Maximum="50" Value="{Binding Generating.FrameY}" />
+              <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Generating.FrameY, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+              <TextBlock Grid.Row="2" Classes="lbl" Text="ZOOM" VerticalAlignment="Center" Margin="0,4" />
+              <Slider Grid.Row="2" Grid.Column="1" Minimum="40" Maximum="500" Value="{Binding Generating.FrameZoom}" />
+              <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Generating.FrameZoom, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            </Grid>
+            <Grid ColumnDefinitions="100,*,44" RowDefinitions="Auto,Auto,Auto,Auto" IsVisible="{Binding Generating.CropOn}">
+              <TextBlock Classes="lbl" Text="CROP SIDEWAYS" VerticalAlignment="Center" Margin="0,4" />
+              <!-- Generating is null outside Generate mode. With no fallback the Maximum drops to the Slider's default of 100, and the Slider writes the clamped crop back into the icon. 65536 is above any ftex size. -->
+              <Slider Grid.Column="1" Minimum="0" Maximum="{Binding Generating.CropMaxX, FallbackValue=65536}" Value="{Binding Generating.CropX}" />
+              <TextBlock Grid.Column="2" Text="{Binding Generating.CropX, StringFormat={}{0:0}}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+              <TextBlock Grid.Row="1" Classes="lbl" Text="CROP UP/DOWN" VerticalAlignment="Center" Margin="0,4" />
+              <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="{Binding Generating.CropMaxY, FallbackValue=65536}" Value="{Binding Generating.CropY}" />
+              <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Generating.CropY, StringFormat={}{0:0}}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+              <TextBlock Grid.Row="2" Classes="lbl" Text="CONTRAST" VerticalAlignment="Center" Margin="0,4" />
+              <Slider Grid.Row="2" Grid.Column="1" Minimum="50" Maximum="150" Value="{Binding Generating.ContrastPct}" />
+              <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Generating.ContrastPct, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+              <TextBlock Grid.Row="3" Classes="lbl" Text="BRIGHTNESS" VerticalAlignment="Center" Margin="0,4" />
+              <Slider Grid.Row="3" Grid.Column="1" Minimum="50" Maximum="150" Value="{Binding Generating.BrightnessPct}" />
+              <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding Generating.BrightnessPct, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            </Grid>
+            </StackPanel>
+            <TextBlock Classes="lbl" Text="RESULT" />
+            <Border Width="256" Height="128" Background="Black" CornerRadius="4" ClipToBounds="True" HorizontalAlignment="Left"><Image Source="{Binding Result}" Stretch="Uniform" /></Border>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Name="GenerateNowButton" Classes="primary" Content="Generate now" Command="{Binding GenerateIcon}" ToolTip.Tip="Make the icon from this picture. Generate mode stays open." />
+              <Button Name="DoneButton" Content="Done" Command="{Binding Generating.CancelGenerate}" ToolTip.Tip="End Generate mode. The last generated icon stays." />
+              <TextBlock Text="{Binding Generating.IconNote}" Foreground="{StaticResource AmberBrush}" VerticalAlignment="Center" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+        <StackPanel Spacing="6">
+          <TextBlock Classes="lbl" Text="3D PREVIEW" />
+          <TextBlock Text="{Binding Note}" Classes="muted" FontSize="12" TextWrapping="Wrap" />
+          <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" IsVisible="{Binding IsOutfitItem}" Text="Shows the outfit as built from your files, in its T-pose. Camo and textures are applied; lighting is simple. Drag to turn, drag up or down to look from above or below, wheel to zoom." />
+          <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" IsVisible="{Binding IsWeapon}" Text="Shows the item's own model with its textures, facing left. Drag to turn, drag up or down to look from above or below, wheel to zoom." />
+        </StackPanel>
+        <StackPanel Spacing="10">
+          <StackPanel IsVisible="{Binding ShowParts}" Spacing="4">
+            <TextBlock Classes="lbl" Text="ATTACHMENTS" />
+            <!-- Owner, Nov 7: only the attachments this weapon has, laser sights included. They change the preview and the icon, not the game. -->
+            <ItemsControl ItemsSource="{Binding Attachments}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="app:AttachmentToggle">
+                  <CheckBox Content="{Binding Name}" MinWidth="0" IsChecked="{Binding On}" ToolTip.Tip="Show this attachment in the preview and the icon" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" IsVisible="{Binding NoAttachments}" Text="This weapon has no attachments to show or hide." />
+            <TextBlock Classes="lbl" Text="VIEW" Margin="0,6,0,0" />
+            <WrapPanel>
+              <Button Name="SideViewButton" Content="Side" Command="{Binding SideView}" Margin="0,0,6,4" ToolTip.Tip="Show the weapon from the side" />
+              <Button Name="ThreeQuarterViewButton" Content="Three-quarter" Command="{Binding ThreeQuarterView}" Margin="0,0,6,4" ToolTip.Tip="Show the weapon from the front and above" />
+              <Button Name="TopViewButton" Content="Top" Command="{Binding TopView}" Margin="0,0,6,4" ToolTip.Tip="Show the weapon from above" />
+            </WrapPanel>
+          </StackPanel>
+          <Grid ColumnDefinitions="80,*" IsVisible="{Binding IsOutfitItem}">
+            <TextBlock Classes="lbl" Text="WEARER" VerticalAlignment="Center" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Characters}" SelectedItem="{Binding Character}" HorizontalAlignment="Stretch" AutomationProperties.Name="Character" />
+          </Grid>
+          <Grid ColumnDefinitions="80,*" IsVisible="{Binding IsOutfitItem}">
+            <TextBlock Classes="lbl" Text="SLOT" VerticalAlignment="Center" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Looks}" SelectedItem="{Binding LookChoice}" HorizontalAlignment="Stretch" AutomationProperties.Name="Look" />
+          </Grid>
+          <Grid ColumnDefinitions="80,*" IsVisible="{Binding HeadsOn}">
+            <TextBlock Classes="lbl" Text="HEAD" VerticalAlignment="Center" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Heads}" SelectedItem="{Binding HeadChoice}" HorizontalAlignment="Stretch" AutomationProperties.Name="Head option" ToolTip.Tip="Draw one of this mod's head options on the body" />
+          </Grid>
+          <!-- A head with no model of its own (a soldier face the game already has) cannot be drawn, so say so. -->
+          <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Margin="80,0,0,0" IsVisible="{Binding HeadNote, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" Text="{Binding HeadNote}" />
+          <!--
+            The arm, for Snake and the Avatar (issue #66). The owner asked for it: "Snake 3d preview should have the arm visible, and switch
+            between them unless otherwise overridden by a mod." "Own arm" is first and the default: the model's own left arm,
+            never a bionic arm (issue #34).
+          -->
+          <Grid ColumnDefinitions="80,*" IsVisible="{Binding ArmsOn}">
+            <TextBlock Classes="lbl" Text="ARM" VerticalAlignment="Center" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Arms}" SelectedItem="{Binding ArmChoice}" HorizontalAlignment="Stretch" AutomationProperties.Name="Arm" ToolTip.Tip="Draw one of the bionic arms on the body" />
+          </Grid>
+          <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Margin="80,0,0,0" IsVisible="{Binding ArmNote, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" Text="{Binding ArmNote}" />
+          <StackPanel Spacing="10" IsVisible="{Binding ViewControlsOn}">
+          <Grid ColumnDefinitions="Auto,Auto,Auto,*">
+            <Button Content="◀" Command="{Binding TurnLeft}" ToolTip.Tip="Turn left (Left arrow)" />
+            <Button Grid.Column="1" Content="Front" Command="{Binding Front}" Margin="6,0" ToolTip.Tip="Face the front" />
+            <Button Grid.Column="2" Content="▶" Command="{Binding TurnRight}" ToolTip.Tip="Turn right (Right arrow)" />
+            <TextBlock Grid.Column="3" Text="{Binding YawText}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+          </Grid>
+          <Grid ColumnDefinitions="80,*,Auto">
+            <TextBlock Classes="lbl" Text="FROM ABOVE" VerticalAlignment="Center" />
+            <Slider Grid.Column="1" Minimum="-80" Maximum="80" Value="{Binding Pitch}" ToolTip.Tip="Look down on the model (right) or up at it from below (left)" />
+            <TextBlock Grid.Column="2" Text="{Binding PitchText}" Classes="muted" Width="44" TextAlignment="Right" VerticalAlignment="Center" />
+          </Grid>
+          <Grid ColumnDefinitions="80,*,Auto">
+            <TextBlock Classes="lbl" Text="ZOOM" VerticalAlignment="Center" />
+            <Slider Grid.Column="1" Minimum="0.4" Maximum="5" Value="{Binding Zoom}" ToolTip.Tip="Move the camera in and out, or use the mouse wheel over the picture" />
+            <TextBlock Grid.Column="2" Text="{Binding ZoomText}" Classes="muted" Width="44" TextAlignment="Right" VerticalAlignment="Center" />
+          </Grid>
+          <Button Content="Reset view" Command="{Binding ResetView}" ToolTip.Tip="Front, level, whole model, centred" />
+          </StackPanel>
+          <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" Text="{Binding IconFrameNote}" />
+        </StackPanel>
+      </StackPanel>
+      </ScrollViewer>
+      </DockPanel>
+    </Border>
+    <Border Grid.Row="1" Grid.ColumnSpan="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Padding="18,6">
+      <StackPanel Orientation="Horizontal" Spacing="18">
+        <StackPanel Orientation="Horizontal" Spacing="6"><Ellipse Width="8" Height="8" Fill="{StaticResource GreenBrush}" VerticalAlignment="Center" /><TextBlock Text="{Binding GameLine}" FontSize="12" Classes="muted" /></StackPanel>
+        <TextBlock Text="Path dictionary: built in" FontSize="12" Classes="muted" />
+        <TextBlock Text="Target: V Framework 1.7" FontSize="12" Classes="muted" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

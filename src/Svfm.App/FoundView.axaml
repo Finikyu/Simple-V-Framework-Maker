@@ -1,0 +1,96 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:app="using:Svfm.App" x:Class="Svfm.App.FoundView" x:DataType="app:FoundVm">
+  <DockPanel>
+    <app:HeaderBar DockPanel.Dock="Top" Crumb="{Binding FileName}">
+      <app:HeaderBar.Actions>
+        <StackPanel Orientation="Horizontal" Spacing="10">
+          <Button Content="Back" Command="{Binding Back}" />
+          <Button Classes="primary" Content="Continue to setup" Command="{Binding Continue}" />
+        </StackPanel>
+      </app:HeaderBar.Actions>
+    </app:HeaderBar>
+    <ScrollViewer>
+      <Grid ColumnDefinitions="*,28,380" Margin="24,28,24,40" MaxWidth="1272">
+        <StackPanel Grid.Column="0" Spacing="16">
+          <StackPanel Spacing="6">
+            <TextBlock Text="What was found" FontSize="26" FontWeight="Bold" />
+            <TextBlock Text="{Binding Summary}" Foreground="#C9CDD2" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding Message}" Foreground="{StaticResource OrangeBrush}" TextWrapping="Wrap" IsVisible="{Binding HasMessage}" />
+          </StackPanel>
+          <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
+            <ItemsControl ItemsSource="{Binding Facts}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="app:FactVm">
+                  <Border Background="{StaticResource CardBrush}" BorderBrush="#23272C" BorderThickness="0,0,0,1" Padding="16,14">
+                    <Grid ColumnDefinitions="200,*,Auto" ColumnSpacing="16">
+                      <TextBlock Classes="lbl" Text="{Binding Label}" Margin="0,3,0,0" />
+                      <StackPanel Grid.Column="1" Spacing="4">
+                        <WrapPanel IsVisible="{Binding HasChips}">
+                          <ItemsControl ItemsSource="{Binding Chips}">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate><DataTemplate x:DataType="app:ChipVm"><Border Classes="chip" Classes.ok="{Binding Ok}" Classes.no="{Binding No}" Classes.note="{Binding Note}" Margin="0,0,6,0"><TextBlock Text="{Binding Text}" /></Border></DataTemplate></ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </WrapPanel>
+                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" IsVisible="{Binding HasTitle}" />
+                        <TextBlock Classes="mono" Text="{Binding Mono}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" IsVisible="{Binding HasMono}" />
+                        <TextBlock Text="{Binding Detail}" Foreground="#C9CDD2" FontSize="13" TextWrapping="Wrap" IsVisible="{Binding HasDetail}" />
+                      </StackPanel>
+                      <Border Grid.Column="2" Classes="chip" Classes.ok="{Binding IsOk}" Classes.fix="{Binding IsFix}" Classes.bad="{Binding IsBad}" VerticalAlignment="Top"><TextBlock Text="{Binding StatusText}" /></Border>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Border>
+        </StackPanel>
+
+        <Border Grid.Column="2" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="12" Background="{StaticResource PanelBrush}" ClipToBounds="True" VerticalAlignment="Top">
+          <StackPanel>
+            <Grid Background="{StaticResource DeepBrush}" Height="260">
+              <Image Source="{Binding Picture}" Stretch="Uniform" Margin="14" IsVisible="{Binding HasPicture}" />
+              <TextBlock Text="{Binding PictureNote}" IsVisible="{Binding NoPicture}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{StaticResource MutedBrush}" FontSize="13" Margin="24" VerticalAlignment="Center" />
+              <Border Classes="chip" Background="{StaticResource PanelBrush}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12"><TextBlock Text="{Binding PictureName}" /></Border>
+            </Grid>
+            <StackPanel Margin="16" Spacing="12">
+              <TextBlock Classes="lbl" Text="MODELS FOUND" />
+              <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" LineHeight="18" Text="Tick the models to bring in. Each one becomes its own item you can edit; the rest are left out of the build. The picture above follows the model you click." />
+              <ScrollViewer MaxHeight="420" HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Models found"><ItemsControl ItemsSource="{Binding Models}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="app:ModelVm">
+                    <Border CornerRadius="8" Background="{StaticResource CardBrush}" BorderThickness="1" Margin="0,0,0,8" Classes.sel="{Binding Selected}">
+                      <Border.Styles>
+                        <Style Selector="Border"><Setter Property="BorderBrush" Value="{StaticResource LineBrush}" /></Style>
+                        <Style Selector="Border.sel"><Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" /></Style>
+                      </Border.Styles>
+                      <Grid ColumnDefinitions="Auto,*" Margin="12,10">
+                        <CheckBox IsChecked="{Binding Checked}" IsEnabled="{Binding CanTick}" VerticalAlignment="Top" MinWidth="0" Margin="0,0,6,0" />
+                        <Button Grid.Column="1" Background="Transparent" BorderThickness="0" Padding="0" MinHeight="0" HorizontalContentAlignment="Left" Command="{Binding $parent[UserControl].((app:FoundVm)DataContext).PickModel}" CommandParameter="{Binding}">
+                          <StackPanel Spacing="3">
+                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            <TextBlock Classes="mono" FontSize="11" Text="{Binding File}" Foreground="{StaticResource MutedBrush}" IsVisible="{Binding HasFile}" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding Detail}" Classes="muted" FontSize="12" TextWrapping="Wrap" />
+                          </StackPanel>
+                        </Button>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl></ScrollViewer>
+              <ItemsControl ItemsSource="{Binding Open.ExtraNames}" IsVisible="{Binding Open.HasExtras}">
+                <ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Classes="muted" FontSize="12" Text="{Binding StringFormat='Together with: {0}'}" /></DataTemplate></ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="Add another part…" Command="{Binding Open.AddPart}" ToolTip.Tip="Another part of this download, or the mod these textures are for" />
+                <Button Content="Remove added parts" Command="{Binding Open.ClearParts}" IsVisible="{Binding Open.HasExtras}" />
+              </StackPanel>
+              <Grid ColumnDefinitions="Auto,*" Margin="0,2,0,0">
+                <Ellipse Width="8" Height="8" Fill="{StaticResource OkTextBrush}" Margin="0,5,8,0" VerticalAlignment="Top" />
+                <TextBlock Grid.Column="1" Classes="muted" FontSize="13" TextWrapping="Wrap" Text="Anything not ticked, or that can't be carried, is listed on the build screen with the reason." />
+              </Grid>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

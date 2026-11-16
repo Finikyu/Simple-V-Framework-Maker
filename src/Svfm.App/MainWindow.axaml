@@ -1,0 +1,98 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="using:Svfm.App"
+        x:Class="Svfm.App.MainWindow" x:DataType="app:MainVm"
+        Title="Simple V Framework Maker" Width="1280" Height="820" MinWidth="1040" MinHeight="640">
+  <Window.DataTemplates>
+    <DataTemplate DataType="app:OpenVm"><app:OpenView /></DataTemplate>
+    <DataTemplate DataType="app:FoundVm"><app:FoundView /></DataTemplate>
+    <DataTemplate DataType="app:EditorVm"><app:EditorView /></DataTemplate>
+    <DataTemplate DataType="app:BuildVm"><app:BuildView /></DataTemplate>
+  </Window.DataTemplates>
+  <DockPanel>
+    <!-- The mock-up's dotted ground: a 1px dot every 16px at 4 % opacity. No animation. -->
+    <DockPanel.Background>
+      <DrawingBrush TileMode="Tile" Stretch="None" DestinationRect="0,0,16,16">
+        <DrawingBrush.Drawing>
+          <DrawingGroup>
+            <GeometryDrawing Brush="Transparent" Geometry="M0,0 H16 V16 H0 Z" />
+            <GeometryDrawing Brush="#0AECEAE4" Geometry="M0,1 A1,1 0 1 1 2,1 A1,1 0 1 1 0,1 Z" />
+          </DrawingGroup>
+        </DrawingBrush.Drawing>
+      </DrawingBrush>
+    </DockPanel.Background>
+    <!--
+      One header row, as in the mock-up (issue #4): the title, then File, Undo and 3D preview; on the right the Saved tag,
+      Search, Save and Review & build. The old Maker / Developer drop-down is gone: F12 and File > Developer screen open
+      the developer log. Save is never hidden, so it is always in the same place.
+    -->
+    <Border DockPanel.Dock="Top" IsVisible="{Binding ShowHeader}" Background="{StaticResource PanelBrush}" Classes="bar" Padding="20,6">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+          <Border Name="SavedTag" Classes="chip" Classes.ok="{Binding !Session.Dirty}" Classes.warn="{Binding Session.Dirty}" IsVisible="{Binding HasProject}" VerticalAlignment="Center"><TextBlock Text="{Binding SaveLabel}" /></Border>
+          <Button Name="SearchButton" Content="Search" AutomationProperties.Name="Search fields" IsEnabled="{Binding CanSearch}" ToolTip.Tip="Search fields (Ctrl+F)">
+            <Button.Flyout>
+              <Flyout Placement="BottomEdgeAlignedRight">
+                <TextBox Width="300" PlaceholderText="Search fields, e.g. sprint, escape" Text="{Binding Editor.FieldSearch}" Name="FieldSearchBox" AutomationProperties.Name="Search fields" />
+              </Flyout>
+            </Button.Flyout>
+          </Button>
+          <Button Name="SaveButton" Content="Save" AutomationProperties.Name="Save the project" Command="{Binding SaveCommand}" ToolTip.Tip="Save the project (Ctrl+S)" />
+          <Button Name="BuildButton" Classes="primary" Content="Review &amp; build" Command="{Binding BuildCommand}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" ClipToBounds="True">
+          <Path Stroke="{StaticResource AmberBrush}" StrokeThickness="1.8" Width="22" Height="22" Stretch="Uniform" Data="M12 2L20.5 7V17L12 22L3.5 17V7Z M12 7V17 M7.5 9.5L16.5 14.5 M16.5 9.5L7.5 14.5" />
+          <TextBlock Text="Simple V Framework Maker" FontWeight="Bold" LetterSpacing="1.2" VerticalAlignment="Center" Margin="0,0,10,0" />
+          <Button Name="FileButton" Content="File ▾" AutomationProperties.Name="File menu">
+            <Button.Flyout>
+              <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                <MenuItem Name="OpenProjectItem" Header="Open project…" InputGesture="Ctrl+O" Command="{Binding OpenProjectCommand}" ToolTip.Tip="Open a saved project (.svfm)" />
+                <MenuItem Name="NewFromModItem" Header="New from .mgsv…" Command="{Binding NewFromModCommand}" ToolTip.Tip="Start a brand-new project from a .mgsv, leaving the one open behind" />
+                <!--
+                  The owner: "We need a way to change the porters settings at any time, like the mod manager location or TPP
+                  location." This is reachable from every screen, not just the first one.
+                -->
+                <MenuItem Name="SettingsItem" Header="Settings…" InputGesture="Ctrl+OemComma" Command="{Binding OpenSettingsCommand}" ToolTip.Tip="The game folder and the mod manager's mods folder" />
+                <MenuItem Name="DevScreenItem" Header="Developer screen" InputGesture="F12" ToggleType="CheckBox" IsChecked="{Binding ShowDev, Mode=OneWay}" Command="{Binding ToggleDev}" />
+              </MenuFlyout>
+            </Button.Flyout>
+          </Button>
+          <Button Name="UndoButton" Content="Undo" Command="{Binding UndoCommand}" ToolTip.Tip="Undo the last change (Ctrl+Z)" />
+          <Button Name="PreviewMenuButton" Content="3D preview ▾" ToolTip.Tip="The 3D preview of outfits. Off is lightest; on draws pictures you can turn.">
+            <Button.Flyout>
+              <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                <MenuItem Header="{Binding PreviewLabel}" Command="{Binding TogglePreview}" />
+                <!--
+                  The owner: "The 3D Preview is very slow, it was faster in mock ups. Anyway to make it optionally GPU Bound? Put it
+                  by All 3D:on." This sits beside All 3D: on and draws the preview at half resolution. It is not GPU acceleration -
+                  see Settings.FastPreview for why that would mean a second renderer that could drift from the icon it previews.
+                -->
+                <MenuItem Header="{Binding Editor.Preview.FastPreviewLabel}" Command="{Binding Editor.Preview.ToggleFastPreview}" IsVisible="{Binding OnEditor}"
+                          ToolTip.Tip="Draw the 3D preview at half resolution, which is about eight times less work. The icon itself is always drawn at full quality." />
+              </MenuFlyout>
+            </Button.Flyout>
+          </Button>
+          <Button Name="HelpButton" Content="Help ▾" AutomationProperties.Name="Help menu">
+            <Button.Flyout>
+              <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                <MenuItem Name="SaveProblemReportItem" Header="Save problem report" Command="{Binding SaveProblemReport}" ToolTip.Tip="Saves one text file next to the app with the app version, the Windows version, the errors and the log of this session, and opens the GitHub problem form. The app sends nothing on its own." />
+                <MenuItem Name="SendFeedbackItem" Header="Send feedback" Command="{Binding SendFeedback}" ToolTip.Tip="Opens the GitHub feedback form in your browser." />
+              </MenuFlyout>
+            </Button.Flyout>
+          </Button>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+    <Border DockPanel.Dock="Top" IsVisible="{Binding HasNotice}" Background="#3A1E1C" BorderBrush="{StaticResource RedBrush}" BorderThickness="0,0,0,1" Padding="20,8">
+      <DockPanel>
+        <Button DockPanel.Dock="Right" Content="Dismiss" Command="{Binding DismissNotice}" />
+        <Button Name="OpenErrorLogButton" DockPanel.Dock="Right" Margin="0,0,8,0" Content="Open error.log" Command="{Binding OpenErrorLog}" IsVisible="{Binding NoticeHasLog}" />
+        <Button Name="SaveProblemReportButton" DockPanel.Dock="Right" Margin="0,0,8,0" Content="Save problem report" Command="{Binding SaveProblemReport}" ToolTip.Tip="Saves one text file next to the app and opens the GitHub problem form. The app sends nothing on its own." />
+        <TextBlock Text="{Binding Notice}" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="{StaticResource TextBrush}" />
+      </DockPanel>
+    </Border>
+    <Grid>
+      <ContentControl Content="{Binding Screen}" IsVisible="{Binding ShowApp}" />
+      <app:DeveloperView DataContext="{Binding Dev}" IsVisible="{Binding $parent[Window].((app:MainVm)DataContext).ShowDev}" />
+    </Grid>
+  </DockPanel>
+</Window>

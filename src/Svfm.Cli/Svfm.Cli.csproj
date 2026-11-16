@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>svfm</AssemblyName>
+    <RootNamespace>Svfm.Cli</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Svfm.Core\Svfm.Core.csproj" />
+  </ItemGroup>
+</Project>

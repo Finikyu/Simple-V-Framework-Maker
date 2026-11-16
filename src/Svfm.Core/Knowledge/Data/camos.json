@@ -1,0 +1,2283 @@
+[
+ {
+  "playerCamoType": 0,
+  "name": "OLIVEDRAB",
+  "description": "Olive Drab",
+  "developId": 19001,
+  "fovaCamoId": 0,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c00_alp",
+  "langName": "name_st_19001",
+  "langInfo": "info_st_19001",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c00.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c00.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c00_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c00_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v00.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v00.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c01_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c01_bsm.ftex"
+  },
+  "archive": "chunk0",
+  "iconStyle": "fabricCrop",
+  "iconTextureOrigin": [
+   1805,
+   1516
+  ]
+ },
+ {
+  "playerCamoType": 1,
+  "name": "SPLITTER",
+  "description": "Splitter",
+  "developId": 19002,
+  "fovaCamoId": 6,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c06_alp",
+  "langName": "name_st_19002",
+  "langInfo": "info_st_19002",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c06.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c06.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c06_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c06_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v06.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v06.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c08_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c01_bsm.ftex"
+  },
+  "archive": "chunk0",
+  "iconStyle": "painted"
+ },
+ {
+  "playerCamoType": 2,
+  "name": "SQUARE",
+  "description": "Square",
+  "developId": 19003,
+  "fovaCamoId": 12,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c12_alp",
+  "langName": "name_st_19003",
+  "langInfo": "info_st_19003",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c12.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c12.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c12_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c12_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v12.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v12.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c14_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c01_bsm.ftex"
+  },
+  "archive": "chunk0",
+  "iconStyle": "fabricCrop",
+  "iconTextureOrigin": [
+   1805,
+   1516
+  ]
+ },
+ {
+  "playerCamoType": 3,
+  "name": "TIGERSTRIPE",
+  "description": "Tiger Stripe",
+  "developId": 19010,
+  "fovaCamoId": 1,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c01_alp",
+  "langName": "name_st_19010",
+  "langInfo": "info_st_19010",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c01.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c01.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c01_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c01_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v01.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v01.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c00_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c00_bsm.ftex"
+  },
+  "archive": "chunk0",
+  "iconStyle": "fabricCrop",
+  "iconTextureOrigin": [
+   1805,
+   1516
+  ],
+  "iconNote": "icon hand-painted darker than the texture"
+ },
+ {
+  "playerCamoType": 4,
+  "name": "GOLDTIGER",
+  "description": "Gold Tiger",
+  "developId": 19011,
+  "fovaCamoId": 2,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c02_alp",
+  "langName": "name_st_19011",
+  "langInfo": "info_st_19011",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c02.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c02.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c02_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c02_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v02.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v02.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c03_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c02_bsm.ftex"
+  },
+  "archive": "chunk0"
+ },
+ {
+  "playerCamoType": 5,
+  "name": "FOXTROT",
+  "description": "Desert Fox",
+  "developId": 19020,
+  "fovaCamoId": 3,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c03_alp",
+  "langName": "name_st_19020",
+  "langInfo": "info_st_19020",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c03.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c03.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c03_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c03_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v03.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v03.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c05_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c02_bsm.ftex"
+  },
+  "archive": "chunk0",
+  "iconStyle": "fabricCrop",
+  "iconTextureOrigin": [
+   1805,
+   1516
+  ]
+ },
+ {
+  "playerCamoType": 6,
+  "name": "WOODLAND",
+  "description": "Woodland",
+  "developId": 19021,
+  "fovaCamoId": 10,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c10_alp",
+  "langName": "name_st_19021",
+  "langInfo": "info_st_19021",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c10.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c10.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c10_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c10_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v10.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v10.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c12_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c00_bsm.ftex"
+  },
+  "archive": "chunk0",
+  "iconStyle": "fabricCrop",
+  "iconTextureOrigin": [
+   1548,
+   1414
+  ]
+ },
+ {
+  "playerCamoType": 7,
+  "name": "WETWORK",
+  "description": "Wetwork",
+  "developId": 19022,
+  "fovaCamoId": 5,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c05_alp",
+  "langName": "name_st_19022",
+  "langInfo": "info_st_19022",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c05.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c05.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c05_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c05_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v05.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v05.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c07_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c02_bsm.ftex"
+  },
+  "archive": "chunk0",
+  "iconStyle": "fabricCrop"
+ },
+ {
+  "playerCamoType": 8,
+  "name": "ARBANGRAY",
+  "description": "Gray Urban",
+  "developId": 19030,
+  "fovaCamoId": 8,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c08_alp",
+  "langName": "name_st_19030",
+  "langInfo": "info_st_19030",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c08.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c08.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c08_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c08_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v08.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v08.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c10_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c03_bsm.ftex"
+  },
+  "archive": "00",
+  "iconStyle": "fabricCrop"
+ },
+ {
+  "playerCamoType": 9,
+  "name": "ARBANBLUE",
+  "description": "Blue Urban",
+  "developId": 19031,
+  "fovaCamoId": 7,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c07_alp",
+  "langName": "name_st_19031",
+  "langInfo": "info_st_19031",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c07.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c07.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c07_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c07_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v07.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v07.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c09_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c01_bsm.ftex"
+  },
+  "archive": "00"
+ },
+ {
+  "playerCamoType": 10,
+  "name": "SANDSTORM",
+  "description": "APD ",
+  "developId": 19032,
+  "fovaCamoId": 11,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c11_alp",
+  "langName": "name_st_19032",
+  "langInfo": "info_st_19032",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c11.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c11.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c11_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c11_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v11.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v11.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c13_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c03_bsm.ftex"
+  },
+  "archive": "00",
+  "iconStyle": "fabricCrop",
+  "iconTextureOrigin": [
+   1073,
+   1271
+  ]
+ },
+ {
+  "playerCamoType": 11,
+  "name": "REALTREE",
+  "description": null,
+  "developId": null,
+  "fovaCamoId": null,
+  "playerParts": [],
+  "iconStyle": "fabricCrop"
+ },
+ {
+  "playerCamoType": 12,
+  "name": "INVISIBLE",
+  "description": null,
+  "developId": null,
+  "fovaCamoId": null,
+  "playerParts": [],
+  "iconStyle": "fabricCrop",
+  "iconTextureOrigin": [
+   1265,
+   1345
+  ]
+ },
+ {
+  "playerCamoType": 13,
+  "name": "BLACK",
+  "description": "Black Ocelot",
+  "developId": 19033,
+  "fovaCamoId": 13,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c13_alp",
+  "langName": "name_st_19033",
+  "langInfo": "info_st_19033",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c13.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c13.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c13_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c13_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v13.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v13.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c04_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c04_bsm.ftex"
+  },
+  "archive": "00",
+  "iconStyle": "render"
+ },
+ {
+  "playerCamoType": 14,
+  "name": "SNEAKING_SUIT_GZ",
+  "description": "SV",
+  "developId": 19040,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SNEAKING_SUIT"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna2_alp",
+  "langName": "name_st_19040",
+  "langInfo": "info_st_19040",
+  "iconStyle": "fabricCrop",
+  "iconTextureOrigin": [
+   1053,
+   1282
+  ]
+ },
+ {
+  "playerCamoType": 15,
+  "name": "SNEAKING_SUIT_TPP",
+  "description": "Sneaking suit ",
+  "developId": 19050,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SNEAKING_SUIT_TPP"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna4_alp",
+  "langName": "name_st_19050",
+  "langInfo": "info_st_19050"
+ },
+ {
+  "playerCamoType": 16,
+  "name": "BATTLEDRESS",
+  "description": null,
+  "developId": 19053,
+  "fovaCamoId": null,
+  "playerParts": [
+   "BATTLEDRESS"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna5_alp",
+  "langName": "name_st_19053",
+  "langInfo": "info_st_19053"
+ },
+ {
+  "playerCamoType": 17,
+  "name": "PARASITE",
+  "description": "Parasite Suit",
+  "developId": 19060,
+  "fovaCamoId": null,
+  "playerParts": [
+   "PARASITE"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna7_alp",
+  "langName": "name_st_19060",
+  "langInfo": "info_st_19060"
+ },
+ {
+  "playerCamoType": 18,
+  "name": "NAKED",
+  "description": "Naked",
+  "developId": null,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SNAKE",
+   "AVATAR"
+  ]
+ },
+ {
+  "playerCamoType": 19,
+  "name": "LEATHER",
+  "description": "Leather Jacket",
+  "developId": 19070,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SNEAKING_SUIT_TPP"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna3_alp",
+  "langName": "name_st_19070",
+  "langInfo": "info_st_19070"
+ },
+ {
+  "playerCamoType": 20,
+  "name": "SOLIDSNAKE",
+  "description": "MGS1 Solid Snake",
+  "developId": 19071,
+  "fovaCamoId": null,
+  "playerParts": [
+   "MGS1"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna6_alp",
+  "langName": "name_st_19071",
+  "langInfo": "info_st_19071"
+ },
+ {
+  "playerCamoType": 21,
+  "name": "NINJA",
+  "description": "MGS1 Cyborg Ninja",
+  "developId": 19072,
+  "fovaCamoId": null,
+  "playerParts": [
+   "NINJA"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_nin0_alp",
+  "langName": "name_st_19072",
+  "langInfo": "info_st_19072"
+ },
+ {
+  "playerCamoType": 22,
+  "name": "RAIDEN",
+  "description": "Raiden",
+  "developId": 19073,
+  "fovaCamoId": null,
+  "playerParts": [
+   "RAIDEN"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_rai0_alp",
+  "langName": "name_st_19073",
+  "langInfo": "info_st_19073"
+ },
+ {
+  "playerCamoType": 23,
+  "name": "HOSPITAL",
+  "description": "Hospital V",
+  "developId": null,
+  "fovaCamoId": null,
+  "playerParts": [
+   "HOSPITAL"
+  ]
+ },
+ {
+  "playerCamoType": 24,
+  "name": "GOLD",
+  "description": null,
+  "developId": 19024,
+  "fovaCamoId": null,
+  "playerParts": [
+   "GOLD"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_gld_alp",
+  "langName": "name_st_19024",
+  "langInfo": "info_st_19024"
+ },
+ {
+  "playerCamoType": 25,
+  "name": "SILVER",
+  "description": null,
+  "developId": 19023,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SILVER"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_sil_alp",
+  "langName": "name_st_19023",
+  "langInfo": "info_st_19023"
+ },
+ {
+  "playerCamoType": 26,
+  "name": "PANTHER",
+  "description": "Animals",
+  "developId": 19012,
+  "fovaCamoId": 14,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c14_alp",
+  "langName": "name_st_19012",
+  "langInfo": "info_st_19012",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c14.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c14.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c14_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c14_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v14.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v14.fpk",
+   "bodyTexture": "/Assets/tpp/chara/dds/Pictures/dds3_main0_def_c15_bsm.ftex",
+   "itemTexture": "/Assets/tpp/chara/dds/Pictures/dds3_item0_def_c01_bsm.ftex"
+  },
+  "archive": "chunk0"
+ },
+ {
+  "playerCamoType": 27,
+  "name": "AVATAR_EDIT_MAN",
+  "description": null,
+  "developId": null,
+  "fovaCamoId": null,
+  "playerParts": []
+ },
+ {
+  "playerCamoType": 28,
+  "name": "MGS3",
+  "description": "Fatigues ",
+  "developId": 19080,
+  "fovaCamoId": null,
+  "playerParts": [],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dla_alp",
+  "langName": "name_st_19080",
+  "langInfo": "info_st_19080"
+ },
+ {
+  "playerCamoType": 29,
+  "name": "MGS3_NAKED",
+  "description": "Fatigues Naked ",
+  "developId": 19080,
+  "fovaCamoId": null,
+  "playerParts": [],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dla_alp",
+  "langName": "name_st_19080",
+  "langInfo": "info_st_19080"
+ },
+ {
+  "playerCamoType": 30,
+  "name": "MGS3_SNEAKING",
+  "description": "Sneaking Suit ",
+  "developId": 19081,
+  "fovaCamoId": null,
+  "playerParts": [],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dlb_alp",
+  "langName": "name_st_19081",
+  "langInfo": "info_st_19081"
+ },
+ {
+  "playerCamoType": 31,
+  "name": "MGS3_TUXEDO",
+  "description": "Tuxedo",
+  "developId": 19084,
+  "fovaCamoId": null,
+  "playerParts": [],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dld_alp",
+  "langName": "name_st_19084",
+  "langInfo": "info_st_19084"
+ },
+ {
+  "playerCamoType": 32,
+  "name": "EVA_CLOSE",
+  "description": "Jumpsuit ",
+  "developId": 19086,
+  "fovaCamoId": null,
+  "playerParts": [],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dle_alp",
+  "langName": "name_st_19086",
+  "langInfo": "info_st_19086"
+ },
+ {
+  "playerCamoType": 33,
+  "name": "EVA_OPEN",
+  "description": "Jumpsuit open ",
+  "developId": 19086,
+  "fovaCamoId": null,
+  "playerParts": [],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dle_alp",
+  "langName": "name_st_19086",
+  "langInfo": "info_st_19086"
+ },
+ {
+  "playerCamoType": 34,
+  "name": "BOSS_CLOSE",
+  "description": "Sneaking Suit ",
+  "developId": 19085,
+  "fovaCamoId": null,
+  "playerParts": [],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dlc_alp",
+  "langName": "name_st_19085",
+  "langInfo": "info_st_19085"
+ },
+ {
+  "playerCamoType": 35,
+  "name": "BOSS_OPEN",
+  "description": "Sneaking Suit open ",
+  "developId": 19085,
+  "fovaCamoId": null,
+  "playerParts": [],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_dlc_alp",
+  "langName": "name_st_19085",
+  "langInfo": "info_st_19085"
+ },
+ {
+  "playerCamoType": 36,
+  "name": "C23",
+  "description": "Woodland Fleck",
+  "developId": 19090,
+  "fovaCamoId": 23,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c23_alp",
+  "langName": "name_st_19090",
+  "langInfo": "info_st_19090",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c23.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c23.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c23_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c23_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v23.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v23.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 37,
+  "name": "C24",
+  "description": "Ambush",
+  "developId": 19091,
+  "fovaCamoId": 24,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c24_alp",
+  "langName": "name_st_19091",
+  "langInfo": "info_st_19091",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c24.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c24.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c24_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c24_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v24.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v24.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 38,
+  "name": "C27",
+  "description": "Solum",
+  "developId": 19092,
+  "fovaCamoId": 27,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c27_alp",
+  "langName": "name_st_19092",
+  "langInfo": "info_st_19092",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c27.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c27.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c27_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c27_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v27.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v27.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 39,
+  "name": "C29",
+  "description": "Dead Leaf",
+  "developId": 19093,
+  "fovaCamoId": 29,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c29_alp",
+  "langName": "name_st_19093",
+  "langInfo": "info_st_19093",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c29.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c29.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c29_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c29_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v29.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v29.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 40,
+  "name": "C30",
+  "description": "Lichen",
+  "developId": 19094,
+  "fovaCamoId": 30,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c30_alp",
+  "langName": "name_st_19094",
+  "langInfo": "info_st_19094",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c30.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c30.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c30_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c30_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v30.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v30.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 41,
+  "name": "C35",
+  "description": "Stone",
+  "developId": 19095,
+  "fovaCamoId": 35,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c35_alp",
+  "langName": "name_st_19095",
+  "langInfo": "info_st_19095",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c35.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c35.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c35_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c35_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v35.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v35.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 42,
+  "name": "C38",
+  "description": "Parasite Mist",
+  "developId": 19096,
+  "fovaCamoId": 38,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c38_alp",
+  "langName": "name_st_19096",
+  "langInfo": "info_st_19096",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c38.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c38.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c38_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c38_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v38.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v38.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 43,
+  "name": "C39",
+  "description": "Old Rose",
+  "developId": 19097,
+  "fovaCamoId": 39,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c39_alp",
+  "langName": "name_st_19097",
+  "langInfo": "info_st_19097",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c39.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c39.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c39_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c39_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v39.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v39.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 44,
+  "name": "C42",
+  "description": "Brick Red",
+  "developId": 19098,
+  "fovaCamoId": 42,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c42_alp",
+  "langName": "name_st_19098",
+  "langInfo": "info_st_19098",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c42.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c42.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c42_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c42_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v42.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v42.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 45,
+  "name": "C46",
+  "description": "Iron Blue",
+  "developId": 19099,
+  "fovaCamoId": 46,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c46_alp",
+  "langName": "name_st_19099",
+  "langInfo": "info_st_19099",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c46.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c46.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c46_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c46_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v46.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v46.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 46,
+  "name": "C49",
+  "description": "Steel Grey",
+  "developId": 19100,
+  "fovaCamoId": 49,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c49_alp",
+  "langName": "name_st_19100",
+  "langInfo": "info_st_19100",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c49.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c49.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c49_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c49_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v49.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v49.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 47,
+  "name": "C52",
+  "description": "Tselinoyarsk",
+  "developId": 19101,
+  "fovaCamoId": 52,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c52_alp",
+  "langName": "name_st_19101",
+  "langInfo": "info_st_19101",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c52.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c52.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c52_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c52_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v52.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v52.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 48,
+  "name": "C16",
+  "description": "Night Splitter",
+  "developId": 19120,
+  "fovaCamoId": 16,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c16_alp",
+  "langName": "name_st_19120",
+  "langInfo": "info_st_19120",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c16.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c16.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c16_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c16_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v16.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v16.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 49,
+  "name": "C17",
+  "description": "Rain",
+  "developId": 19121,
+  "fovaCamoId": 17,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c17_alp",
+  "langName": "name_st_19121",
+  "langInfo": "info_st_19121",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c17.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c17.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c17_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c17_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v17.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v17.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 50,
+  "name": "C18",
+  "description": "Green Tiger Stripe",
+  "developId": 19122,
+  "fovaCamoId": 18,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c18_alp",
+  "langName": "name_st_19122",
+  "langInfo": "info_st_19122",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c18.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c18.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c18_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c18_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v18.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v18.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 51,
+  "name": "C19",
+  "description": "Birch Leaf",
+  "developId": 19123,
+  "fovaCamoId": 19,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c19_alp",
+  "langName": "name_st_19123",
+  "langInfo": "info_st_19123",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c19.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c19.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c19_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c19_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v19.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v19.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 52,
+  "name": "C20",
+  "description": "Desert Ambush",
+  "developId": 19124,
+  "fovaCamoId": 20,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c20_alp",
+  "langName": "name_st_19124",
+  "langInfo": "info_st_19124",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c20.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c20.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c20_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c20_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v20.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v20.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 53,
+  "name": "C22",
+  "description": "Dark Leaf Fleck",
+  "developId": 19125,
+  "fovaCamoId": 22,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c22_alp",
+  "langName": "name_st_19125",
+  "langInfo": "info_st_19125",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c22.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c22.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c22_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c22_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v22.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v22.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 54,
+  "name": "C25",
+  "description": "Night Bush",
+  "developId": 19126,
+  "fovaCamoId": 25,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c25_alp",
+  "langName": "name_st_19126",
+  "langInfo": "info_st_19126",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c25.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c25.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c25_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c25_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v25.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v25.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 55,
+  "name": "C26",
+  "description": "Grass",
+  "developId": 19127,
+  "fovaCamoId": 26,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c26_alp",
+  "langName": "name_st_19127",
+  "langInfo": "info_st_19127",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c26.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c26.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c26_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c26_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v26.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v26.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 56,
+  "name": "C28",
+  "description": "Ripple",
+  "developId": 19128,
+  "fovaCamoId": 28,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c28_alp",
+  "langName": "name_st_19128",
+  "langInfo": "info_st_19128",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c28.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c28.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c28_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c28_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v28.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v28.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 57,
+  "name": "C31",
+  "description": "Citrullus",
+  "developId": 19129,
+  "fovaCamoId": 31,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c31_alp",
+  "langName": "name_st_19129",
+  "langInfo": "info_st_19129",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c31.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c31.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c31_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c31_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v31.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v31.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 58,
+  "name": "C32",
+  "description": "Digital Bush",
+  "developId": 19130,
+  "fovaCamoId": 32,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c32_alp",
+  "langName": "name_st_19130",
+  "langInfo": "info_st_19130",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c32.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c32.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c32_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c32_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v32.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v32.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 59,
+  "name": "C33",
+  "description": "Zebra",
+  "developId": 19131,
+  "fovaCamoId": 33,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c33_alp",
+  "langName": "name_st_19131",
+  "langInfo": "info_st_19131",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c33.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c33.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c33_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c33_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v33.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v33.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 60,
+  "name": "C36",
+  "description": "Desert Sand",
+  "developId": 19132,
+  "fovaCamoId": 36,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c36_alp",
+  "langName": "name_st_19132",
+  "langInfo": "info_st_19132",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c36.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c36.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c36_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c36_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v36.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v36.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 61,
+  "name": "C37",
+  "description": "Steel Khaki",
+  "developId": 19133,
+  "fovaCamoId": 37,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c37_alp",
+  "langName": "name_st_19133",
+  "langInfo": "info_st_19133",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c37.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c37.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c37_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c37_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v37.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v37.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 62,
+  "name": "C40",
+  "description": "Dark Rubber",
+  "developId": 19134,
+  "fovaCamoId": 40,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c40_alp",
+  "langName": "name_st_19134",
+  "langInfo": "info_st_19134",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c40.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c40.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c40_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c40_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v40.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v40.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 63,
+  "name": "C41",
+  "description": "Gray",
+  "developId": 19135,
+  "fovaCamoId": 41,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c41_alp",
+  "langName": "name_st_19135",
+  "langInfo": "info_st_19135",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c41.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c41.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c41_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c41_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v41.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v41.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 64,
+  "name": "C43",
+  "description": "Camoflage Yellow",
+  "developId": 19136,
+  "fovaCamoId": 43,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c43_alp",
+  "langName": "name_st_19136",
+  "langInfo": "info_st_19136",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c43.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c43.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c43_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c43_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v43.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v43.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 65,
+  "name": "C44",
+  "description": "Camoflage Green",
+  "developId": 19137,
+  "fovaCamoId": 44,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c44_alp",
+  "langName": "name_st_19137",
+  "langInfo": "info_st_19137",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c44.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c44.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c44_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c44_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v44.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v44.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 66,
+  "name": "C45",
+  "description": "Iron Green",
+  "developId": 19138,
+  "fovaCamoId": 45,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c45_alp",
+  "langName": "name_st_19138",
+  "langInfo": "info_st_19138",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c45.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c45.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c45_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c45_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v45.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v45.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 67,
+  "name": "C47",
+  "description": "Light Rubber",
+  "developId": 19139,
+  "fovaCamoId": 47,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c47_alp",
+  "langName": "name_st_19139",
+  "langInfo": "info_st_19139",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c47.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c47.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c47_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c47_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v47.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v47.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 68,
+  "name": "C48",
+  "description": "Red Rust",
+  "developId": 19140,
+  "fovaCamoId": 48,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c48_alp",
+  "langName": "name_st_19140",
+  "langInfo": "info_st_19140",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c48.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c48.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c48_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c48_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v48.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v48.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 69,
+  "name": "C50",
+  "description": "Steel Green",
+  "developId": 19141,
+  "fovaCamoId": 50,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c50_alp",
+  "langName": "name_st_19141",
+  "langInfo": "info_st_19141",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c50.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c50.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c50_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c50_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v50.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v50.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 70,
+  "name": "C51",
+  "description": "Steel Orange",
+  "developId": 19142,
+  "fovaCamoId": 51,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c51_alp",
+  "langName": "name_st_19142",
+  "langInfo": "info_st_19142",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c51.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c51.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c51_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c51_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v51.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v51.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 71,
+  "name": "C53",
+  "description": "Mud",
+  "developId": 19143,
+  "fovaCamoId": 53,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c53_alp",
+  "langName": "name_st_19143",
+  "langInfo": "info_st_19143",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c53.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c53.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c53_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c53_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v53.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v53.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 72,
+  "name": "C54",
+  "description": "Steel Blue",
+  "developId": 19144,
+  "fovaCamoId": 54,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c54_alp",
+  "langName": "name_st_19144",
+  "langInfo": "info_st_19144",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c54.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c54.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c54_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c54_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v54.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v54.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 73,
+  "name": "C55",
+  "description": "Dark Rust",
+  "developId": 19145,
+  "fovaCamoId": 55,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c55_alp",
+  "langName": "name_st_19145",
+  "langInfo": "info_st_19145",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c55.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c55.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c55_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c55_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v55.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v55.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 74,
+  "name": "C56",
+  "description": "Citrullus two",
+  "developId": 19146,
+  "fovaCamoId": 56,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c56_alp",
+  "langName": "name_st_19146",
+  "langInfo": "info_st_19146",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c56.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c56.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c56_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c56_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v56.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v56.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 75,
+  "name": "C57",
+  "description": "Gold Tiger Stripe Two",
+  "developId": 19147,
+  "fovaCamoId": 57,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c57_alp",
+  "langName": "name_st_19147",
+  "langInfo": "info_st_19147",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c57.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c57.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c57_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c57_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v57.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v57.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 76,
+  "name": "C58",
+  "description": "Birch Leaf Two",
+  "developId": 19148,
+  "fovaCamoId": 58,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c58_alp",
+  "langName": "name_st_19148",
+  "langInfo": "info_st_19148",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c58.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c58.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c58_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c58_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v58.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v58.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 77,
+  "name": "C59",
+  "description": "Stone Two",
+  "developId": 19149,
+  "fovaCamoId": 59,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c59_alp",
+  "langName": "name_st_19149",
+  "langInfo": "info_st_19149",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c59.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c59.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c59_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c59_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v59.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v59.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 78,
+  "name": "C60",
+  "description": "Khaki Two",
+  "developId": 19150,
+  "fovaCamoId": 60,
+  "playerParts": [
+   "NORMAL",
+   "NORMAL_SCARF",
+   "NAKED"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_sna0_c60_alp",
+  "langName": "name_st_19150",
+  "langInfo": "info_st_19150",
+  "snake": {
+   "normal_scarf": "/Assets/tpp/pack/player/fova/plfova_sna0_main1_c60.fpk",
+   "naked": "/Assets/tpp/pack/player/fova/plfova_sna8_main0_c60.fpk",
+   "texture": "/Assets/tpp/chara/sna/Pictures/sna0_main1_def_c60_bsm.ftex",
+   "nakedTexture": "/Assets/tpp/chara/sna/Pictures/sna8_main0_def_c60_bsm.ftex"
+  },
+  "dd": {
+   "male": "/Assets/tpp/pack/player/fova/plfova_dds5_main0_ply_v60.fpk",
+   "female": "/Assets/tpp/pack/player/fova/plfova_dds6_main0_ply_v60.fpk"
+  },
+  "archive": "master/1/MGSVTUPDATEV0110/0/00.dat (icons in 01.dat)"
+ },
+ {
+  "playerCamoType": 79,
+  "name": "SWIMWEAR_C00",
+  "description": "Olive Drab",
+  "developId": 19151,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_c00_alp",
+  "langName": "name_st_19151",
+  "langInfo": "info_st_19151"
+ },
+ {
+  "playerCamoType": 80,
+  "name": "SWIMWEAR_C01",
+  "description": "Tiger Stripe",
+  "developId": 19152,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_c01_alp",
+  "langName": "name_st_19152",
+  "langInfo": "info_st_19152"
+ },
+ {
+  "playerCamoType": 81,
+  "name": "SWIMWEAR_C02",
+  "description": "Gold Tiger",
+  "developId": 19153,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_c02_alp",
+  "langName": "name_st_19153",
+  "langInfo": "info_st_19153"
+ },
+ {
+  "playerCamoType": 82,
+  "name": "SWIMWEAR_C03",
+  "description": "Desert Fox",
+  "developId": 19154,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_c03_alp",
+  "langName": "name_st_19154",
+  "langInfo": "info_st_19154"
+ },
+ {
+  "playerCamoType": 83,
+  "name": "SWIMWEAR_C05",
+  "description": "Wet Work",
+  "developId": 19155,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_c05_alp",
+  "langName": "name_st_19155",
+  "langInfo": "info_st_19155"
+ },
+ {
+  "playerCamoType": 84,
+  "name": "SWIMWEAR_C06",
+  "description": "Splitter",
+  "developId": 19156,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_c06_alp",
+  "langName": "name_st_19156",
+  "langInfo": "info_st_19156"
+ },
+ {
+  "playerCamoType": 85,
+  "name": "SWIMWEAR_C38",
+  "description": "Parasite Mist",
+  "developId": 19157,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_c38_alp",
+  "langName": "name_st_19157",
+  "langInfo": "info_st_19157"
+ },
+ {
+  "playerCamoType": 86,
+  "name": "SWIMWEAR_C39",
+  "description": "Old Rose",
+  "developId": 19158,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_c39_alp",
+  "langName": "name_st_19158",
+  "langInfo": "info_st_19158"
+ },
+ {
+  "playerCamoType": 87,
+  "name": "SWIMWEAR_C44",
+  "description": "Camoflage Green",
+  "developId": 19159,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_c44_alp",
+  "langName": "name_st_19159",
+  "langInfo": "info_st_19159"
+ },
+ {
+  "playerCamoType": 88,
+  "name": "SWIMWEAR_C46",
+  "description": "Iron Blue",
+  "developId": 19160,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_c46_alp",
+  "langName": "name_st_19160",
+  "langInfo": "info_st_19160"
+ },
+ {
+  "playerCamoType": 89,
+  "name": "SWIMWEAR_C48",
+  "description": "Red Rust",
+  "developId": 19161,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_c48_alp",
+  "langName": "name_st_19161",
+  "langInfo": "info_st_19161"
+ },
+ {
+  "playerCamoType": 90,
+  "name": "SWIMWEAR_C53",
+  "description": "Mud",
+  "developId": 19162,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_c53_alp",
+  "langName": "name_st_19162",
+  "langInfo": "info_st_19162"
+ },
+ {
+  "playerCamoType": 91,
+  "name": "SWIMWEAR_G_C00",
+  "description": "Olive Drab",
+  "developId": 19163,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_G"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlg_c00_alp",
+  "langName": "name_st_19163",
+  "langInfo": "info_st_19163"
+ },
+ {
+  "playerCamoType": 92,
+  "name": "SWIMWEAR_G_C01",
+  "description": "Tiger Stripe",
+  "developId": 19164,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_G"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlg_c01_alp",
+  "langName": "name_st_19164",
+  "langInfo": "info_st_19164"
+ },
+ {
+  "playerCamoType": 93,
+  "name": "SWIMWEAR_G_C02",
+  "description": "Gold Tiger",
+  "developId": 19165,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_G"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlg_c02_alp",
+  "langName": "name_st_19165",
+  "langInfo": "info_st_19165"
+ },
+ {
+  "playerCamoType": 94,
+  "name": "SWIMWEAR_G_C03",
+  "description": "Desert Fox",
+  "developId": 19166,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_G"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlg_c03_alp",
+  "langName": "name_st_19166",
+  "langInfo": "info_st_19166"
+ },
+ {
+  "playerCamoType": 95,
+  "name": "SWIMWEAR_G_C05",
+  "description": "Wet Work",
+  "developId": 19167,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_G"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlg_c05_alp",
+  "langName": "name_st_19167",
+  "langInfo": "info_st_19167"
+ },
+ {
+  "playerCamoType": 96,
+  "name": "SWIMWEAR_G_C06",
+  "description": "Splitter",
+  "developId": 19168,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_G"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlg_c06_alp",
+  "langName": "name_st_19168",
+  "langInfo": "info_st_19168"
+ },
+ {
+  "playerCamoType": 97,
+  "name": "SWIMWEAR_G_C38",
+  "description": "Parasite Mist",
+  "developId": 19169,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_G"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlg_c38_alp",
+  "langName": "name_st_19169",
+  "langInfo": "info_st_19169"
+ },
+ {
+  "playerCamoType": 98,
+  "name": "SWIMWEAR_G_C39",
+  "description": "Old Rose",
+  "developId": 19170,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_G"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlg_c39_alp",
+  "langName": "name_st_19170",
+  "langInfo": "info_st_19170"
+ },
+ {
+  "playerCamoType": 99,
+  "name": "SWIMWEAR_G_C44",
+  "description": "Camoflage Green",
+  "developId": 19171,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_G"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlg_c44_alp",
+  "langName": "name_st_19171",
+  "langInfo": "info_st_19171"
+ },
+ {
+  "playerCamoType": 100,
+  "name": "SWIMWEAR_G_C46",
+  "description": "Iron Blue",
+  "developId": 19172,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_G"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlg_c46_alp",
+  "langName": "name_st_19172",
+  "langInfo": "info_st_19172"
+ },
+ {
+  "playerCamoType": 101,
+  "name": "SWIMWEAR_G_C48",
+  "description": "Red Rust",
+  "developId": 19173,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_G"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlg_c48_alp",
+  "langName": "name_st_19173",
+  "langInfo": "info_st_19173"
+ },
+ {
+  "playerCamoType": 102,
+  "name": "SWIMWEAR_G_C53",
+  "description": "Mud",
+  "developId": 19174,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_G"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlg_c53_alp",
+  "langName": "name_st_19174",
+  "langInfo": "info_st_19174"
+ },
+ {
+  "playerCamoType": 103,
+  "name": "SWIMWEAR_H_C00",
+  "description": "Olive Drab",
+  "developId": 19175,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_H"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlh_c00_alp",
+  "langName": "name_st_19175",
+  "langInfo": "info_st_19175"
+ },
+ {
+  "playerCamoType": 104,
+  "name": "SWIMWEAR_H_C01",
+  "description": "Tiger Stripe",
+  "developId": 19176,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_H"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlh_c01_alp",
+  "langName": "name_st_19176",
+  "langInfo": "info_st_19176"
+ },
+ {
+  "playerCamoType": 105,
+  "name": "SWIMWEAR_H_C02",
+  "description": "Gold Tiger",
+  "developId": 19177,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_H"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlh_c02_alp",
+  "langName": "name_st_19177",
+  "langInfo": "info_st_19177"
+ },
+ {
+  "playerCamoType": 106,
+  "name": "SWIMWEAR_H_C03",
+  "description": "Desert Fox",
+  "developId": 19178,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_H"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlh_c03_alp",
+  "langName": "name_st_19178",
+  "langInfo": "info_st_19178"
+ },
+ {
+  "playerCamoType": 107,
+  "name": "SWIMWEAR_H_C05",
+  "description": "Wet Work",
+  "developId": 19179,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_H"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlh_c05_alp",
+  "langName": "name_st_19179",
+  "langInfo": "info_st_19179"
+ },
+ {
+  "playerCamoType": 108,
+  "name": "SWIMWEAR_H_C06",
+  "description": "Splitter",
+  "developId": 19180,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_H"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlh_c06_alp",
+  "langName": "name_st_19180",
+  "langInfo": "info_st_19180"
+ },
+ {
+  "playerCamoType": 109,
+  "name": "SWIMWEAR_H_C38",
+  "description": "Parasite Mist",
+  "developId": 19181,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_H"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlh_c38_alp",
+  "langName": "name_st_19181",
+  "langInfo": "info_st_19181"
+ },
+ {
+  "playerCamoType": 110,
+  "name": "SWIMWEAR_H_C39",
+  "description": "Old Rose",
+  "developId": 19182,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_H"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlh_c39_alp",
+  "langName": "name_st_19182",
+  "langInfo": "info_st_19182"
+ },
+ {
+  "playerCamoType": 111,
+  "name": "SWIMWEAR_H_C44",
+  "description": "Camoflage Green",
+  "developId": 19183,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_H"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlh_c44_alp",
+  "langName": "name_st_19183",
+  "langInfo": "info_st_19183"
+ },
+ {
+  "playerCamoType": 112,
+  "name": "SWIMWEAR_H_C46",
+  "description": "Iron Blue",
+  "developId": 19184,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_H"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlh_c46_alp",
+  "langName": "name_st_19184",
+  "langInfo": "info_st_19184"
+ },
+ {
+  "playerCamoType": 113,
+  "name": "SWIMWEAR_H_C48",
+  "description": "Red Rust",
+  "developId": 19185,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_H"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlh_c48_alp",
+  "langName": "name_st_19185",
+  "langInfo": "info_st_19185"
+ },
+ {
+  "playerCamoType": 114,
+  "name": "SWIMWEAR_H_C53",
+  "description": "Mud",
+  "developId": 19186,
+  "fovaCamoId": null,
+  "playerParts": [
+   "SWIMWEAR_H"
+  ],
+  "icon": "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_swimwear_dlh_c53_alp",
+  "langName": "name_st_19186",
+  "langInfo": "info_st_19186"
+ },
+ {
+  "playerCamoType": 115,
+  "name": "OCELOT",
+  "description": "Ocelot",
+  "developId": null,
+  "fovaCamoId": null,
+  "playerParts": [
+   "OCELOT"
+  ],
+  "langName": "name_dd_24007",
+  "langInfo": "name_dd_24007"
+ },
+ {
+  "playerCamoType": 116,
+  "name": "QUIET",
+  "description": "Quiet",
+  "developId": null,
+  "fovaCamoId": null,
+  "playerParts": [
+   "QUIET"
+  ]
+ }
+]

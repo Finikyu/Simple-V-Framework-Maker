@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>SimpleVFrameworkMaker</AssemblyName>
+    <RootNamespace>Svfm.App</RootNamespace>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\Fonts\*.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Svfm.Core\Svfm.Core.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,22 @@
+name: Feedback
+description: An idea, a question, or a mod that does not port well.
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of feedback
+      options:
+        - Idea
+        - Question
+        - A mod that does not port well
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: text
+    attributes:
+      label: Your feedback
+      description: For a mod, give its name and a link to it.
+    validations:
+      required: true

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Svfm.Core</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Runs the Lua of an existing V Framework mod in a sandbox (every game and V Framework call is recorded, not run). -->
+    <PackageReference Include="MoonSharp" Version="2.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="AppShots" /> <!-- the UI checks force a failing icon maker -->
+    <InternalsVisibleTo Include="Svfm.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Knowledge\Data\*.json" LogicalName="Svfm.Knowledge.%(Filename).json" />
+    <EmbeddedResource Include="Archives\Data\qar_dictionary.txt.gz" LogicalName="Svfm.Archives.qar_dictionary.txt.gz" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,300 @@
+<Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Svfm.App.App" RequestedThemeVariant="Dark">
+  <Application.Resources>
+    <Color x:Key="SystemAccentColor">#F0A73A</Color>
+    <Color x:Key="SystemAccentColorLight1">#F5B85A</Color>
+    <Color x:Key="SystemAccentColorLight2">#F8C97F</Color>
+    <Color x:Key="SystemAccentColorLight3">#FBDAA5</Color>
+    <Color x:Key="SystemAccentColorDark1">#D8922B</Color>
+    <Color x:Key="SystemAccentColorDark2">#B87A22</Color>
+    <Color x:Key="SystemAccentColorDark3">#8F5E1A</Color>
+    <Color x:Key="Bg">#121417</Color>
+    <SolidColorBrush x:Key="BgBrush" Color="#121417" />
+    <SolidColorBrush x:Key="PanelBrush" Color="#16191C" />
+    <SolidColorBrush x:Key="CardBrush" Color="#1A1D21" />
+    <SolidColorBrush x:Key="LineBrush" Color="#2E333A" />
+    <SolidColorBrush x:Key="TextBrush" Color="#ECEAE4" />
+    <SolidColorBrush x:Key="MutedBrush" Color="#A3A8AF" />
+    <SolidColorBrush x:Key="AmberBrush" Color="#F0A73A" />
+    <SolidColorBrush x:Key="RedBrush" Color="#E5534B" />
+    <SolidColorBrush x:Key="OrangeBrush" Color="#FF8A3D" />
+    <SolidColorBrush x:Key="GreenBrush" Color="#58B07F" />
+    <SolidColorBrush x:Key="OkTextBrush" Color="#8FD1A9" />
+    <SolidColorBrush x:Key="OkFillBrush" Color="#15241B" />
+    <SolidColorBrush x:Key="OkLineBrush" Color="#2F5A41" />
+    <SolidColorBrush x:Key="WarnTextBrush" Color="#FFB27A" />
+    <SolidColorBrush x:Key="WarnFillBrush" Color="#2A1608" />
+    <SolidColorBrush x:Key="WarnLineBrush" Color="#7A3A12" />
+    <SolidColorBrush x:Key="FixTextBrush" Color="#9CC6F0" />
+    <SolidColorBrush x:Key="FixFillBrush" Color="#121D28" />
+    <SolidColorBrush x:Key="FixLineBrush" Color="#2C4A66" />
+    <SolidColorBrush x:Key="BadTextBrush" Color="#F8C9C5" />
+    <SolidColorBrush x:Key="BadFillBrush" Color="#2A1210" />
+    <SolidColorBrush x:Key="DashBrush" Color="#4A515A" />
+    <SolidColorBrush x:Key="DeepBrush" Color="#0E1012" />
+  </Application.Resources>
+  <Application.Styles>
+    <FluentTheme />
+    <Style Selector="Window">
+      <Setter Property="Background" Value="{StaticResource BgBrush}" />
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+      <Setter Property="FontFamily" Value="fonts:Plex#IBM Plex Sans, Inter, Segoe UI, sans-serif" />
+      <Setter Property="FontSize" Value="14" />
+    </Style>
+    <Style Selector="TextBlock.lbl">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+      <Setter Property="LetterSpacing" Value="0.8" />
+    </Style>
+    <Style Selector="TextBlock.muted"><Setter Property="Foreground" Value="{StaticResource MutedBrush}" /></Style>
+    <Style Selector="Button">
+      <Setter Property="Background" Value="#22262B" />
+      <Setter Property="BorderBrush" Value="#363C44" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Padding" Value="10,3" />
+      <Setter Property="MinHeight" Value="28" />
+    </Style>
+    <!-- iDroid hover: the border lights amber and the fill barely moves, like a menu line being highlighted. -->
+    <Style Selector="Button:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#1E2227" />
+      <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" />
+    </Style>
+    <!--
+      An item drop-down box (issue #5, the mock-up's .dd): the open category has an amber border. An empty one is greyed
+      with a dashed outline (drawn by the box itself), as the mock-up's .none.
+    -->
+    <Style Selector="Button.dd">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector="Button.dd.on /template/ ContentPresenter">
+      <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" />
+    </Style>
+    <Style Selector="Button.dd.none">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+    <Style Selector="Button.dd.none /template/ ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style Selector="Border.bar">
+      <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" />
+      <Setter Property="BorderThickness" Value="0,2,0,1" />
+    </Style>
+    <Style Selector="Button.on"><Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" /><Setter Property="Foreground" Value="{StaticResource AmberBrush}" /></Style>
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter, ListBoxItem:selected:pointerover /template/ ContentPresenter, ListBoxItem:selected:focus /template/ ContentPresenter">
+      <Setter Property="Background" Value="#241C0E" />
+      <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="0" />
+    </Style>
+    <Style Selector="ListBoxItem /template/ ContentPresenter"><Setter Property="CornerRadius" Value="0" /></Style>
+    <!-- Tabs (mock-up .t). Every tab keeps a visible border: the open one has an amber border and wash, one with unsaved
+         changes an amber border, one with nothing to save a plain grey one, and one that doesn't apply to this item is
+         greyed out and disabled. -->
+    <Style Selector="Button.tab">
+      <Setter Property="Background" Value="#1A1D21" />
+      <Setter Property="BorderBrush" Value="#3A4149" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="12,5" />
+      <Setter Property="FontSize" Value="13" />
+    </Style>
+    <Style Selector="Button.tab /template/ ContentPresenter">
+      <Setter Property="BorderBrush" Value="#3A4149" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Button.tab.on">
+      <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" />
+      <Setter Property="Background" Value="#24F0A73A" />
+      <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+    <Style Selector="Button.tab.on /template/ ContentPresenter">
+      <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" />
+      <Setter Property="Background" Value="#24F0A73A" />
+    </Style>
+    <Style Selector="Button.tab.changed">
+      <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" />
+    </Style>
+    <Style Selector="Button.tab.changed /template/ ContentPresenter">
+      <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" />
+    </Style>
+    <Style Selector="Button.tab.off">
+      <Setter Property="Opacity" Value="0.38" />
+      <Setter Property="BorderBrush" Value="#23272C" />
+    </Style>
+    <Style Selector="Button.tab.off /template/ ContentPresenter">
+      <Setter Property="BorderBrush" Value="#23272C" />
+    </Style>
+    <!--
+      A button for something the mod has nothing in. Same treatment as a tab that does not apply: dimmed and a dark border, so it reads as unavailable rather
+      than as a button that does nothing. The owner asked for it: "Unselectable options such as 'head' 'Weapon' should be
+      greyed out."
+    -->
+    <Style Selector="Button.off">
+      <Setter Property="Opacity" Value="0.38" />
+      <Setter Property="BorderBrush" Value="#23272C" />
+      <Setter Property="Background" Value="#1A1D21" />
+    </Style>
+    <!--
+      A small round blue "i". It is a plain Border, not a Button: the owner wants it to explain itself on hover, not on
+      click ("Blue ! should give information on hover, not click"). A Border still takes a ToolTip.Tip, and because it
+      is not focusable it never steals a click or a Tab stop from the control beside it.
+    -->
+    <Style Selector="Border.info">
+      <Setter Property="Background" Value="#2D4A7A" />
+      <Setter Property="BorderBrush" Value="#3E63A0" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Width" Value="18" />
+      <Setter Property="Height" Value="18" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Cursor" Value="Help" />
+      <!-- Show the explanation quickly: the default delay is long enough that the badge feels unresponsive. -->
+      <Setter Property="ToolTip.ShowDelay" Value="150" />
+    </Style>
+    <Style Selector="Border.info > TextBlock">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="#DCE8FA" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.info:pointerover">
+      <Setter Property="Background" Value="#3A5C93" />
+    </Style>
+    <!--
+      Tooltips: the default Avalonia tooltip is a thin grey box that appears after a long delay and wraps badly, which
+      is why the "i" badges felt dead. These make every tooltip in the app readable and quick, so hovering an "i"
+      gives its explanation straight away.
+    -->
+    <Style Selector="ToolTip">
+      <Setter Property="Background" Value="#12161B" />
+      <Setter Property="BorderBrush" Value="#3E63A0" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Padding" Value="10,7" />
+      <Setter Property="MaxWidth" Value="420" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="#DCE3EC" />
+    </Style>
+
+    <!-- A row of the item list that can be right-clicked (duplicate, remove). -->
+    <Style Selector="Border.note">
+      <Setter Property="Background" Value="#121D28" />
+      <Setter Property="BorderBrush" Value="#2C4A66" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Padding" Value="10,8" />
+    </Style>
+    <Style Selector="Button.card2"><Setter Property="Background" Value="#1A1D21" /><Setter Property="Padding" Value="14,12" /></Style>
+    <Style Selector="Button.card2.on /template/ ContentPresenter"><Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" /></Style>
+    <Style Selector="Expander"><Setter Property="Background" Value="Transparent" /><Setter Property="BorderThickness" Value="0" /><Setter Property="HorizontalAlignment" Value="Stretch" /></Style>
+    <Style Selector="Expander /template/ ToggleButton#ExpanderHeader"><Setter Property="Background" Value="#16191C" /><Setter Property="BorderBrush" Value="#2E333A" /><Setter Property="BorderThickness" Value="1" /></Style>
+    <Style Selector="Expander /template/ Border#ExpanderContent"><Setter Property="Background" Value="Transparent" /><Setter Property="BorderThickness" Value="0" /></Style>
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="#F0A73A" />
+      <Setter Property="BorderBrush" Value="#F0A73A" />
+      <Setter Property="Foreground" Value="#1A1205" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#F5B85A" />
+      <Setter Property="TextElement.Foreground" Value="#1A1205" />
+    </Style>
+    <Style Selector="Button.danger">
+      <Setter Property="Background" Value="#E5534B" />
+      <Setter Property="BorderBrush" Value="#E5534B" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button:focus-visible /template/ ContentPresenter">
+      <Setter Property="BorderBrush" Value="#F0A73A" />
+      <Setter Property="BorderThickness" Value="2" />
+    </Style>
+    <Style Selector="TextBox">
+      <Setter Property="Background" Value="#101214" />
+      <Setter Property="BorderBrush" Value="#363C44" />
+      <Setter Property="CornerRadius" Value="0" />
+    </Style>
+    <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+      <Setter Property="BorderBrush" Value="#F0A73A" />
+    </Style>
+    <Style Selector="Border.chip">
+      <Setter Property="BorderBrush" Value="#363C44" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="999" />
+      <Setter Property="Padding" Value="8,5" />
+    </Style>
+    <Style Selector="Border.chip > TextBlock"><Setter Property="FontSize" Value="12" /><Setter Property="Foreground" Value="#C9CDD2" /></Style>
+    <Style Selector="Border.chip.ok"><Setter Property="Background" Value="{StaticResource OkFillBrush}" /><Setter Property="BorderBrush" Value="{StaticResource OkLineBrush}" /></Style>
+    <Style Selector="Border.chip.ok > TextBlock"><Setter Property="Foreground" Value="{StaticResource OkTextBrush}" /></Style>
+    <Style Selector="Border.chip.warn"><Setter Property="Background" Value="{StaticResource WarnFillBrush}" /><Setter Property="BorderBrush" Value="{StaticResource WarnLineBrush}" /></Style>
+    <Style Selector="Border.chip.warn > TextBlock"><Setter Property="Foreground" Value="{StaticResource WarnTextBrush}" /></Style>
+    <!-- "Can't wear it": greyed out, not red. Red reads as an error in the mod; this is just a character the suit
+         does not exist for, which is normal. The owner asked for exactly this: "grey out who cannot". -->
+    <Style Selector="Border.chip.no"><Setter Property="Background" Value="#1A1C1F" /><Setter Property="BorderBrush" Value="#2E3237" /></Style>
+    <Style Selector="Border.chip.no > TextBlock"><Setter Property="Foreground" Value="#5A6068" /></Style>
+    <!-- "Can wear it, but worth knowing": amber, quieter than a warning. -->
+    <Style Selector="Border.chip.note"><Setter Property="Background" Value="{StaticResource WarnFillBrush}" /><Setter Property="BorderBrush" Value="{StaticResource WarnLineBrush}" /></Style>
+    <Style Selector="Border.chip.note > TextBlock"><Setter Property="Foreground" Value="{StaticResource WarnTextBrush}" /></Style>
+    <Style Selector="Border.chip.fix"><Setter Property="Background" Value="{StaticResource FixFillBrush}" /><Setter Property="BorderBrush" Value="{StaticResource FixLineBrush}" /></Style>
+    <Style Selector="Border.chip.fix > TextBlock"><Setter Property="Foreground" Value="{StaticResource FixTextBrush}" /></Style>
+    <Style Selector="Border.chip.bad"><Setter Property="Background" Value="{StaticResource BadFillBrush}" /><Setter Property="BorderBrush" Value="{StaticResource RedBrush}" /></Style>
+    <Style Selector="Border.chip.bad > TextBlock"><Setter Property="Foreground" Value="{StaticResource BadTextBrush}" /></Style>
+    <Style Selector="TextBlock.mono"><Setter Property="FontFamily" Value="fonts:Plex#IBM Plex Mono, Cascadia Mono, Consolas, monospace" /><Setter Property="FontSize" Value="12" /></Style>
+    <!-- MGSV styling (item 38). The iDroid has no rounded corners: panels are square, separated by thin rules, with the
+         amber accent used as a marker rather than as a fill. Cards therefore lose their radius and gain a 2px amber rule
+         down the left edge, which is the iDroid's own way of marking a panel. -->
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="{StaticResource CardBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Padding" Value="14" />
+      <Setter Property="BoxShadow" Value="inset 2 0 0 0 #F0A73A" />
+    </Style>
+    <Style Selector="Border.chip.sel"><Setter Property="Background" Value="{StaticResource AmberBrush}" /></Style>
+  <Style Selector="Border.chip.sel TextBlock"><Setter Property="Foreground" Value="#1A1205" /></Style>
+    <!--
+      A disabled checkbox has to read as plainly unavailable, not merely a shade dimmer. The PARTS row uses this for a
+      part the model does not have, so the greyed-out box and its blue "!" together say "this exists, but not here".
+    -->
+    <Style Selector="CheckBox:disabled">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+    <Style Selector="CheckBox:disabled /template/ ContentPresenter">
+      <Setter Property="Foreground" Value="#6B7480" />
+    </Style>
+    <!--
+      The same for the other selection boxes. The owner: "the selection boxes should be greyed out in not applicable".
+      A disabled ComboBox, RadioButton or ToggleButton has to read as plainly unavailable rather than a shade dimmer, so
+      it is dimmed and its text goes grey. The blue "!" badges beside them say why.
+    -->
+    <Style Selector="ComboBox:disabled">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+    <Style Selector="RadioButton:disabled">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+    <Style Selector="RadioButton:disabled /template/ ContentPresenter">
+      <Setter Property="Foreground" Value="#6B7480" />
+    </Style>
+    <Style Selector="ToggleButton:disabled">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+    <!--
+      The Build button carries a blue border so it stands out from the amber tab rail beside it. The owner: "the build
+      button have a blue border".
+    -->
+    <Style Selector="Button.build">
+      <Setter Property="BorderBrush" Value="#3E63A0" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.build:pointerover /template/ ContentPresenter">
+      <Setter Property="BorderBrush" Value="#5B87D6" />
+    </Style>
+</Application.Styles>
+</Application>

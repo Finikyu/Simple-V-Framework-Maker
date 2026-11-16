@@ -1,0 +1,4114 @@
+{
+"parts": {
+"AM_10001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg00_ammo0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg00_ammo0_def.fmdl"
+},
+"AM_10003": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg00_ammo1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg00_ammo1_def.fmdl"
+},
+"AM_10015": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg00_ammo1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg00_ammo1_def.fmdl"
+},
+"AM_10015_0": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg00_ammo0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg00_ammo0_def.fmdl"
+},
+"AM_1003a": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg00_ammo1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg00_ammo1_def.fmdl"
+},
+"AM_10101": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg01_ammo0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg01_ammo0_def.fmdl"
+},
+"AM_10103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg01_ammo1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg01_ammo1_def.fmdl"
+},
+"AM_10125": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg01_ammo1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg01_ammo1_def.fmdl"
+},
+"AM_10125_0": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg01_ammo0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg01_ammo0_def.fmdl"
+},
+"AM_10134": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg01_ammo1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg01_ammo1_def.fmdl"
+},
+"AM_10134_0": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg01_ammo0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg01_ammo0_def.fmdl"
+},
+"AM_10201": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg08_ammo0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg08_ammo0_def.fmdl"
+},
+"AM_10203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg08_ammo1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg08_ammo1_def.fmdl"
+},
+"AM_10214": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg08_ammo1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg08_ammo1_def.fmdl"
+},
+"AM_10214_0": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg08_ammo0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg08_ammo0_def.fmdl"
+},
+"AM_10302": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg10_ammo0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg10_ammo0_def.fmdl"
+},
+"AM_10303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg10_ammo1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg10_ammo1_def.fmdl"
+},
+"AM_10305": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg10_ammo2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg10_ammo2_def.fmdl"
+},
+"AM_10403": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg06_ammo0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg06_ammo0_def.fmdl"
+},
+"AM_10404": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg06_ammo1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg06_ammo1_def.fmdl"
+},
+"AM_10405": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg06_ammo1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg06_ammo1_def.fmdl"
+},
+"AM_10407": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg06_ammo1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/hag/Scenes/hg06_ammo1_def.fmdl"
+},
+"AM_10503": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_10515": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_10526": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_10603": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg09_ammo1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/hag/hg09_ammo1_def_v00.parts"
+},
+"AM_10615": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg09_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/hag/hg09_ammo0_def_v00.parts"
+},
+"AM_10626": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg09_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/hag/hg09_ammo0_def_v00.parts"
+},
+"AM_10637": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/hg09_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/hag/hg09_ammo0_def_v00.parts"
+},
+"AM_20002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main2_def.fmdl"
+},
+"AM_20003": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main0_def.fmdl"
+},
+"AM_20005": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main1_def.fmdl"
+},
+"AM_20103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main2_def.fmdl"
+},
+"AM_20104": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main0_def.fmdl"
+},
+"AM_20105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main3_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main3_def.fmdl"
+},
+"AM_20106": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main1_def.fmdl"
+},
+"AM_20116": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main3_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main3_def.fmdl"
+},
+"AM_20116_0": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main2_def.fmdl"
+},
+"AM_20116_1": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main0_def.fmdl"
+},
+"AM_20203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main0_def.fmdl"
+},
+"AM_20206": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main3_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main3_def.fmdl"
+},
+"AM_20302": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am16_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am16_main0_def.fmdl"
+},
+"AM_20303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am16_main1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am16_main1_def.fmdl"
+},
+"AM_20304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am16_main2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am16_main2_def.fmdl"
+},
+"AM_20305": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am16_main3_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am16_main3_def.fmdl"
+},
+"AM_30001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am10_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am10_main0_def.fmdl"
+},
+"AM_30003": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am10_main2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am10_main2_def.fmdl"
+},
+"AM_30014": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am01_main3_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am01_main3_def.fmdl"
+},
+"AM_30034": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am01_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am01_main0_def.fmdl"
+},
+"AM_30043": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am10_main3_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am10_main3_def.fmdl"
+},
+"AM_30047": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am10_main1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am10_main1_def.fmdl"
+},
+"AM_30054": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am01_main4_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am01_main4_def.fmdl"
+},
+"AM_30055": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am01_main1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am01_main1_def.fmdl"
+},
+"AM_30102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am00_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am00_main0_def.fmdl"
+},
+"AM_30103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am00_main3_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am00_main3_def.fmdl"
+},
+"AM_30123": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am00_main2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am00_main2_def.fmdl"
+},
+"AM_30125": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am00_main1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am00_main1_def.fmdl"
+},
+"AM_30201": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am02_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am02_main0_def.fmdl"
+},
+"AM_30203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am02_main2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am02_main2_def.fmdl"
+},
+"AM_30223": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am02_main1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am02_main1_def.fmdl"
+},
+"AM_30225": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am02_main3_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am02_main3_def.fmdl"
+},
+"AM_30232": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am02_main4_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am02_main4_def.fmdl"
+},
+"AM_30303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am00_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am00_main0_def.fmdl"
+},
+"AM_30305": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am00_main3_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am00_main3_def.fmdl"
+},
+"AM_30306": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am00_main2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am00_main2_def.fmdl"
+},
+"AM_30325": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am04_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am04_main0_def.fmdl"
+},
+"AM_40001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40012": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40015": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40023": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am02_main5_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am02_main5_def.fmdl"
+},
+"AM_40115": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40123": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40126": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40133": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40135": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40136": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40143": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_40203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am15_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am15_main0_def.fmdl"
+},
+"AM_40204": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am15_main2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am15_main2_def.fmdl"
+},
+"AM_40206": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am15_main1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am15_main1_def.fmdl"
+},
+"AM_40304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am12_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am12_main0_def.fmdl"
+},
+"AM_50002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am14_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am14_main0_def_v00.parts"
+},
+"AM_50015": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am14_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am14_main0_def_v00.parts"
+},
+"AM_50026": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am14_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am14_main0_def_v00.parts"
+},
+"AM_50033": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am14_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am14_main0_def_v00.parts"
+},
+"AM_50035": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am14_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am14_main0_def_v00.parts"
+},
+"AM_50047": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am14_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am14_main0_def_v00.parts"
+},
+"AM_50102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am05_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am05_main0_def_v00.parts"
+},
+"AM_50115": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am05_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am05_main0_def_v00.parts"
+},
+"AM_50126": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am05_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am05_main0_def_v00.parts"
+},
+"AM_50136": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am05_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am05_main0_def_v00.parts"
+},
+"AM_50147": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am05_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am05_main0_def_v00.parts"
+},
+"AM_50202": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am05_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am05_main0_def_v00.parts"
+},
+"AM_50215": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am05_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am05_main0_def_v00.parts"
+},
+"AM_50226": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am05_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am05_main0_def_v00.parts"
+},
+"AM_50237": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am05_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am05_main0_def_v00.parts"
+},
+"AM_50303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/gl02_ammo1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/grl/gl02_ammo1_def_v00.parts"
+},
+"AM_50304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/gl02_ammo2_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/grl/gl02_ammo2_def_v00.parts"
+},
+"AM_50306": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/gl02_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/grl/gl02_ammo0_def_v00.parts"
+},
+"AM_60001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am09_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am09_main0_def.fmdl"
+},
+"AM_60007": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am09_main2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am09_main2_def.fmdl"
+},
+"AM_60013": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am09_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am09_main0_def.fmdl"
+},
+"AM_60102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am09_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am09_main0_def.fmdl"
+},
+"AM_60107": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am09_main2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am09_main2_def.fmdl"
+},
+"AM_60114": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am09_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am09_main0_def.fmdl"
+},
+"AM_60203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am01_main2_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am01_main2_def.fmdl"
+},
+"AM_60303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am02_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am02_main0_def.fmdl"
+},
+"AM_60315": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am00_main4_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am00_main4_def.fmdl"
+},
+"AM_60325": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am02_main4_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am02_main4_def.fmdl"
+},
+"AM_60404": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am13_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am13_main0_def.fmdl"
+},
+"AM_60406": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am13_main1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am13_main1_def.fmdl"
+},
+"AM_60415": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am13_main0_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am13_main0_def.fmdl"
+},
+"AM_60417": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am13_main1_def.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/amo/Scenes/am13_main1_def.fmdl"
+},
+"AM_70002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am06_main1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am06_main1_def_v00.parts"
+},
+"AM_70003": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am06_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am06_main0_def_v00.parts"
+},
+"AM_70005": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am06_main2_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am06_main2_def_v00.parts"
+},
+"AM_70103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am07_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am07_main0_def_v00.parts"
+},
+"AM_70104": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am07_main1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am07_main1_def_v00.parts"
+},
+"AM_70105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am07_main2_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am07_main2_def_v00.parts"
+},
+"AM_70114": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am07_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am07_main0_def_v00.parts"
+},
+"AM_70115": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am07_main1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am07_main1_def_v00.parts"
+},
+"AM_70116": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am07_main2_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am07_main2_def_v00.parts"
+},
+"AM_70125": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am07_main3_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am07_main3_def_v00.parts"
+},
+"AM_70126": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am07_main4_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am07_main4_def_v00.parts"
+},
+"AM_70127": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am07_main5_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am07_main5_def_v00.parts"
+},
+"AM_70203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am08_main1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am08_main1_def_v00.parts"
+},
+"AM_70204": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am08_main2_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am08_main2_def_v00.parts"
+},
+"AM_70205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/am08_main0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/amo/am08_main0_def_v00.parts"
+},
+"AM_80002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms00_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms00_ammo0_def_v00.parts"
+},
+"AM_80004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms00_ammo1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms00_ammo1_def_v00.parts"
+},
+"AM_80006": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms00_ammo2_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms00_ammo2_def_v00.parts"
+},
+"AM_80103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo0_def_v00.parts"
+},
+"AM_80104": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo0_def_v00.parts"
+},
+"AM_80105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo0_def_v00.parts"
+},
+"AM_80116": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo1_def_v00.parts"
+},
+"AM_80119": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo1_def_v00.parts"
+},
+"AM_8011a": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo1_def_v00.parts"
+},
+"AM_8011b": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo1_def_v00.parts"
+},
+"AM_80124": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo0_def_v00.parts"
+},
+"AM_80125": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo0_def_v00.parts"
+},
+"AM_80126": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo0_def_v00.parts"
+},
+"AM_80135": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo1_def_v00.parts"
+},
+"AM_80136": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo1_def_v00.parts"
+},
+"AM_80138": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo1_def_v00.parts"
+},
+"AM_8013a": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo1_def_v00.parts"
+},
+"AM_8013b": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms02_ammo1_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_ammo1_def_v00.parts"
+},
+"AM_80203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms03_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms03_ammo0_def_v00.parts"
+},
+"AM_80204": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms03_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms03_ammo0_def_v00.parts"
+},
+"AM_80205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms03_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms03_ammo0_def_v00.parts"
+},
+"AM_80206": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms03_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms03_ammo0_def_v00.parts"
+},
+"AM_80303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms01_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms01_ammo0_def_v00.parts"
+},
+"AM_80304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms01_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms01_ammo0_def_v00.parts"
+},
+"AM_80305": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms01_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms01_ammo0_def_v00.parts"
+},
+"AM_80306": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/magazine/ms01_ammo0_def_v00.fpk",
+"kind": "magazine",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms01_ammo0_def_v00.parts"
+},
+"BA_10403": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/hg06_barl0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/hg06_barl0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg06_barl0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg06_barl0_def_v00.parts"
+},
+"BA_10405": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/hg06_barl1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/hg06_barl1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg06_barl1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg06_barl1_def_v00.parts"
+},
+"BA_10407": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/hg06_barl2_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/hg06_barl2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg06_barl2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg06_barl2_def_v00.parts"
+},
+"BA_10414": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/hg06_barl5_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/hg06_barl5_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg06_barl5_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg06_barl5_def_v00.parts"
+},
+"BA_10415": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/hg06_barl6_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/hg06_barl6_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg06_barl6_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg06_barl6_def_v00.parts"
+},
+"BA_10417": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/hg06_barl7_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/hg06_barl7_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg06_barl7_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg06_barl7_def_v00.parts"
+},
+"BA_10424": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/hg06_barl3_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/hg06_barl3_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg06_barl3_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg06_barl3_def_v00.parts"
+},
+"BA_10425": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/hg06_barl4_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/hg06_barl4_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg06_barl4_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg06_barl4_def_v00.parts"
+},
+"BA_10503": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/hg02_barl0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/hg02_barl0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg02_barl0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg02_barl0_def_v00.parts"
+},
+"BA_10504": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/hg02_barl1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/hg02_barl1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg02_barl1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg02_barl1_def_v00.parts"
+},
+"BA_30001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba01_main0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba01_main0_def_v00.parts"
+},
+"BA_30003": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba01_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba01_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba01_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba01_main1_def_v00.parts"
+},
+"BA_30023": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba01_main7_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba01_main7_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba01_main7_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba01_main7_def_v00.parts"
+},
+"BA_30024": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba01_main8_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba01_main8_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba01_main8_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba01_main8_def_v00.parts"
+},
+"BA_30035": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba01_main4_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba01_main4_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba01_main4_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba01_main4_def_v00.parts"
+},
+"BA_30036": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba01_main5_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba01_main5_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba01_main5_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba01_main5_def_v00.parts"
+},
+"BA_30043": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba01_main2_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba01_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba01_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba01_main2_def_v00.parts"
+},
+"BA_30044": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba01_main9_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba01_main9_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba01_main9_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba01_main9_def_v00.parts"
+},
+"BA_30102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba00_main0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba00_main0_def_v00.parts"
+},
+"BA_30103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba00_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba00_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba00_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba00_main1_def_v00.parts"
+},
+"BA_30107": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba00_main5_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba00_main5_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba00_main5_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba00_main5_def_v00.parts"
+},
+"BA_30113": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba00_main2_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba00_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba00_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba00_main2_def_v00.parts"
+},
+"BA_30115": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba00_main4_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba00_main4_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba00_main4_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba00_main4_def_v00.parts"
+},
+"BA_30123": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba00_main6_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba00_main6_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba00_main6_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba00_main6_def_v00.parts"
+},
+"BA_30124": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba00_main7_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba00_main7_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba00_main7_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba00_main7_def_v00.parts"
+},
+"BA_30201": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba07_main0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba07_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba07_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba07_main0_def_v00.parts"
+},
+"BA_30203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba07_main4_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba07_main4_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba07_main4_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba07_main4_def_v00.parts"
+},
+"BA_30213": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba07_main3_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba07_main3_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba07_main3_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba07_main3_def_v00.parts"
+},
+"BA_30214": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba07_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba07_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba07_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba07_main1_def_v00.parts"
+},
+"BA_30223": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba07_main2_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba07_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba07_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba07_main2_def_v00.parts"
+},
+"BA_30224": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba07_main5_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba07_main5_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba07_main5_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba07_main5_def_v00.parts"
+},
+"BA_30303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ar02_barl0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ar02_barl0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_barl0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_barl0_def_v00.parts"
+},
+"BA_30304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ar02_barl1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ar02_barl1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_barl1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_barl1_def_v00.parts"
+},
+"BA_30314": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ar02_barl4_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ar02_barl4_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_barl4_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_barl4_def_v00.parts"
+},
+"BA_30315": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ar02_barl5_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ar02_barl5_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_barl5_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_barl5_def_v00.parts"
+},
+"BA_30325": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ar02_barl6_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ar02_barl6_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_barl6_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_barl6_def_v00.parts"
+},
+"BA_30326": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ar02_barl7_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ar02_barl7_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_barl7_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_barl7_def_v00.parts"
+},
+"BA_30334": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ar02_barl2_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ar02_barl2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_barl2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_barl2_def_v00.parts"
+},
+"BA_30335": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ar02_barl3_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ar02_barl3_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_barl3_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_barl3_def_v00.parts"
+},
+"BA_40102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/sg01_barl1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/sg01_barl1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_barl1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_barl1_def_v00.parts"
+},
+"BA_40103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/sg01_barl1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/sg01_barl1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_barl1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_barl1_def_v00.parts"
+},
+"BA_40133": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/sg01_barl0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/sg01_barl0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_barl0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_barl0_def_v00.parts"
+},
+"BA_40134": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/sg01_barl0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/sg01_barl0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_barl0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_barl0_def_v00.parts"
+},
+"BA_40135": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/sg01_barl2_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/sg01_barl2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_barl2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_barl2_def_v00.parts"
+},
+"BA_40143": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/sg01_barl3_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/sg01_barl3_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_barl3_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_barl3_def_v00.parts"
+},
+"BA_40203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/sg04_barl0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/sg04_barl0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg04_barl0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg04_barl0_def_v00.parts"
+},
+"BA_40205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/sg04_barl1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/sg04_barl1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg04_barl1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg04_barl1_def_v00.parts"
+},
+"BA_50202": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/gl03_barl1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/gl03_barl1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl03_barl1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl03_barl1_def_v00.parts"
+},
+"BA_50203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/gl03_barl0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/gl03_barl0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl03_barl0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl03_barl0_def_v00.parts"
+},
+"BA_50204": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/gl03_barl2_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/gl03_barl2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl03_barl2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl03_barl2_def_v00.parts"
+},
+"BA_60001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba06_main0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba06_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba06_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba06_main0_def_v00.parts"
+},
+"BA_60004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba06_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba06_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba06_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba06_main1_def_v00.parts"
+},
+"BA_60005": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba06_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba06_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba06_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba06_main1_def_v00.parts"
+},
+"BA_60102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba05_main0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba05_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba05_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba05_main0_def_v00.parts"
+},
+"BA_60105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba05_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba05_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba05_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba05_main1_def_v00.parts"
+},
+"BA_60107": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba05_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba05_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba05_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba05_main1_def_v00.parts"
+},
+"BA_60203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba01_main3_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba01_main3_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba01_main3_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba01_main3_def_v00.parts"
+},
+"BA_60205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba01_main6_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba01_main6_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba01_main6_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba01_main6_def_v00.parts"
+},
+"BA_60303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba02_main0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba02_main0_def_v00.parts"
+},
+"BA_60305": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba02_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba02_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba02_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba02_main1_def_v00.parts"
+},
+"BA_60404": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba09_main0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba09_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba09_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba09_main0_def_v00.parts"
+},
+"BA_60405": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba09_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba09_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba09_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba09_main1_def_v00.parts"
+},
+"BA_60407": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba09_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba09_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba09_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba09_main1_def_v00.parts"
+},
+"BA_60415": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/sr05_barl0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/sr05_barl0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr05_barl0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr05_barl0_def_v00.parts"
+},
+"BA_60416": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/sr05_barl1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/sr05_barl1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr05_barl1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr05_barl1_def_v00.parts"
+},
+"BA_60417": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/sr05_barl1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/sr05_barl1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr05_barl1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr05_barl1_def_v00.parts"
+},
+"BA_70002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba03_main0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba03_main0_def_v00.parts"
+},
+"BA_70004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba03_main2_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba03_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba03_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba03_main2_def_v00.parts"
+},
+"BA_70006": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba03_main3_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba03_main3_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba03_main3_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba03_main3_def_v00.parts"
+},
+"BA_70024": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba03_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba03_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba03_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba03_main1_def_v00.parts"
+},
+"BA_70103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba08_main0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba08_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba08_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba08_main0_def_v00.parts"
+},
+"BA_70105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba08_main0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba08_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba08_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba08_main0_def_v00.parts"
+},
+"BA_70106": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba08_main2_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba08_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba08_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba08_main2_def_v00.parts"
+},
+"BA_70116": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba08_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba08_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba08_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba08_main1_def_v00.parts"
+},
+"BA_70203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba04_main0_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba04_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba04_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba04_main0_def_v00.parts"
+},
+"BA_70205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba04_main1_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba04_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba04_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba04_main1_def_v00.parts"
+},
+"BA_70207": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/barrel/ba04_main2_def_v00.fpk",
+"kind": "barrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/barrel/ba04_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/bar/default/ba04_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/bar/ba04_main2_def_v00.parts"
+},
+"LS_10415": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/option/ls01_main0_def_v00.fpk",
+"kind": "option",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/lsr/ls01_main0_def_v00.parts"
+},
+"LS_20004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/option/ls03_main0_def_v00.fpk",
+"kind": "option",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/lsr/ls03_main0_def_v00.parts"
+},
+"LS_30104": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/option/ls00_main0_def_v00.fpk",
+"kind": "option",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/lsr/ls00_main0_def_v00.parts"
+},
+"LS_40034": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/option/ls02_main0_def_v00.fpk",
+"kind": "option",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/lsr/ls02_main0_def_v00.parts"
+},
+"LT_10102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/option/fl01_main0_def_v00.fpk",
+"kind": "option",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/flt/fl01_main0_def_v00.parts"
+},
+"LT_10104": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/option/ls01_main1_def_v00.fpk",
+"kind": "option",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/lsr/ls01_main1_def_v00.parts"
+},
+"LT_30025": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/option/fl00_main0_def_v00.fpk",
+"kind": "option",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/flt/fl00_main0_def_v00.parts"
+},
+"LT_30105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/option/fl03_main0_def_v00.fpk",
+"kind": "option",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/flt/fl03_main0_def_v00.parts"
+},
+"LT_40103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/option/fl02_main0_def_v00.fpk",
+"kind": "option",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/flt/fl02_main0_def_v00.parts"
+},
+"MO_10002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su01_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su01_main0_def_v00.parts"
+},
+"MO_10004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su01_main1_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su01_main1_def_v00.parts"
+},
+"MO_10026": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/hg00_muzz0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/hag/hg00_muzz0_def_v00.parts"
+},
+"MO_10101": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su01_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su01_main0_def_v00.parts"
+},
+"MO_10202": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su05_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su05_main0_def_v00.parts"
+},
+"MO_20002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/sm00_supp0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/smg/sm00_supp0_def_v00.parts"
+},
+"MO_20005": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su07_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su07_main0_def_v00.parts"
+},
+"MO_20006": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/mz28_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz28_main0_def_v00.parts"
+},
+"MO_20204": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su09_main1_def.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su09_main1_def.parts"
+},
+"MO_20205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su09_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su09_main0_def_v00.parts"
+},
+"MO_20206": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su06_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su06_main0_def_v00.parts"
+},
+"MO_20302": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su11_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su11_main0_def_v00.parts"
+},
+"MO_20307": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su11_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su11_main0_def_v00.parts"
+},
+"MO_30002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/mz32_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz32_main0_def_v00.parts"
+},
+"MO_30005": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/mz15_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz15_main0_def_v00.parts"
+},
+"MO_30025": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/mz33_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz33_main0_def_v00.parts"
+},
+"MO_30046": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/mz08_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz08_main0_def_v00.parts"
+},
+"MO_30102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su00_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su00_main0_def_v00.parts"
+},
+"MO_30105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su00_main1_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su00_main1_def_v00.parts"
+},
+"MO_30115": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/mz16_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz16_main0_def_v00.parts"
+},
+"MO_30117": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su00_main1_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su00_main1_def_v00.parts"
+},
+"MO_30205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/mz19_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz19_main0_def_v00.parts"
+},
+"MO_30235": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su10_main0_def.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su10_main0_def.parts"
+},
+"MO_30237": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su10_main0_def.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su10_main0_def.parts"
+},
+"MO_40104": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su04_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su04_main0_def_v00.parts"
+},
+"MO_40106": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su04_main1_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su04_main1_def_v00.parts"
+},
+"MO_40306": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/mz27_main1_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz27_main1_def_v00.parts"
+},
+"MO_60103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su00_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su00_main0_def_v00.parts"
+},
+"MO_60106": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su00_main1_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su00_main1_def_v00.parts"
+},
+"MO_60204": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su03_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su03_main0_def_v00.parts"
+},
+"MO_60206": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/mz30_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz30_main0_def_v00.parts"
+},
+"MO_60406": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su08_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su08_main0_def_v00.parts"
+},
+"MO_6040a": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/su08_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sup/su08_main0_def_v00.parts"
+},
+"MO_70025": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzleOption/mz26_main0_def_v00.fpk",
+"kind": "muzzleOption",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz26_main0_def_v00.parts"
+},
+"MZ_30001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz01_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz01_main0_def_v00.parts"
+},
+"MZ_30023": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz18_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz18_main0_def_v00.parts"
+},
+"MZ_30102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz00_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz00_main0_def_v00.parts"
+},
+"MZ_30105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz20_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz20_main0_def_v00.parts"
+},
+"MZ_30123": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz17_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz17_main0_def_v00.parts"
+},
+"MZ_30201": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz12_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz12_main0_def_v00.parts"
+},
+"MZ_30213": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz11_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz11_main0_def_v00.parts"
+},
+"MZ_30223": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz13_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz13_main0_def_v00.parts"
+},
+"MZ_30232": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz31_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz31_main0_def_v00.parts"
+},
+"MZ_30303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz02_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz02_main0_def_v00.parts"
+},
+"MZ_40102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz04_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz04_main0_def_v00.parts"
+},
+"MZ_40203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz04_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz04_main0_def_v00.parts"
+},
+"MZ_40206": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz27_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz27_main0_def_v00.parts"
+},
+"MZ_40304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz04_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz04_main0_def_v00.parts"
+},
+"MZ_60001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz10_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz10_main0_def_v00.parts"
+},
+"MZ_60102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz07_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz07_main0_def_v00.parts"
+},
+"MZ_60105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz29_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz29_main0_def_v00.parts"
+},
+"MZ_60203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz09_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz09_main0_def_v00.parts"
+},
+"MZ_60303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz03_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz03_main0_def_v00.parts"
+},
+"MZ_60305": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz07_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz07_main0_def_v00.parts"
+},
+"MZ_60404": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz21_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz21_main0_def_v00.parts"
+},
+"MZ_60405": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz22_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz22_main0_def_v00.parts"
+},
+"MZ_60416": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz23_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz23_main0_def_v00.parts"
+},
+"MZ_70002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz05_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz05_main0_def_v00.parts"
+},
+"MZ_70103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz14_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz14_main0_def_v00.parts"
+},
+"MZ_70106": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz25_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz25_main0_def_v00.parts"
+},
+"MZ_70203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz06_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz06_main0_def_v00.parts"
+},
+"MZ_70207": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/muzzle/mz24_main0_def_v00.fpk",
+"kind": "muzzle",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mzl/mz24_main0_def_v00.parts"
+},
+"RC_10001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg00_main0_def_v00.parts"
+},
+"RC_10003": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg00_main0_def_v00.parts"
+},
+"RC_10004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg00_main2_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg00_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg00_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg00_main2_def_v00.parts"
+},
+"RC_10006": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg07_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg07_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg07_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg07_main0_def_v00.parts"
+},
+"RC_10015": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg00_main2_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg00_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg00_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg00_main2_def_v00.parts"
+},
+"RC_10024": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg00_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg00_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg00_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg00_main1_def_v00.parts"
+},
+"RC_10035": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg00_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg00_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg00_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg00_main1_def_v00.parts"
+},
+"RC_1003a": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg00_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg00_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg00_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg00_main1_def_v00.parts"
+},
+"RC_10101": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg01_main3_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg01_main3_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg01_main3_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg01_main3_def_v00.parts"
+},
+"RC_10102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg01_main4_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg01_main4_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg01_main4_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg01_main4_def_v00.parts"
+},
+"RC_10105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg01_main0_def_v00.parts"
+},
+"RC_10107": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg07_main4_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg07_main4_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg07_main4_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg07_main4_def_v00.parts"
+},
+"RC_10117": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg01_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg01_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg01_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg01_main1_def_v00.parts"
+},
+"RC_10125": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg01_main4_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg01_main4_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg01_main4_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg01_main4_def_v00.parts"
+},
+"RC_10134": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg01_main4_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg01_main4_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg01_main4_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg01_main4_def_v00.parts"
+},
+"RC_10136": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg01_main2_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg01_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg01_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg01_main2_def_v00.parts"
+},
+"RC_10201": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg08_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg08_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg08_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg08_main0_def_v00.parts"
+},
+"RC_10203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg08_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg08_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg08_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg08_main0_def_v00.parts"
+},
+"RC_10205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg08_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg08_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg08_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg08_main1_def_v00.parts"
+},
+"RC_10214": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg08_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg08_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg08_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg08_main0_def_v00.parts"
+},
+"RC_10216": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg08_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg08_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg08_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg08_main1_def_v00.parts"
+},
+"RC_10302": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg10_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg10_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg10_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg10_main0_def_v00.parts"
+},
+"RC_10303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg10_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg10_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg10_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg10_main0_def_v00.parts"
+},
+"RC_10304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg10_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg10_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg10_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg10_main0_def_v00.parts"
+},
+"RC_10306": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg10_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg10_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg10_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg10_main1_def_v00.parts"
+},
+"RC_10307": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg07_main2_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg07_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg07_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg07_main2_def_v00.parts"
+},
+"RC_10403": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg06_main0_def.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg06_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg06_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg06_main0_def.parts"
+},
+"RC_10405": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg06_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg06_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg06_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg06_main1_def_v00.parts"
+},
+"RC_10407": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg06_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg06_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg06_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg06_main1_def_v00.parts"
+},
+"RC_10503": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg02_main0_def_v00.parts"
+},
+"RC_10504": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg02_main0_def_v00.parts"
+},
+"RC_10515": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg02_main0_def_v00.parts"
+},
+"RC_10526": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg02_main0_def_v00.parts"
+},
+"RC_10603": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg09_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg09_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg09_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg09_main0_def_v00.parts"
+},
+"RC_10604": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg09_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg09_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg09_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg09_main0_def_v00.parts"
+},
+"RC_10615": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg09_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg09_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg09_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg09_main0_def_v00.parts"
+},
+"RC_10626": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg09_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg09_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg09_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg09_main0_def_v00.parts"
+},
+"RC_10637": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg09_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/hg09_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg09_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg09_main0_def_v00.parts"
+},
+"RC_10703": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg11_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/hag/hg11_main0_def_v00.parts"
+},
+"RC_10704": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg11_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/hag/hg11_main0_def_v00.parts"
+},
+"RC_10705": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/hg11_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/hag/hg11_main0_def_v00.parts"
+},
+"RC_20002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm00_main0_def_v00.parts"
+},
+"RC_20004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm00_main0_def_v00.parts"
+},
+"RC_20006": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm00_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm00_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm00_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm00_main1_def_v00.parts"
+},
+"RC_20015": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm00_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm00_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm00_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm00_main1_def_v00.parts"
+},
+"RC_20103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm01_main0_def_v00.parts"
+},
+"RC_20104": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm01_main0_def_v00.parts"
+},
+"RC_20105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm01_main0_def_v00.parts"
+},
+"RC_20116": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm01_main0_def_v00.parts"
+},
+"RC_20119": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm01_main0_def_v00.parts"
+},
+"RC_20203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm02_main0_def_v00.parts"
+},
+"RC_20204": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm02_main0_def_v00.parts"
+},
+"RC_20205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm02_main0_def_v00.parts"
+},
+"RC_20215": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm02_main2_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm02_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm02_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm02_main2_def_v00.parts"
+},
+"RC_20225": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm02_main1_def.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm02_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm02_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm02_main1_def.parts"
+},
+"RC_20302": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm01_main0_def_v01.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm01_main0_def_v01.parts"
+},
+"RC_20303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm01_main0_def_v01.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm01_main0_def_v01.parts"
+},
+"RC_20304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm01_main0_def_v01.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm01_main0_def_v01.parts"
+},
+"RC_20307": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm01_main0_def_v01.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm01_main0_def_v01.parts"
+},
+"RC_20309": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sm01_main0_def_v01.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sm01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm01_main0_def_v01.parts"
+},
+"RC_30001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar01_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar01_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar01_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar01_main1_def_v00.parts"
+},
+"RC_30003": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar01_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar01_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar01_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar01_main1_def_v00.parts"
+},
+"RC_30005": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar01_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar01_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar01_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar01_main1_def_v00.parts"
+},
+"RC_30014": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar01_main0_def_v00.parts"
+},
+"RC_30016": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar01_main0_def_v00.parts"
+},
+"RC_30034": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar01_main0_def_v00.parts"
+},
+"RC_30101": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar00_main0_def_v00.parts"
+},
+"RC_30102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar00_main0_def_v00.parts"
+},
+"RC_30104": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar00_main0_def_v00.parts"
+},
+"RC_30117": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar00_main0_def_v00.parts"
+},
+"RC_30119": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar00_main0_def_v00.parts"
+},
+"RC_30201": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar03_main0_def_v00.parts"
+},
+"RC_30202": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar03_main0_def_v00.parts"
+},
+"RC_30232": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar03_main0_def_v00.parts"
+},
+"RC_30233": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar03_main0_def_v00.parts"
+},
+"RC_30235": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar03_main0_def_v00.parts"
+},
+"RC_30237": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar03_main0_def_v00.parts"
+},
+"RC_30239": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar03_main0_def_v00.parts"
+},
+"RC_30303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_main0_def_v00.parts"
+},
+"RC_30305": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_main0_def_v00.parts"
+},
+"RC_30306": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_main0_def_v00.parts"
+},
+"RC_30325": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_main0_def_v00.parts"
+},
+"RC_30327": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ar02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ar02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/asr/default/ar02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_main0_def_v00.parts"
+},
+"RC_40001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main0_def_v00.parts"
+},
+"RC_40002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main0_def_v00.parts"
+},
+"RC_40003": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main0_def_v00.parts"
+},
+"RC_40004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main0_def_v00.parts"
+},
+"RC_40012": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main0_def_v00.parts"
+},
+"RC_40013": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main0_def_v00.parts"
+},
+"RC_40014": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main0_def_v00.parts"
+},
+"RC_40015": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main0_def_v00.parts"
+},
+"RC_40023": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main0_def_v00.parts"
+},
+"RC_40024": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main0_def_v00.parts"
+},
+"RC_40025": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main0_def_v00.parts"
+},
+"RC_40032": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main2_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main2_def_v00.parts"
+},
+"RC_40033": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main2_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main2_def_v00.parts"
+},
+"RC_40034": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main3_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main3_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main3_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main3_def_v00.parts"
+},
+"RC_40035": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main3_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main3_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main3_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main3_def_v00.parts"
+},
+"RC_40042": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main1_def_v00.parts"
+},
+"RC_40044": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main1_def_v00.parts"
+},
+"RC_40045": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg02_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg02_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main1_def_v00.parts"
+},
+"RC_40102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_main0_def_v00.parts"
+},
+"RC_40103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_main0_def_v00.parts"
+},
+"RC_40105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_main0_def_v00.parts"
+},
+"RC_40115": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_main0_def_v00.parts"
+},
+"RC_40123": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_main0_def_v00.parts"
+},
+"RC_40126": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_main0_def_v00.parts"
+},
+"RC_40136": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_main0_def_v00.parts"
+},
+"RC_40203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg04_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg04_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg04_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg04_main0_def_v00.parts"
+},
+"RC_40204": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg04_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg04_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg04_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg04_main0_def_v00.parts"
+},
+"RC_40207": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg04_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg04_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg04_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg04_main0_def_v00.parts"
+},
+"RC_40304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg03_main0_def_v00.parts"
+},
+"RC_40305": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg03_main0_def_v00.parts"
+},
+"RC_40306": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg03_main0_def_v00.parts"
+},
+"RC_40307": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sg03_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sg03_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg03_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg03_main1_def_v00.parts"
+},
+"RC_50002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss01_main0_def_v00.parts"
+},
+"RC_50003": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss01_main0_def_v00.parts"
+},
+"RC_50004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss01_main0_def_v00.parts"
+},
+"RC_50005": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss01_main0_def_v00.parts"
+},
+"RC_50015": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss01_main0_def_v00.parts"
+},
+"RC_50026": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss01_main0_def_v00.parts"
+},
+"RC_50033": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss01_main0_def_v00.parts"
+},
+"RC_50034": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss01_main0_def_v00.parts"
+},
+"RC_50035": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss01_main0_def_v00.parts"
+},
+"RC_50036": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss01_main0_def_v00.parts"
+},
+"RC_50047": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss01_main0_def_v00.parts"
+},
+"RC_50102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss00_main0_def_v00.parts"
+},
+"RC_50103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss00_main0_def_v00.parts"
+},
+"RC_50104": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss00_main0_def_v00.parts"
+},
+"RC_50105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss00_main0_def_v00.parts"
+},
+"RC_50115": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss00_main0_def_v00.parts"
+},
+"RC_50126": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss00_main0_def_v00.parts"
+},
+"RC_50133": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss00_main0_def_v00.parts"
+},
+"RC_50134": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss00_main0_def_v00.parts"
+},
+"RC_50135": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss00_main0_def_v00.parts"
+},
+"RC_50136": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss00_main0_def_v00.parts"
+},
+"RC_50147": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ss00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/ss00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/sas/default/ss00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/sas/ss00_main0_def_v00.parts"
+},
+"RC_50202": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/gl03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/gl03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl03_main0_def_v00.parts"
+},
+"RC_50203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/gl03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/gl03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl03_main0_def_v00.parts"
+},
+"RC_50204": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/gl03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/gl03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl03_main0_def_v00.parts"
+},
+"RC_50215": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/gl03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/gl03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl03_main0_def_v00.parts"
+},
+"RC_50226": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/gl03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/gl03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl03_main0_def_v00.parts"
+},
+"RC_50237": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/gl03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/gl03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl03_main0_def_v00.parts"
+},
+"RC_50303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/gl02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/gl02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl02_main0_def_v00.parts"
+},
+"RC_50305": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/gl02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/gl02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl02_main0_def_v00.parts"
+},
+"RC_60001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr02_main0_def_v00.parts"
+},
+"RC_60002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr02_main2_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr02_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr02_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr02_main2_def_v00.parts"
+},
+"RC_60005": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr02_main2_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr02_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr02_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr02_main2_def_v00.parts"
+},
+"RC_60007": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr02_main2_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr02_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr02_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr02_main2_def_v00.parts"
+},
+"RC_60012": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr02_main0_def_v00.parts"
+},
+"RC_60013": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr02_main2_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr02_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr02_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr02_main2_def_v00.parts"
+},
+"RC_60016": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr02_main2_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr02_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr02_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr02_main2_def_v00.parts"
+},
+"RC_60102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr01_main0_def_v00.parts"
+},
+"RC_60103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr01_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr01_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr01_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr01_main1_def_v00.parts"
+},
+"RC_60106": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr01_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr01_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr01_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr01_main1_def_v00.parts"
+},
+"RC_60107": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr01_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr01_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr01_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr01_main1_def_v00.parts"
+},
+"RC_60114": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr01_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr01_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr01_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr01_main1_def_v00.parts"
+},
+"RC_60117": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr01_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr01_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr01_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr01_main1_def_v00.parts"
+},
+"RC_60203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr03_main0_def_v00.parts"
+},
+"RC_60206": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr03_main0_def_v00.parts"
+},
+"RC_60303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr00_main0_def_v00.parts"
+},
+"RC_60306": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr00_main0_def_v00.parts"
+},
+"RC_60309": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr00_main0_def_v00.parts"
+},
+"RC_60315": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr00_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr00_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr00_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr00_main1_def_v00.parts"
+},
+"RC_60317": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr00_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr00_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr00_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr00_main1_def_v00.parts"
+},
+"RC_60325": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr00_main0_def_v00.parts"
+},
+"RC_60327": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr00_main0_def_v00.parts"
+},
+"RC_60329": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr00_main0_def_v00.parts"
+},
+"RC_60404": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr04_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr04_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr04_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr04_main0_def_v00.parts"
+},
+"RC_60405": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr04_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr04_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr04_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr04_main1_def_v00.parts"
+},
+"RC_60415": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr05_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr05_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr05_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr05_main0_def_v00.parts"
+},
+"RC_60416": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/sr05_main1_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/sr05_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/snr/default/sr05_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/snr/sr05_main1_def_v00.parts"
+},
+"RC_70002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/mg01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/mg01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/mag/default/mg01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/mag/mg01_main0_def_v00.parts"
+},
+"RC_70003": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/mg01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/mg01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/mag/default/mg01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/mag/mg01_main0_def_v00.parts"
+},
+"RC_70009": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/mg01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/mg01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/mag/default/mg01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/mag/mg01_main0_def_v00.parts"
+},
+"RC_70015": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/mg01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/mg01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/mag/default/mg01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/mag/mg01_main0_def_v00.parts"
+},
+"RC_70103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/mg03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/mg03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/mag/default/mg03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/mag/mg03_main0_def_v00.parts"
+},
+"RC_70104": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/mg03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/mg03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/mag/default/mg03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/mag/mg03_main0_def_v00.parts"
+},
+"RC_70114": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/mg03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/mg03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/mag/default/mg03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/mag/mg03_main0_def_v00.parts"
+},
+"RC_70115": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/mg03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/mg03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/mag/default/mg03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/mag/mg03_main0_def_v00.parts"
+},
+"RC_70125": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/mg03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/mg03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/mag/default/mg03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/mag/mg03_main0_def_v00.parts"
+},
+"RC_70203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/mg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/mg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/mag/default/mg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/mag/mg02_main0_def_v00.parts"
+},
+"RC_70204": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/mg02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/receiver/mg02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/mag/default/mg02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/mag/mg02_main0_def_v00.parts"
+},
+"RC_80002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms00_main0_def_v00.parts"
+},
+"RC_80004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms00_main0_def_v00.parts"
+},
+"RC_80006": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms00_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms00_main0_def_v00.parts"
+},
+"RC_80103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_main0_def_v00.parts"
+},
+"RC_80104": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_main0_def_v00.parts"
+},
+"RC_80105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_main0_def_v00.parts"
+},
+"RC_80116": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_main0_def_v00.parts"
+},
+"RC_80119": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_main0_def_v00.parts"
+},
+"RC_80124": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_main0_def_v00.parts"
+},
+"RC_80125": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_main0_def_v00.parts"
+},
+"RC_80126": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_main0_def_v00.parts"
+},
+"RC_80135": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms02_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms02_main0_def_v00.parts"
+},
+"RC_80203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms03_main0_def_v00.parts"
+},
+"RC_80204": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms03_main0_def_v00.parts"
+},
+"RC_80205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms03_main0_def_v00.parts"
+},
+"RC_80206": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms03_main0_def_v00.parts"
+},
+"RC_80209": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms03_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms03_main0_def_v00.parts"
+},
+"RC_80303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms01_main0_def_v00.parts"
+},
+"RC_80304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms01_main0_def_v00.parts"
+},
+"RC_80305": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms01_main0_def_v00.parts"
+},
+"RC_80306": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/receiver/ms01_main0_def_v00.fpk",
+"kind": "receiver",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/mis/ms01_main0_def_v00.parts"
+},
+"SK_20002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sm00_stck0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sm00_stck0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm00_stck0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm00_stck0_def_v00.parts"
+},
+"SK_20015": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sm00_stck1_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sm00_stck1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm00_stck1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm00_stck1_def_v00.parts"
+},
+"SK_20103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sm01_stck0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sm01_stck0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm01_stck0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm01_stck0_def_v00.parts"
+},
+"SK_20106": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sm01_stck1_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sm01_stck1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm01_stck1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm01_stck1_def_v00.parts"
+},
+"SK_20203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sm02_stck0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sm02_stck0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm02_stck0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm02_stck0_def_v00.parts"
+},
+"SK_20216": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sm02_stck1_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sm02_stck1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/smg/default/sm02_stck1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/smg/sm02_stck1_def_v00.parts"
+},
+"SK_30001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk01_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk01_main0_def_v00.parts"
+},
+"SK_30002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk01_main4_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk01_main4_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk01_main4_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk01_main4_def_v00.parts"
+},
+"SK_30024": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk01_main1_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk01_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk01_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk01_main1_def_v00.parts"
+},
+"SK_30043": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk01_main2_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk01_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk01_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk01_main2_def_v00.parts"
+},
+"SK_30045": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk01_main6_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk01_main6_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk01_main6_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk01_main6_def.parts"
+},
+"SK_30102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk00_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk00_main0_def_v00.parts"
+},
+"SK_30113": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk00_main1_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk00_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk00_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk00_main1_def_v00.parts"
+},
+"SK_30123": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk00_main2_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk00_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk00_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk00_main2_def_v00.parts"
+},
+"SK_30201": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk06_main1_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk06_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk06_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk06_main1_def_v00.parts"
+},
+"SK_30205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk06_main3_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk06_main3_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk06_main3_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk06_main3_def_v00.parts"
+},
+"SK_30213": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk06_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk06_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk06_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk06_main0_def_v00.parts"
+},
+"SK_30223": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk06_main2_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk06_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk06_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk06_main2_def_v00.parts"
+},
+"SK_40001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sg02_stck0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sg02_stck0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_stck0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_stck0_def_v00.parts"
+},
+"SK_40043": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sg02_stck1_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sg02_stck1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_stck1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_stck1_def_v00.parts"
+},
+"SK_40102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sg01_stck0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sg01_stck0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_stck0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_stck0_def_v00.parts"
+},
+"SK_40144": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sg01_stck1_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sg01_stck1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg01_stck1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg01_stck1_def_v00.parts"
+},
+"SK_40203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk11_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk11_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk11_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk11_main0_def_v00.parts"
+},
+"SK_50002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk01_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk01_main0_def_v00.parts"
+},
+"SK_50004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk10_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk10_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk10_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk10_main0_def_v00.parts"
+},
+"SK_50102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk00_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk00_main0_def_v00.parts"
+},
+"SK_50202": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk09_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk09_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk09_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk09_main0_def_v00.parts"
+},
+"SK_50303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk08_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk08_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk08_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk08_main0_def_v00.parts"
+},
+"SK_60002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk12_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk12_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk12_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk12_main0_def_v00.parts"
+},
+"SK_60103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk03_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk03_main0_def_v00.parts"
+},
+"SK_60203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk01_main3_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk01_main3_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk01_main3_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk01_main3_def_v00.parts"
+},
+"SK_60205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk01_main5_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk01_main5_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk01_main5_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk01_main5_def_v00.parts"
+},
+"SK_60303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk02_main1_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk02_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk02_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk02_main1_def_v00.parts"
+},
+"SK_60304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk02_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk02_main0_def_v00.parts"
+},
+"SK_70103": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk05_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk05_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk05_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk05_main0_def_v00.parts"
+},
+"SK_70203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/stock/sk04_main0_def.fpk",
+"kind": "stock",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/stock/sk04_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/stk/default/sk04_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/stk/sk04_main0_def_v00.parts"
+},
+"ST_20104": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st02_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st02_main0_def_v00.parts"
+},
+"ST_20205": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st10_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st10_main0_def_v00.parts"
+},
+"ST_30114": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st17_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st17_main0_def_v00.parts"
+},
+"ST_30202": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st03_main0_def.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/sit/Scenes/st03_main0_def.fmdl"
+},
+"ST_30204": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st03_main1_def.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/weapon/sit/Scenes/st03_main1_def.fmdl"
+},
+"ST_30303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/ar02_isig0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/asr/ar02_isig0_def_v00.parts"
+},
+"ST_30305": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st09_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st09_main0_def_v00.parts"
+},
+"ST_30306": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st14_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st14_main0_def_v00.parts"
+},
+"ST_50003": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st11_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st11_main0_def_v00.parts"
+},
+"ST_50133": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st08_main1_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st08_main1_def_v00.parts"
+},
+"ST_50136": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st16_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st16_main0_def_v00.parts"
+},
+"ST_50303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st08_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st08_main0_def_v00.parts"
+},
+"ST_60001": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st05_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st05_main0_def_v00.parts"
+},
+"ST_60004": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st13_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st13_main0_def_v00.parts"
+},
+"ST_60102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st01_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st01_main0_def_v00.parts"
+},
+"ST_60105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st07_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st07_main0_def_v00.parts"
+},
+"ST_60203": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st04_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st04_main0_def_v00.parts"
+},
+"ST_60303": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st15_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st15_main0_def_v00.parts"
+},
+"ST_60304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st00_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st00_main0_def_v00.parts"
+},
+"ST_60407": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/sight/st12_main0_def_v00.fpk",
+"kind": "sight",
+"paintFpk": "",
+"paintFv2": "",
+"parts": "/Assets/tpp/parts/weapon/sit/st12_main0_def_v00.parts"
+},
+"UB_10006": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/hg07_main1_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/hg07_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg07_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg07_main1_def_v00.parts"
+},
+"UB_10107": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/hg07_main5_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/hg07_main5_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg07_main5_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg07_main5_def_v00.parts"
+},
+"UB_10207": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/hg07_main3_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/hg07_main3_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/hag/default/hg07_main3_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/hag/hg07_main3_def_v00.parts"
+},
+"UB_20105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gp03_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gp03_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grp/default/gp03_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grp/gp03_main0_def_v00.parts"
+},
+"UB_30005": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gp01_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gp01_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grp/default/gp01_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grp/gp01_main0_def_v00.parts"
+},
+"UB_30105": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gp00_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gp00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grp/default/gp00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grp/gp00_main0_def_v00.parts"
+},
+"UB_30304": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gp02_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gp02_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grp/default/gp02_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grp/gp02_main0_def_v00.parts"
+},
+"UB_40043": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/sg02_main4_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/sg02_main4_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main4_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main4_def_v00.parts"
+},
+"UB_40045": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/sg02_main4_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/sg02_main4_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg02_main4_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg02_main4_def_v00.parts"
+},
+"UB_40144": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/sg00_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/sg00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/shg/default/sg00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/shg/sg00_main0_def_v00.parts"
+},
+"UB_50002": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gl04_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gl04_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl04_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl04_main0_def_v00.parts"
+},
+"UB_50015": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gl04_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gl04_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl04_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl04_main0_def_v00.parts"
+},
+"UB_50026": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gl04_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gl04_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl04_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl04_main0_def_v00.parts"
+},
+"UB_50033": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gl04_main1_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gl04_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl04_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl04_main1_def_v00.parts"
+},
+"UB_50035": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gl04_main2_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gl04_main2_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl04_main2_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl04_main2_def_v00.parts"
+},
+"UB_50047": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gl04_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gl04_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl04_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl04_main0_def_v00.parts"
+},
+"UB_50102": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gl00_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gl00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl00_main0_def_v00.parts"
+},
+"UB_50115": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gl00_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gl00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl00_main0_def_v00.parts"
+},
+"UB_50126": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gl00_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gl00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl00_main0_def_v00.parts"
+},
+"UB_50133": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gl00_main1_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gl00_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl00_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl00_main1_def_v00.parts"
+},
+"UB_50136": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gl00_main1_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gl00_main1_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl00_main1_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl00_main1_def_v00.parts"
+},
+"UB_50147": {
+"fpk": "/Assets/tpp/pack/collectible/chimera/underBarrel/gl00_main0_def_v00.fpk",
+"kind": "underBarrel",
+"paintFpk": "/Assets/tpp/pack/collectible/fova/underBarrel/gl00_main0_def.fpk",
+"paintFv2": "/Assets/tpp/fova/weapon/grl/default/gl00_main0_def.fv2",
+"parts": "/Assets/tpp/parts/weapon/grl/gl00_main0_def_v00.parts"
+}
+},
+"source": "Tpp/Scripts/Equip/ChimeraPartsPackageTable.lua (data1.dat), packageInfos joined to the per-kind tables; package 0 (none) left out"
+}

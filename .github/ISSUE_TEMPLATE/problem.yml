@@ -1,0 +1,40 @@
+name: Problem
+description: The app does not work as it should. Attach the problem report.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        In the app, click Help > Save problem report. The app saves a text file next to the exe. Attach this file below.
+  - type: textarea
+    id: what
+    attributes:
+      label: What did you do?
+      description: Write the steps. Name the mod that you opened, if you opened one.
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What went wrong?
+      description: Tell what you saw. Tell what you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: report
+    attributes:
+      label: Problem report
+      description: Drag the "Problem report <date> <time>.txt" file into this box.
+      placeholder: Drag the file here.
+    validations:
+      required: false
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did it go wrong?
+      options:
+        - In the app
+        - In the game, with a mod that the app made
+        - When I installed the mod
+    validations:
+      required: true

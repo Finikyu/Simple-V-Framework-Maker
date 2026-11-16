@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:app="using:Svfm.App" x:Class="Svfm.App.DeveloperView" x:DataType="app:DeveloperVm">
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="18,12">
+    <StackPanel Spacing="6">
+      <TextBlock Text="Developer" FontSize="20" FontWeight="SemiBold" />
+      <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Everything the app does is written here in one fixed format (time, level, category, message) and to a log file. Run the self-check, write a note about what you are testing, then save the report and send it back." />
+      <TextBlock Classes="muted" FontSize="12" Text="{Binding FileLine}" TextWrapping="Wrap" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" />
+    </StackPanel>
+    <WrapPanel Grid.Row="1" Margin="0,12,0,8">
+      <Button Content="Run self-check" Command="{Binding SelfCheck}" Classes="primary" Margin="0,0,8,6" />
+      <Button Content="Save report" Command="{Binding SaveReport}" Margin="0,0,8,6" />
+      <Button Content="Copy log" Name="CopyLog" Margin="0,0,8,6" />
+      <Button Content="Open log folder" Command="{Binding OpenFolder}" Margin="0,0,8,6" />
+      <Button Content="Open settings folder" Command="{Binding OpenSettings}" Margin="0,0,8,6" ToolTip.Tip="Opens the folder with settings.json, error.log and the logs folder." />
+      <Button Content="Show log" Command="{Binding ShowLog}" Margin="0,0,8,6" />
+      <Button Content="Show last build report" Command="{Binding ShowBuildReport}" Margin="0,0,8,6" />
+      <Button Content="Dump mod as JSON" Command="{Binding ShowDump}" Margin="0,0,8,6" ToolTip.Tip="Shows the parsed data of the open mod as JSON and saves it in the logs folder. Binary data is only counted." />
+      <ComboBox ItemsSource="{x:Static app:DeveloperVm.Levels}" SelectedIndex="{Binding Level}" Margin="0,0,8,6" />
+      <TextBox Text="{Binding Note}" PlaceholderText="Note: what are you testing?" Width="320" Margin="0,0,8,6" />
+      <Button Content="Add note" Command="{Binding AddNote}" Margin="0,0,8,6" />
+      <CheckBox Content="Unique mod IDs" IsChecked="{Binding UniqueModIds}" Margin="0,0,8,6"
+                ToolTip.Tip="A new port with a name longer than 12 letters gets an ID with a 2-letter code from the full name, for example mgs1revol_3f. Acts on the next mod you open." />
+      <TextBlock Text="{Binding Status}" Classes="muted" VerticalAlignment="Center" Margin="0,0,0,6" />
+    </WrapPanel>
+    <TextBox Grid.Row="2" Name="LogBox" Text="{Binding Text, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="12" />
+  </Grid>
+</UserControl>
