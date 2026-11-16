@@ -38,8 +38,9 @@ public sealed class GameData : IDisposable
             foreach (var rel in order)
             {
                 string p = Path.Combine(master, rel);
-                if (File.Exists(p + ".original")) g.AddArchive(p + ".original");
-                else if (File.Exists(p)) g.AddArchive(p);
+                string? chosen = Chosen(p);
+                if (chosen != null) g.AddArchive(chosen);
+                g._opened.Add((p, chosen, Stamp(chosen)));
             }
         }
         catch { g.Dispose(); throw; } // one damaged archive must not keep the others open
@@ -50,6 +51,36 @@ public sealed class GameData : IDisposable
         if (g._sources.Count == 0) g.AddDump(gameFolder);
         g.IsComplete = g._sources.Count >= 10;
         return g;
+    }
+
+    // The archives OpenGameFolder chose: the live path, the file read (the live one or its *.original, null when neither
+    // exists) and that file's size and write time when it was opened.
+    private readonly List<(string live, string? chosen, (long, DateTime) stamp)> _opened = [];
+
+    private static string? Chosen(string p) => File.Exists(p + ".original") ? p + ".original" : File.Exists(p) ? p : null;
+
+    private static (long, DateTime) Stamp(string? file)
+    {
+        if (file == null) return default;
+        var fi = new FileInfo(file);
+        return (fi.Length, fi.LastWriteTimeUtc);
+    }
+
+    /// <summary>
+    /// True when a mod manager (SnakeBite, DMM) or a Steam verify has changed the game's archives since
+    /// <see cref="OpenGameFolder"/>: a retail copy (*.original) made or removed, or an archive written. The file tables
+    /// read at open then may not fit the files, so the caller opens the game again. Always false for other sources.
+    /// </summary>
+    public bool Changed()
+    {
+        try
+        {
+            foreach (var (live, chosen, stamp) in _opened)
+                if (Chosen(live) != chosen || Stamp(chosen) != stamp) return true;
+            return false;
+        }
+        catch (IOException) { return true; } // a file in the middle of a move
+        catch (UnauthorizedAccessException) { return true; }
     }
 
     /// <summary>

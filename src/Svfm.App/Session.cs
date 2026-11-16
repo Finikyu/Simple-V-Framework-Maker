@@ -13,7 +13,40 @@ public sealed class Session : Observable
     public static Func<string, GameData> GameFactory { get; set; } = GameData.OpenGameFolder;
 
     public Settings Settings { get; }
-    public GameData? Game { get; private set; }
+    private GameData? _game;
+    private long _gameChecked;
+    private readonly object _gameLock = new();
+    /// <summary>
+    /// The open game. SnakeBite, DMM or a Steam verify can change its archives while the app runs
+    /// (<see cref="GameData.Changed"/>); the game is then opened again. One check every 2 s at most.
+    /// </summary>
+    public GameData? Game
+    {
+        get
+        {
+            lock (_gameLock)
+            {
+                var g = _game;
+                if (g == null || Environment.TickCount64 - _gameChecked < 2000) return g;
+                _gameChecked = Environment.TickCount64;
+                if (!g.Changed()) return g;
+                try
+                {
+                    var fresh = GameFactory(Settings.GameFolder);
+                    DevLog.Info("game", "The game files changed (a mod manager or Steam). The game is opened again.");
+                    if (Svfm.Core.Knowledge.GameKnowledge.EnglishNamesGame == g) Svfm.Core.Knowledge.GameKnowledge.EnglishNamesGame = fresh;
+                    // The old one is not disposed: a background job can still read it. Its files close when it is collected.
+                    return _game = fresh;
+                }
+                catch (Exception e) // a manager in the middle of a write: keep the old one and try again at the next check
+                {
+                    DevLog.Warn("game", "The game files changed but could not be opened again: " + e.Message);
+                    return g;
+                }
+            }
+        }
+        private set { lock (_gameLock) { _game = value; _gameChecked = Environment.TickCount64; } }
+    }
     public MgsvMod? Source { get; private set; }
     public IntakeResult? Intake { get; private set; }
     public ModProject? Project => Intake?.Project;

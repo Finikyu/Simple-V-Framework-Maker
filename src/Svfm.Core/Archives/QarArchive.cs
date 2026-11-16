@@ -89,9 +89,11 @@ public sealed class QarArchive : IDisposable
 
     public static QarArchive Open(string path)
     {
-        // FileShare.Delete: the app holds the installed game's archives for the whole session, and SnakeBite replaces
-        // 00.dat/01.dat (delete, then move) when it installs a mod. This handle keeps reading the old file.
-        var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete, 1 << 16, FileOptions.RandomAccess);
+        // The app holds the installed game's archives for the whole session, and the mod managers must still write them:
+        // SnakeBite replaces 00.dat/01.dat (delete, then move) to install, copies over them in place to switch mods off
+        // or on, and copies over *.original at setup; DMM deletes *.original at "Restore to retail". GameData.Changed
+        // tells the app to open the game again after such a write.
+        var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, 1 << 16, FileOptions.RandomAccess);
         try { return new(fs, path); }
         catch { fs.Dispose(); throw; } // a damaged archive must not keep the file open
     }
