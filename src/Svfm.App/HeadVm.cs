@@ -39,7 +39,7 @@ public sealed class HeadVm : Observable
     public ObservableCollection<FaceRow> Faces { get; } = [];
     public bool OnlyOne => _h.Spec.Branches.Count < 2;
     public int WearerCount => _h.Spec.Branches.Count;
-    public string SnakeNote => _h.Spec.SnakeFaceOnly ? "This head is Snake's own face (bandana faces, accessory heads or a face mod). V Framework 1.7 has Avatar read Snake's branch, so the build gives Avatar a branch without it." : "";
+    public string SnakeNote => _h.Spec.AvatarWouldWearSnakeFace ? "This head is Snake's own face (bandana faces, accessory heads or a face mod). V Framework 1.7 has Avatar read Snake's branch, so the build gives Avatar a branch without it." : "";
 
     public bool Wears(PlayerBranch who) => _h.Spec.Branches.ContainsKey(who);
     public void SetWears(PlayerBranch who, bool on)

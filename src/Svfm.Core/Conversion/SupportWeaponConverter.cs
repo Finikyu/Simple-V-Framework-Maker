@@ -11,10 +11,10 @@ namespace Svfm.Core.Conversion;
 
 /// <summary>
 /// A support weapon model a mod replaces in the resident common package, with the vanilla items that use it (a model
-/// can be shared: the smoke and sleeping gas grenades use tr00). The mod's model is never portable (V Framework 1.7 can't give
-/// a custom support weapon a model of its own: <see cref="SupportWeaponConverter.ModelReason"/>). A <see cref="Thrown"/> item
-/// can still become a new item thrown like the vanilla one, with the vanilla look and a script of its own; placed items
-/// can't (SetSupportWeapon takes only a vanilla thrown item as throwAs). <see cref="Reason"/> says why.
+/// can be shared: the smoke and sleeping gas grenades use tr00). A <see cref="Thrown"/> item becomes a new item thrown like
+/// the vanilla one, with the mod's model (new entries in col_common_tpp, <see cref="SupportWeaponConverter.AddTo"/>) and a
+/// script of its own; placed items can't (SetSupportWeapon takes only a vanilla thrown item as throwAs). <see cref="Reason"/>
+/// says why (empty for a thrown item).
 /// </summary>
 public sealed record SupportWeaponReplacement(string ModelPath, string Family, string VanillaEquip, VanillaSupportWeapon Vanilla,
     IReadOnlyList<string> SharedWith, bool Thrown, string Reason);
@@ -35,8 +35,8 @@ public sealed class SupportWeaponConversionOptions
 
 /// <summary>
 /// Thrown support weapon model replacers (in /Assets/tpp/pack/collectible/common/col_common_tpp, the package every
-/// mission keeps loaded): the model can't be ported (<see cref="ModelReason"/>), but a thrown item can become a new V
-/// Framework 1.7 support weapon with the vanilla item's row (its .parts, COMMON, no package), so the vanilla item stays;
+/// mission keeps loaded): a thrown item becomes a new V Framework 1.7 support weapon with a COMMON row, no package, and
+/// the mod's model as new entries in partial col_common_tpp packages (<see cref="AddTo"/>), so the vanilla item stays;
 /// it is held, thrown and flies like the vanilla one (throwAs = the vanilla item). V Framework never runs the throwAs effect for a custom item, so the
 /// effect is run from Lua with the V_ThrowingImpl.UpdateAction* call for that kind of item when it goes off
 /// (OnActivateThrowing). Placed items (decoys, mines, C4, cages) are refused: V Framework 1.7 can't make custom
@@ -77,7 +77,7 @@ public static class SupportWeaponConverter
             var (equip, row) = (rows[0].Key, rows[0].Value);
             var shared = rows.Select(r => Family(r.Key)).Distinct().Where(x => x != Family(equip)).ToList();
             bool thrown = row.EquipType == "Throwing";
-            string reason = thrown ? ModelReason(Family(equip)) :
+            string reason = thrown ? "" :
                 // Short on purpose (the owner: "our tests on the PT Decoy should not be included like a user would know that").
                 // Why: SetSupportWeapon takes a vanilla thrown item as throwAs, so a new placed item has no behaviour; the
                 // P.T. Decoy, thrown and scripted as a decoy, did nothing in game.
@@ -86,21 +86,6 @@ public static class SupportWeaponConverter
         }
         return list;
     }
-
-    /// <summary>
-    /// Why the mod's model can't come along (V Framework 1.7 source, IH start.lua and TppMain, in game Oct 27): an
-    /// EQP_BLOCK_COMMON row's .parts must be in the resident equip common block, which start.lua loads once with
-    /// col_common_tpp.fpk only (a package added to every mission is not in it: crash when thrown, 0.7a and 0.8); an
-    /// EQP_BLOCK_MISSION row is loaded only through TppEquip.RequestLoadToEquipMissionBlock with the engine's equip ID,
-    /// which V Framework doesn't hook or expose for its custom IDs (above 0x7FF, aliased in the engine; nothing thrown, 0.6).
-    /// The vanilla .parts in a COMMON row works (0.7b, the wiki's chaff grenade).
-    /// </summary>
-    public static string ModelReason(string family) =>
-        // Why (kept out of the text the user reads): the item's row must be EQP_BLOCK_COMMON, whose models come only from the
-        // resident common package (a package of its own crashed the game when thrown), and an EQP_BLOCK_MISSION row is never
-        // loaded for a support weapon (nothing was thrown).
-        "V Framework 1.7 can't give a new thrown item a model of its own, so the mod's model can't be ported. " +
-        $"A new item thrown like {family}, with its own effect (chaff, stun, explosion...), can be made instead.";
 
     /// <summary>The icon style of thrown items (see step 3 of <see cref="AddTo"/>).</summary>
     public static Rendering.OutlineIconOptions SupportIconOptions => Rendering.OutlineIconOptions.Item with { Yaw = -90 };
@@ -124,23 +109,45 @@ public static class SupportWeaponConverter
     {
         if (!r.Thrown) throw new InvalidOperationException(r.Reason);
         var (key, prefix) = p.NewItemNames(o.Id);
-        var notes = new List<string> { r.Reason! };
+        var notes = new List<string>();
         var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
 
-        // 1. No package: the vanilla item's own .parts in an EQP_BLOCK_COMMON row, as every vanilla support weapon (and the
-        // wiki's chaff grenade). The mod's model can't come along (ModelReason).
+        // 1. The mod's model. The row must be EQP_BLOCK_COMMON with no package: its .parts must be in the resident common
+        // block, which loads only col_common_tpp (a package of its own crashed the game when thrown, Oct 27). So a new .parts
+        // (the vanilla one naming the new model) and the mod's model go in as new entries of partial col_common_tpp packages,
+        // which SnakeBite merges; no vanilla file changes (smoke pellet builds A and B, in game 16 Nov).
+        var vanPkg = FoxPackage.Read(game.Read(CommonPackage + ".fpk"));
+        var vanFpkd = game.TryRead(CommonPackage + ".fpkd") is { } vfd ? FoxPackage.Read(vfd) : null;
+        byte[]? modModel = FoxPackage.Read(mod.ArchiveFiles[CommonPackage + ".fpk"]).Find(r.ModelPath)?.Data;
+        string partsPath = r.Vanilla.Parts;
+        if (modModel != null && vanFpkd?.Find(r.Vanilla.Parts) is { } vanParts)
+        {
+            string fam = r.Family;
+            string modelPath = $"/Assets/tpp/weapon/thr/Scenes/{fam}_{prefix}.fmdl";
+            partsPath = $"/Assets/tpp/parts/weapon/thr/{fam}_{prefix}_v01.parts";
+            var ds = FoxDataSet.Read(vanParts.Data).WithString("ModelDescription", "modelFile", modelPath, FoxHash.StrCode64(modelPath));
+            var fpkd = new FoxPackage { IsFpkd = true };
+            fpkd.Files.Add(new PackageFile(partsPath, ds.Data));
+            var fpk = new FoxPackage();
+            fpk.Files.Add(new PackageFile(modelPath, modModel));
+            files[CommonPackage + ".fpkd"] = fpkd.Write();
+            files[CommonPackage + ".fpk"] = fpk.Write();
+            // The model's own textures: the mod's texture files at paths the game doesn't have (a texture at a vanilla path
+            // would change the vanilla item, so the model shows the vanilla one there).
+            foreach (var (path, d) in mod.ArchiveFiles.Where(kv => (kv.Key.EndsWith(".ftex", StringComparison.Ordinal) || kv.Key.EndsWith(".ftexs", StringComparison.Ordinal)) && !game.Contains(kv.Key)))
+                files[path] = d;
+        }
+        else notes.Add($"The mod's model could not be found as a model of {r.VanillaEquip}'s .parts; the new item uses the vanilla model.");
         foreach (var path in mod.ArchiveFiles.Keys.Where(k => k.StartsWith("/Assets/tpp/sound/", StringComparison.Ordinal)))
             notes.Add($"{path}: replaces a vanilla sound bank; not portable (the port never changes vanilla files, and V Framework 1.7 can't add sounds to an item).");
 
-        // 2. Icon drawn from the vanilla model (the item looks like the vanilla one) in the vanilla item-icon style, at the
+        // 2. Icon drawn from the item's model in the vanilla item-icon style, at the
         // vanilla scale (520 px per metre, upright, turned -90°: fitted on the vanilla grenade icon, its outline box within
         // 2 px of ui_swp_grenade_00_10's).
-        var vanPkg = FoxPackage.Read(game.Read(CommonPackage + ".fpk"));
-        // A model the mod adds under a new name was matched by the name only: the vanilla item's own model is drawn then.
-        var vanModel = (vanPkg.Find(r.ModelPath) ?? VanillaModel(game, vanPkg, r.Vanilla.Parts))?.Data
+        var iconModel = modModel ?? (vanPkg.Find(r.ModelPath) ?? VanillaModel(game, vanPkg, r.Vanilla.Parts))?.Data
             ?? throw new InvalidDataException($"The game has no model for {r.VanillaEquip}.");
         string iconPath = $"/Assets/tpp/ui/texture/EquipIcon/supportweapon/ui_swp_{prefix}_alp";
-        var ft = FtexWriter.Write(Rendering.OutlineIconRenderer.Render([FmdlModel.Read(vanModel)], SupportIconOptions), withAlpha: true, FtexKind.Linear);
+        var ft = FtexWriter.Write(Rendering.OutlineIconRenderer.Render([FmdlModel.Read(iconModel)], SupportIconOptions), withAlpha: true, FtexKind.Linear);
         files[iconPath + ".ftex"] = ft.Ftex;
         foreach (var (n, d) in ft.Ftexs) files[$"{iconPath}.{n}.ftexs"] = d;
 
@@ -159,9 +166,8 @@ public static class SupportWeaponConverter
         var spec = new SupportWeaponSpec
         {
             Key = key, EquipConstant = $"EQP_SWP_SVFM_{id}", SwpConstant = $"SWP_SVFM_{id}", ThrowAs = r.VanillaEquip,
-            // The vanilla item's row as it is: its block (all 88 are EQP_BLOCK_COMMON), its .parts, no package. In game
-            // (Oct 27) only this works: see ModelReason.
-            PartsPath = v.Parts, FpkPath = "",
+            // The vanilla item's block (all 88 are EQP_BLOCK_COMMON), no package, the new .parts (step 1).
+            PartsPath = partsPath, FpkPath = "",
             Block = v.Block is { Length: > 0 } b ? b : "EQP_BLOCK_COMMON",
             Ammo = stats.Ammo, FuseTime = stats.P1, ActiveTime = stats.P2, Grade = stats.Grade,
             DevelopType = v.Develop?.Type ?? "Throwing",
@@ -173,8 +179,8 @@ public static class SupportWeaponConverter
             },
         };
         AttackAndBlast(game, mod, spec, swp, vanTables, modTables, notes);
-        spec.Header.Add($"{o.Name ?? mod.Metadata.Name}: a new item with {r.VanillaEquip}'s model and .parts ({v.Parts}), thrown like it; " +
-                        $"made from \"{mod.Metadata.Name}\" by {mod.Metadata.Author}, whose model V Framework 1.7 can't give a custom support weapon.");
+        spec.Header.Add($"{o.Name ?? mod.Metadata.Name}: a new item thrown like {r.VanillaEquip}, .parts {partsPath}; " +
+                        $"made from \"{mod.Metadata.Name}\" by {mod.Metadata.Author}.");
         if (r.SharedWith.Count > 0)
             notes.Add($"The model is shared with {string.Join(", ", r.SharedWith)}; the port makes one item, like {Family(r.VanillaEquip)}. Another can be made from the same model.");
         string name = o.Name ?? Regex.Replace(mod.Metadata.Name, @"\s*\(.*?\)\s*", " ").Trim().ToUpperInvariant();

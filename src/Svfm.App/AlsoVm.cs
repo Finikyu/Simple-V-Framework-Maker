@@ -74,8 +74,7 @@ public sealed class AlsoVm : Observable
     private void Edit(string field, Func<List<AlsoUnder>, List<AlsoUnder>> f)
     {
         _s.Checkpoint(field);
-        _o.Spec.AlsoUnder = f([.. List]);
-        KeepOwnSlot();
+        SortieSlots.SetBonus(_o, f([.. List]));
         _s.NotifyChanged();
     }
 
@@ -93,18 +92,7 @@ public sealed class AlsoVm : Observable
         Reload(); SelectedIndex = List.Count - 1;
     });
 
-    /// <summary>Issue #62: a vanilla outfit that is added has its slot at once (the main look, named), so no tick step is left.</summary>
-    private List<AlsoUnder> Seed(List<AlsoUnder> l)
-    {
-        for (int i = 0; i < l.Count; i++)
-        {
-            if (l[i].Slots.Count > 0) continue;
-            string lang = NewLang(), name = DefaultName(-1);
-            _item.Item.Text[lang] = new(StringComparer.Ordinal) { ["eng"] = name };
-            l[i] = l[i] with { Slots = [.. _o.Spec.Branches.Keys.OrderBy(k => k).Select(who => new AlsoSlot(who, -1, lang))] };
-        }
-        return l;
-    }
+    private List<AlsoUnder> Seed(List<AlsoUnder> l) => SortieSlots.Seed(_o, _item.Item, l);
 
     public void RemoveTarget(int i)
     {
@@ -164,9 +152,6 @@ public sealed class AlsoVm : Observable
         return look?.DisplayName != null ? _item.GetText(look.DisplayName, "eng", false) : "";
     }
 
-    /// <summary>The name a new slot starts with: the look's own name, or the item's name.</summary>
-    private string DefaultName(int k) => LookText(k) is { Length: > 0 } nm ? nm : (k < 0 ? _item.Title : $"{_item.Title} {k + 2}");
-
     /// <summary>The slots under one outfit: one (look, name) pair, shared by the wearers, is one slot (as the mockup shows them).</summary>
     private static List<List<AlsoSlot>> Groups(IEnumerable<AlsoSlot> sl) => [.. sl.GroupBy(x => (x.Index, x.LangId)).Select(g => g.ToList())];
     /// <summary>The slot at place <paramref name="pos"/> under the selected outfit (its first wearer), or null.</summary>
@@ -202,73 +187,14 @@ public sealed class AlsoVm : Observable
         Edit(field, l => { l[i] = l[i] with { Slots = f([.. l[i].Slots]) }; return l; });
     }
 
-    private string NewLang()
-    {
-        for (int n = 1; ; n++)
-        {
-            string id = $"{_o.Spec.NameLang}_u{n}";
-            if (!_item.Item.Text.ContainsKey(id) && !List.Any(a => a.Slots.Any(x => x.LangId == id))) return id;
-        }
-    }
-
     // ---- Issue #30: Clone, Remove and Add slot from the Sortie mockup. One slot is one lang id under one outfit. ----
+    // No undo field: two clicks in a row are two undo steps.
 
-    private void ChangeSlots(int target, Func<List<AlsoSlot>, List<AlsoSlot>> f, Action? text = null)
-    {
-        if (target < 0 || target >= List.Count) return;
-        _s.Checkpoint(); // no field: two clicks in a row are two undo steps
-        text?.Invoke(); // before NotifyChanged, so the mockup shows the new name at once
-        _o.Spec.AlsoUnder = [.. List.Select((a, i) => i == target ? a with { Slots = f([.. a.Slots]) } : a)];
-        KeepOwnSlot();
-        _s.NotifyChanged();
-    }
-
-    /// <summary>Puts a copy of the slot after it, with its own name (a copy of the name).</summary>
-    /// <returns>The copy's name id.</returns>
-    public string CloneSlot(int target, int index, string lang)
-    {
-        string id = NewLang();
-        ChangeSlots(target, sl =>
-        {
-            var copy = sl.Where(x => x.Index == index && x.LangId == lang).Select(x => x with { LangId = id }).ToList();
-            sl.InsertRange(sl.FindLastIndex(x => x.Index == index && x.LangId == lang) + 1, copy);
-            return sl;
-        }, () => _item.Item.Text[id] = new(_item.Item.Text.GetValueOrDefault(lang) ?? [], StringComparer.Ordinal));
-        return id;
-    }
-
-    /// <summary>#62: with no bonus slot left, a vanilla-only outfit gets its Main look back, in the same undo step.</summary>
-    private void KeepOwnSlot()
-    {
-        if (_o.Spec.BonusSlotCount > 0) return;
-        foreach (var (who, b) in _o.Spec.Branches.ToList()) if (b.VanillaOnly) _o.Spec.Branches[who] = b with { VanillaOnly = false };
-    }
-
-    /// <summary>#62: a slot can go while another slot of the outfit remains.</summary>
-    public void RemoveSlot(int target, int index, string lang)
-    {
-        if (_o.Spec.CanRemoveSlot(own: false))
-            ChangeSlots(target, sl => { sl.RemoveAll(x => x.Index == index && x.LangId == lang); return sl; });
-    }
-
-    /// <summary>Issue #62: swaps the slot with the one <paramref name="delta"/> places on, under the same vanilla outfit.</summary>
-    public void MoveSlot(int target, int index, string lang, int delta) =>
-        ChangeSlots(target, sl =>
-        {
-            var gs = sl.GroupBy(x => (x.Index, x.LangId)).Select(g => g.ToList()).ToList(); // the same slots the mockup shows
-            int i = gs.FindIndex(g => g[0].Index == index && g[0].LangId == lang), j = i + delta;
-            if (i < 0 || j < 0 || j >= gs.Count) return sl;
-            (gs[i], gs[j]) = (gs[j], gs[i]);
-            return [.. gs.SelectMany(g => g)];
-        });
-
-    /// <summary>Adds the main look as a new slot at the end, for every wearer.</summary>
-    public void AddSlot(int target)
-    {
-        string id = NewLang(), name = DefaultName(-1);
-        ChangeSlots(target, sl => { foreach (var who in _o.Spec.Branches.Keys.OrderBy(k => k)) sl.Add(new AlsoSlot(who, -1, id)); return sl; },
-            () => _item.Item.Text[id] = new(StringComparer.Ordinal) { ["eng"] = name });
-    }
+    private void Changed(bool changed) { if (changed) _s.NotifyChanged(); }
+    public void CloneSlot(int target, int index, string lang) => Changed(SortieSlots.CloneBonus(_s.Project, _o, _item.Item, target, index, lang, () => _s.Checkpoint()) != null);
+    public void RemoveSlot(int target, int index, string lang) => Changed(SortieSlots.RemoveBonus(_o, target, index, lang, () => _s.Checkpoint()));
+    public void MoveSlot(int target, int index, string lang, int delta) => Changed(SortieSlots.MoveBonus(_o, target, index, lang, delta, () => _s.Checkpoint()));
+    public void AddSlot(int target) => Changed(SortieSlots.AddBonus(_o, _item.Item, target, () => _s.Checkpoint()) != null);
 
     public void SetRowName(int pos, string text) { if (SlotAt(pos) is { } s) _item.SetText(s.LangId, "eng", text); }
 

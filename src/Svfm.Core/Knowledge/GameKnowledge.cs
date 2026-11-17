@@ -348,6 +348,15 @@ public static class GameKnowledge
     /// <summary>Vanilla support weapons by equip constant (EQP_SWP_*): equip row, stats, R&amp;D row.</summary>
     public static IReadOnlyDictionary<string, VanillaSupportWeapon> SupportWeapons => _support.Value.Weapons;
 
+    private sealed record AttackTable([property: JsonPropertyName("attacks")] Dictionary<string, int> Attacks);
+    private static readonly Lazy<AttackTable> _attacks = new(() => Load<AttackTable>("attack_ids"));
+    /// <summary>The game's attack numbers by TppDamage.ATK_* name (issue #94; sources in attack_ids.json).</summary>
+    public static IReadOnlyDictionary<string, int> AttackIds => _attacks.Value.Attacks;
+    /// <summary>The last attack number V Framework reads for an outfit's dashAttack (OutfitRegistry.h kSprintAttackLast).</summary>
+    public const int DashAttackLast = 0x1BC;
+    /// <summary>The attack number limit V Framework reads for a horse bodyAttackId (BuddyOutfitRegistry.h kAttackIdLimit).</summary>
+    public const int AttackIdLimit = 0x400;
+
     public static IReadOnlyList<CamoInfo> Camos => _camos.Value;
     public static IReadOnlyList<PartsTypeInfo> PartsTypes => _parts.Value;
     public static IReadOnlyList<BehaviourPreset> Presets => _presets.Value;
@@ -366,6 +375,20 @@ public static class GameKnowledge
     /// </summary>
     public static IReadOnlyDictionary<string, int>? CamoValues(string camoName) =>
         _camoValues.Value.Camos.TryGetValue(camoName.ToUpperInvariant(), out var v) ? v : null;
+
+    /// <summary>
+    /// The camoBonusValues key that V Framework 1.7 needs so that a value reaches <paramref name="material"/>. Issue #89:
+    /// the game keeps 83 slots per camo and its InitCamoufTable (exe 0x140B10D70) puts Lua column n (1-based) in slot n,
+    /// so slot = 0-based column + 1. V Framework reads row[slot] with names at the 0-based column, thus one name later.
+    /// Null for the last material: its slot (82) is past the V Framework row.
+    /// </summary>
+    public static string? CamoValueKey(string material) =>
+        _camoValues.Value.Materials.IndexOf(material) is var i and >= 0 && i + 1 < CamoMaterials.Count ? CamoMaterials[i + 1] : null;
+
+    /// <summary>The material that a camoBonusValues key reaches in game (inverse of <see cref="CamoValueKey"/>). Null for
+    /// the first key (slot 0, which the game never uses) and an unknown key.</summary>
+    public static string? CamoValueMaterial(string key) =>
+        _camoValues.Value.Materials.IndexOf(key) is var i and >= 1 ? CamoMaterials[i - 1] : null;
 
     // Issue #89: each Environment is the non-zero row of one vanilla camo; the 6 rows do not overlap.
     private static readonly (string Title, string Camo, string Note, string Words)[] EnvDefs =
@@ -491,6 +514,17 @@ public static class GameKnowledge
     public static CamoInfo? CamoByName(string name) => Camos.FirstOrDefault(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
+    /// True when the vanilla suit (camo name or number) has more than one grade in R&amp;D (Sneaking Suit, Battle Dress,
+    /// Parasite Suit...): its Sortie Prep row shows grade stars, not a camo name (#90).
+    /// </summary>
+    public static bool HasGrades(string outfit)
+    {
+        var c = int.TryParse(outfit, out int n) ? Camos.FirstOrDefault(x => x.PlayerCamoType == n) : CamoByName(outfit);
+        if (c?.DevelopId is not { } id || VanillaDevelop(id)?.Name is not { } name) return false;
+        return VanillaDevelopRows.Values.Where(r => r.Name == name).Select(r => r.Grade).Distinct().Count() > 1;
+    }
+
+    /// <summary>
     /// True when every wearer can wear the vanilla suit. A fatigues camo: Snake and Avatar need its Snake files, DD
     /// soldiers its DD files. A special suit (SNEAKING_SUIT_TPP, BATTLEDRESS, PARASITE and the like): it is in the Sortie
     /// Prep list (it has an R&amp;D row), and each wearer has a body package of its parts type. V Framework 1.7 takes each
@@ -601,7 +635,7 @@ public static class GameKnowledge
         {
             var a = p.GetProperty("abilities");
             bool B(string n) => a.TryGetProperty(n, out var v) && v.ValueKind == JsonValueKind.True;
-            string? S(string n) => a.TryGetProperty(n, out var v) ? v.GetString() : null;
+            string? S(string n) => a.TryGetProperty(n, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
             list.Add(new BehaviourPreset(
                 p.GetProperty("id").GetString()!,
                 p.GetProperty("label").GetString()!,

@@ -9,6 +9,17 @@ namespace Svfm.App;
 public sealed record Choice(string Id, string Label)
 {
     public override string ToString() => Label;
+
+    /// <summary>The dash attack values: off, on with the default attack, or an attack that V Framework accepts (1 to 0x1BC).</summary>
+    public static readonly IReadOnlyList<Choice> DashAttacks =
+        [new("off", "Off"), new("on", "On (default attack)"),
+         .. GameKnowledge.AttackIds.Where(a => a.Value <= GameKnowledge.DashAttackLast).Select(a => a.Key).Order().Select(n => new Choice(n, n))];
+
+    /// <summary>The dash attack choice for a key value: an attack name, or true / false.</summary>
+    public static Choice DashOf(object? v) => DashAttacks.FirstOrDefault(c => c.Id == (v as string ?? (v is true ? "on" : "off"))) ?? DashAttacks[0];
+
+    /// <summary>The key value for a dash attack choice.</summary>
+    public static object DashValue(Choice c) => c.Id switch { "off" => false, "on" => true, _ => c.Id };
 }
 
 /// <summary>One ground material's concealment value.</summary>
@@ -20,9 +31,11 @@ public sealed class MaterialRow(OutfitVm owner, string name, int value) : Observ
     public decimal Value
     {
         get => _value;
-        set { int v = (int)Math.Clamp(value, 0, 100); if (v == _value) return; _value = v; owner.SetMaterial(Name, v); Raise(); }
+        set { int v = (int)Math.Clamp(value, 0, 100); if (v == _value) return; _value = v; owner.SetMaterial(Name, v); Raise(); Raise(nameof(Bonus)); }
     }
-    public void Reload(int v) { _value = v; Raise(nameof(Value)); }
+    /// <summary>The in-game camo bonus of this value, e.g. "+5 %".</summary>
+    public string Bonus => OutfitVm.CamoBonus(_value);
+    public void Reload(int v) { _value = v; Raise(nameof(Value)); Raise(nameof(Bonus)); }
 }
 
 /// <summary>One look (sortie slot) in the list.</summary>
@@ -37,7 +50,7 @@ public sealed class LookRow : Observable
     public void Reload(Look look, bool isDefault)
     {
         Look = look; IsDefault = isDefault;
-        foreach (var n in new[] { nameof(Look), nameof(IsDefault), nameof(Label), nameof(Where), nameof(Arm), nameof(ArmOn), nameof(ArmTip), nameof(Logos), nameof(LogoHint), nameof(Logo), nameof(CanUp), nameof(CanDown), nameof(CanRemove), nameof(CanBeDefault), nameof(Up), nameof(Down), nameof(Remove), nameof(MakeDefault) }) Raise(n);
+        foreach (var n in new[] { nameof(Look), nameof(IsDefault), nameof(Label), nameof(CanLabel), nameof(LabelTip), nameof(Where), nameof(Arm), nameof(ArmOn), nameof(ArmTip), nameof(Logos), nameof(LogoHint), nameof(Logo), nameof(CanUp), nameof(CanDown), nameof(CanRemove), nameof(CanBeDefault), nameof(Up), nameof(Down), nameof(Remove), nameof(MakeDefault) }) Raise(n);
     }
     public bool CanUp => Index > 0;
     public bool CanDown => Index < _o.Looks.Count - 1;
@@ -45,6 +58,9 @@ public sealed class LookRow : Observable
     /// <summary>#62: a vanilla-only outfit has no Main look, so no look is worn first.</summary>
     public bool CanBeDefault => !_o.VanillaOnly;
     public string Label { get => _o.LookLabel(Look); set => _o.SetLookLabel(Index, Look, value); }
+    /// <summary>False for an outfit with one slot: the build writes no slot name for it (see <see cref="OutfitVm.CanNameLooks"/>).</summary>
+    public bool CanLabel => _o.CanNameLooks;
+    public string? LabelTip => CanLabel ? null : "The game shows no slot name for an outfit with one slot. Add a second slot to name the slots.";
     public string Where => Look.FpkPath.Split('/')[^1].Replace(".fpk", "");
     /// <summary>
     /// The arm choices. V Framework 1.7 has one bool per look (<c>enableArm</c>), and it is the <b>bionic</b> left arm,
@@ -123,7 +139,16 @@ public sealed class MaterialGroup(OutfitVm owner, string title, IReadOnlyList<Ma
         get { var v = Rows.Select(r => (int)r.Value).Distinct().ToList(); return v.Count == 1 ? v[0].ToString() : "mixed"; }
         set { if (int.TryParse(value, out int n)) owner.SetMaterials(Rows.Select(r => r.Name), Math.Clamp(n, 0, 100)); Raise(); }
     }
-    public string Summary { get { int n = Rows.Count(r => r.Value > 0); return n == 0 ? $"{Rows.Count} surfaces, no bonus" : $"{n} of {Rows.Count} surfaces get a bonus"; } }
+    public string Summary
+    {
+        get
+        {
+            var on = Rows.Where(r => r.Value > 0).ToList();
+            if (on.Count == 0) return $"{Rows.Count} surfaces, no bonus";
+            var v = on.Select(r => (int)r.Value).Distinct().ToList();
+            return $"{on.Count} of {Rows.Count} surfaces get " + (v.Count == 1 ? OutfitVm.CamoBonus(v[0]) : "a bonus");
+        }
+    }
     public void Reload() { Raise(nameof(Value)); Raise(nameof(Summary)); }
 }
 
@@ -154,7 +179,9 @@ public sealed class GroundPreset(OutfitVm owner, string title, string note, IRea
     public string Count => $"{Materials.Count(m => owner.MaterialValue(m) > 0)} of {Materials.Count} surfaces";
     /// <summary>The concealment value of this ground, also for a preset (issue #22): one number, or "mixed".</summary>
     public string Value { get { var v = Materials.Select(owner.MaterialValue).Distinct().ToList(); return v.Count == 1 ? v[0].ToString() : "mixed"; } }
-    public void Reload() { Raise(nameof(On)); Raise(nameof(Partial)); Raise(nameof(Count)); Raise(nameof(Value)); Raise(nameof(HasAutoNote)); }
+    /// <summary>The in-game camo bonus of <see cref="Value"/>, e.g. "+5 %"; empty when mixed.</summary>
+    public string Bonus { get { var v = Materials.Select(owner.MaterialValue).Distinct().ToList(); return v.Count == 1 ? OutfitVm.CamoBonus(v[0]) : ""; } }
+    public void Reload() { Raise(nameof(On)); Raise(nameof(Partial)); Raise(nameof(Count)); Raise(nameof(Value)); Raise(nameof(Bonus)); Raise(nameof(HasAutoNote)); }
 }
 
 /// <summary>
@@ -344,21 +371,13 @@ public sealed class OutfitVm : Observable
         if (left.Count > 0) MaterialGroups.Add(new MaterialGroup(this, "Other surfaces", left));
     }
     /// <summary>The bonus one surface has now (0 when it has none), from the preset when one is picked.</summary>
-    public int MaterialValue(string name) => CamoValuesOf(First).GetValueOrDefault(name);
-    /// <summary>The values a branch hides with: its preset's table, or its own values (Custom).</summary>
-    private static IReadOnlyDictionary<string, int> CamoValuesOf(OutfitBranch b) =>
-        (b.CamoBonusType != null ? GameKnowledge.CamoValues(b.CamoBonusType) : null) ?? b.CamoBonusValues ?? new Dictionary<string, int>();
     /// <summary>
-    /// Changes values from what the branch hides with now. A changed preset becomes Custom (issue #22); a change that
-    /// leaves the preset's values as they are keeps the preset.
+    /// A camo value as the in-game bonus on the camo index: 10 = 1 %. Owner tests, Nov 17 (#89), on rock with a base of
+    /// 30 %: 50 gave 35 %, 100 gave 40 %, 500 gave 80 %. The shown camo % also depends on stance and light, so only the bonus shows.
     /// </summary>
-    private static OutfitBranch WithCamoValues(OutfitBranch b, Action<Dictionary<string, int>> change)
-    {
-        var d = new Dictionary<string, int>(CamoValuesOf(b));
-        change(d);
-        var type = GameKnowledge.CamoPresetFor(b.CamoBonusType, d);
-        return type != null ? b : b with { CamoBonusType = null, CamoBonusValues = d };
-    }
+    public static string CamoBonus(int value) => value <= 0 ? "" : $"+{value / 10.0:0.#} %";
+    public int MaterialValue(string name) => CamoValuesOf(First).GetValueOrDefault(name);
+    private static IReadOnlyDictionary<string, int> CamoValuesOf(OutfitBranch b) => OutfitEdits.CamoValues(b);
     /// <summary>Ticks or unticks a whole ground in one undo step.</summary>
     public void SetGround(IReadOnlyList<string> names, int value)
     {
@@ -369,7 +388,7 @@ public sealed class OutfitVm : Observable
     public void SetMaterials(IEnumerable<string> names, int value)
     {
         var list = names.ToList();
-        Mutate("c:group:" + list[0], b => WithCamoValues(b, d => { foreach (var n in list) if (value == 0) d.Remove(n); else d[n] = value; }));
+        Edit(OutfitEdits.SetCamoValues(_o, list, value, Before("c:group:" + list[0])));
         ReloadCamo();
     }
     public ObservableCollection<LookRow> LookRows { get; } = [];
@@ -414,21 +433,10 @@ public sealed class OutfitVm : Observable
         foreach (var c in Copies) c.Reload();
     }
     private OutfitBranch? SnakeBranch => _o.Spec.Branches.GetValueOrDefault(PlayerBranch.Snake) ?? OriginalBranches.GetValueOrDefault(PlayerBranch.Snake);
-    private HashSet<string> SnakeFaceHeads() => _s.Project!.Items.Select(ProjectEdits.HeadOf).OfType<HeadOptionItem>().Where(h => h.Spec.SnakeFaceOnly).Select(h => h.Spec.Key).ToHashSet(StringComparer.Ordinal);
     public bool Wears(PlayerBranch who) => _o.Spec.Branches.ContainsKey(who);
     public void SetWears(PlayerBranch who, bool on)
     {
-        if (on == Wears(who)) return;
-        if (!on && _o.Spec.Branches.Count < 2) { foreach (var w in Wearers) w.Reload(); return; }
-        _s.Checkpoint($"{_o.Id}:wear:{who}");
-        if (on)
-        {
-            // Avatar wears Snake's outfit: a mod without an Avatar branch gets one made from Snake's (issue #45).
-            if (OriginalBranches.TryGetValue(who, out var b)) _o.Spec.Branches[who] = b;
-            else if (who == PlayerBranch.Avatar && SnakeBranch is { } sb) _o.Spec.Branches[who] = PlayerBranches.AvatarFrom(sb, SnakeFaceHeads());
-        }
-        else _o.Spec.Branches.Remove(who);
-        _s.NotifyChanged();
+        Edit(OutfitEdits.SetWearer(_s.Project!, _o, who, on, OriginalBranches, Before($"wear:{who}")));
         foreach (var w in Wearers) w.Reload();
         ReloadHeads(); ReloadLooks(); Also?.Refresh();
     }
@@ -444,20 +452,27 @@ public sealed class OutfitVm : Observable
     /// </summary>
     public bool EnableProsthetic
     {
-        get => _o.Spec.Branches.Values.SelectMany(b => ArmScope(b.Variants.Prepend(b.Base))).All(l => l.EnableArm != false);
-        set
-        {
-            // Not "value == EnableProsthetic": with some looks on and some off the getter says off, and off must still reach every look.
-            if (_o.Spec.Branches.Values.SelectMany(b => ArmScope(b.Variants.Prepend(b.Base))).All(l => (l.EnableArm != false) == value)) return;
-            _s.Checkpoint($"{_o.Id}:arm:{_abLook}");
-            Look Set(Look l, int i) => _abLook != 0 && i != _abLook ? l : l with { EnableArm = value ? (l.EnableArm == false ? null : l.EnableArm) : false };
-            foreach (var (who, b) in _o.Spec.Branches.ToList())
-                _o.Spec.Branches[who] = b with { Base = Set(b.Base, 0), Variants = [.. b.Variants.Select((v, i) => Set(v, i + 1))] };
-            _s.NotifyChanged();
-            ReloadLooks();
-        }
+        get => OutfitEdits.ProstheticOn(_o, ArmLook);
+        set { if (Edit(OutfitEdits.SetProsthetic(_o, value, ArmLook, Before($"arm:{_abLook}")))) ReloadLooks(); }
     }
-    private IEnumerable<Look> ArmScope(IEnumerable<Look> looks) => _abLook == 0 ? looks : looks.Skip(_abLook).Take(1);
+    /// <summary>Abilities tab, VOICE (M8): the outfit has a voice package (voiceFpk), as text or as a table.</summary>
+    public bool HasVoice => _o.Spec.Branches.Values.Any(b => b.Voice is { } v && (v.Fpk != null || v.Fpks.Count > 0));
+    /// <summary>"One voice package for all types": voiceFpk is text. Off is the table, a package for each voice type.</summary>
+    public bool VoiceOne
+    {
+        get => _o.Spec.Branches.Values.Any(b => b.Voice?.Fpk != null);
+        set { if (value && Edit(OutfitEdits.Change(_o, (who, b) => b.Voice is { } v ? b with { Voice = v.OneForAll() } : b, Before("voice")))) RaiseVoice(); }
+    }
+    public bool VoiceEach
+    {
+        get => HasVoice && !VoiceOne;
+        set { if (value && Edit(OutfitEdits.Change(_o, (who, b) => b.Voice is { } v ? b with { Voice = v.EachType(who) } : b, Before("voice")))) RaiseVoice(); }
+    }
+    public string VoiceLine => string.Join("\n", _o.Spec.Branches.Values.Select(b => b.Voice).OfType<OutfitVoice>()
+        .SelectMany(v => v.Fpk != null ? [v.Fpk] : v.Fpks.Select(kv => $"{kv.Key}: {kv.Value}")).Distinct());
+    private void RaiseVoice() { Raise(nameof(HasVoice)); Raise(nameof(VoiceOne)); Raise(nameof(VoiceEach)); Raise(nameof(VoiceLine)); }
+    /// <summary>"The outfit" is every look (-1), else the look that "Abilities for" shows.</summary>
+    private int ArmLook => _abLook == 0 ? -1 : _abLook;
     public List<Choice> Rattle { get; } = [];
     public List<Choice> HitSound { get; } = [];
     public IReadOnlyList<int> Levels { get; } = Enumerable.Range(0, 10).ToList();
@@ -467,17 +482,12 @@ public sealed class OutfitVm : Observable
 
     // ---- changing branches ----
 
-    private void Mutate(string field, Func<OutfitBranch, OutfitBranch> f, Action? alongside = null)
-    {
-        var next = _o.Spec.Branches.ToDictionary(kv => kv.Key, kv => f(kv.Value));
-        // A control can write back the value it shows: the same value is not an edit, and an undo step for it would make
-        // Ctrl+Z undo nothing the user did.
-        if (next.All(kv => Equals(kv.Value, _o.Spec.Branches[kv.Key]))) return;
-        _s.Checkpoint($"{_o.Id}:{field}");
-        foreach (var (k, v) in next) _o.Spec.Branches[k] = v;
-        alongside?.Invoke();
-        _s.NotifyChanged();
-    }
+    /// <summary>Makes the undo step of a change of this outfit. <see cref="OutfitEdits"/> calls it only for a real change.</summary>
+    private Action Before(string field) => () => _s.Checkpoint($"{_o.Id}:{field}");
+    /// <summary>After a function of <see cref="OutfitEdits"/>: tells the session when the outfit changed.</summary>
+    private bool Edit(bool changed) { if (changed) _s.NotifyChanged(); return changed; }
+
+    private void Mutate(string field, Func<OutfitBranch, OutfitBranch> f) => Edit(OutfitEdits.Change(_o, (_, b) => f(b), Before(field)));
 
     private void MutateAbilities(string field, Func<Abilities, Abilities> f)
     {
@@ -533,14 +543,14 @@ public sealed class OutfitVm : Observable
     public void Reload()
     {
         var a = First.Abilities;
-        Raise(nameof(SilentFootsteps)); Raise(nameof(QuietMovement)); Raise(nameof(SprintSound)); Raise(nameof(DashAttack)); Raise(nameof(RaidenRun));
+        Raise(nameof(SilentFootsteps)); Raise(nameof(QuietMovement)); Raise(nameof(SprintSound)); Raise(nameof(SelectedDash)); Raise(nameof(RaidenRun));
         Raise(nameof(RaidenAllowed)); Raise(nameof(RaidenNote));
         Raise(nameof(SprintOn)); Raise(nameof(SprintSpeed)); Raise(nameof(Defense)); Raise(nameof(LifeRecovery)); Raise(nameof(SelectedRattle)); Raise(nameof(SelectedHit));
         Raise(nameof(SelectedPreset)); Raise(nameof(PresetNote)); Raise(nameof(PresetTicks));
         if (_abLook > First.Variants.Count) _abLook = 0;
         Raise(nameof(AbilityLooks)); Raise(nameof(AbilityLook)); Raise(nameof(HasAbilityLooks)); Raise(nameof(LookChosen)); Raise(nameof(LookAbilityMode)); Raise(nameof(AbilitiesEditable)); Raise(nameof(EnableProsthetic));
         Raise(nameof(GradeOn)); Raise(nameof(Grade)); Raise(nameof(DevelopCost)); Raise(nameof(UsageCost)); Raise(nameof(AlreadyDeveloped)); Raise(nameof(Unlocked)); Raise(nameof(DevelopNote));
-        ReloadCamo(); ReloadLooks(); ReloadHeads(); BuildWearers();
+        RaiseVoice(); ReloadCamo(); ReloadLooks(); ReloadHeads(); BuildWearers();
         _ = a;
     }
 
@@ -567,7 +577,9 @@ public sealed class OutfitVm : Observable
     public static string RaidenRunTip => "Raiden's run animation. It does not work together with Quiet movement.";
     public static string SprintSoundTip => "Plays a sprint sound when the player sprints.";
     public bool SprintSound { get => Cur.SprintSound; set => MutateAbilities("a:ss", a => a with { SprintSound = value }); }
-    public bool DashAttack { get => Cur.DashAttack; set => MutateAbilities("a:da", a => a with { DashAttack = value }); }
+    public IReadOnlyList<Choice> DashAttacks => Choice.DashAttacks;
+    public Choice SelectedDash { get => Choice.DashOf(DashKey.Get(Cur)); set { if (value != null) MutateAbilities("a:da", a => DashKey.Set(a, Choice.DashValue(value))); } }
+    private static readonly AbilityKey DashKey = Abilities.Keys.Single(k => k.Name == "dashAttack");
     public bool RaidenRun { get => Cur.RaidenRun; set { if (!RaidenAllowed) { Raise(); return; } MutateAbilities("a:rr", a => a with { RaidenRun = value }); } }
     public bool SprintOn { get => Cur.SprintSpeed != null; set { if (value != SprintOn) { MutateAbilities("a:sp", a => a with { SprintSpeed = value ? 1.3f : null }); Raise(); Raise(nameof(SprintSpeed)); } } }
     public decimal SprintSpeed { get => (decimal)(Cur.SprintSpeed ?? 1f); set { MutateAbilities("a:sps", a => a with { SprintSpeed = (float)Math.Clamp(value, 0.1m, 10m) }); } }
@@ -617,21 +629,15 @@ public sealed class OutfitVm : Observable
         set
         {
             if (value == null) return;
-            if (value.Id.Length == 0)
-            {
-                var from = First.CamoBonusType != null ? GameKnowledge.CamoValues(First.CamoBonusType) : null;
-                var vals = new Dictionary<string, int>(from ?? First.CamoBonusValues ?? new Dictionary<string, int>());
-                Mutate("c:type", b => b with { CamoBonusType = null, CamoBonusValues = new Dictionary<string, int>(vals) });
-            }
-            else Mutate("c:type", b => b with { CamoBonusType = value.Id, CamoBonusValues = null });
+            Edit(OutfitEdits.SetCamoPreset(_o, value.Id.Length == 0 ? null : value.Id, Before("c:type")));
             ReloadCamo();
         }
     }
-    public string CamoNote => First.CamoBonusType != null ? $"Hides like the vanilla camo {First.CamoBonusType}: its values from the game show below. Change a value and the choice becomes Custom." : "Each ground gets the number you set. The game uses 0 or 50.";
+    public string CamoNote => First.CamoBonusType != null ? $"Hides like the vanilla camo {First.CamoBonusType}: its values from the game show below. Change a value and the choice becomes Custom." : "Each ground gets the number you set. 10 adds 1 % to the camo index in game; the vanilla camos use 50 (+5 %).";
 
     public void SetMaterial(string name, int value)
     {
-        Mutate("c:" + name, b => WithCamoValues(b, d => { if (value == 0) d.Remove(name); else d[name] = value; }));
+        Edit(OutfitEdits.SetCamoValues(_o, [name], value, Before("c:" + name)));
         ReloadCamo();
     }
 
@@ -647,6 +653,11 @@ public sealed class OutfitVm : Observable
     // ---- Sortie slots (looks) ----
 
     private static IEnumerable<Look> AllLooks(OutfitBranch b) => new[] { b.Base }.Concat(b.Variants);
+    /// <summary>
+    /// True when a wearer has 2 or more slots. The build writes the slot names only then: V Framework 1.7 draws the name
+    /// of a one-slot outfit over the grade bar of its row (owner test, 17 Nov), so <see cref="LuaWriter"/> leaves it out.
+    /// </summary>
+    public bool CanNameLooks => LuaWriter.IsMultiLook(_o.Spec.Branches);
     public string LookLabel(Look l) => l.DisplayName == null ? "" : _item.GetText(l.DisplayName, "eng", false);
     public void SetLookLabel(int index, Look l, string text)
     {
@@ -654,25 +665,7 @@ public sealed class OutfitVm : Observable
         // Issue #18: a look with no lang id (a one-look port) dropped the typed name, so the mockup and the build never got
         // it. The first letter gives the look a lang id on every character; the undo field is the one SetText uses for the
         // later letters, so one undo takes the whole name off.
-        if (text.Length == 0) return;
-        string id = NewLookLang();
-        _s.Checkpoint($"{_item.Item.Id}:{id}:eng");
-        foreach (var (who, b) in _o.Spec.Branches.ToList())
-        {
-            if (index == 0) _o.Spec.Branches[who] = b with { Base = b.Base with { DisplayName = id } };
-            else if (index - 1 < b.Variants.Count) { var vs = b.Variants.ToList(); vs[index - 1] = vs[index - 1] with { DisplayName = id }; _o.Spec.Branches[who] = b with { Variants = vs }; }
-        }
-        _item.Item.Text[id] = new(StringComparer.Ordinal) { ["eng"] = text };
-        _s.NotifyChanged();
-    }
-
-    private string NewLookLang()
-    {
-        for (int n = 1; ; n++)
-        {
-            string id = $"{_o.Spec.NameLang}_s{n}";
-            if (!_item.Item.Text.ContainsKey(id) && !_o.Spec.Branches.Values.SelectMany(AllLooks).Any(x => x.DisplayName == id)) return id;
-        }
+        Edit(OutfitEdits.NameLook(_o, _item.Item, index, text, id => _s.Checkpoint($"{_item.Item.Id}:{id}:eng")) != null);
     }
 
     private void ReloadLooks()
@@ -688,127 +681,46 @@ public sealed class OutfitVm : Observable
     }
     public int LookCount => LookRows.Count;
 
-    private void SetLooks(string field, List<Look> list, int defaultIndex)
+    /// <summary>After a change of the own slots: the "Abilities for" picker follows its look, and the rows are made again.</summary>
+    /// <param name="order">For each new position, the old position of its look; null when nothing changed.</param>
+    private void Moved(IReadOnlyList<int>? order)
     {
-        // #62: the bonus slots keep showing their look; order[new position] is the look's old position.
-        var old = AllLooks(First).ToList();
-        var order = list.Select(l => old.FindIndex(o => ReferenceEquals(o, l))).ToList();
-        var also = _o.Spec.AlsoUnder;
-        list = list.Select((l, i) => l with { Default = i == defaultIndex && i > 0 }).ToList();
-        Mutate(field, b => b with { Base = list[0], Variants = list.Skip(1).ToList() },
-            () => { if (!order.SequenceEqual(Enumerable.Range(0, old.Count))) _o.Spec.AlsoUnder = BonusSlots.FollowLooks(also, order); });
+        if (order == null) return;
+        // A look moved to row 0 is the outfit's (it has no own abilities); a removed look gives the outfit's too.
+        if (_abLook > 0) _abLook = Math.Max(0, order.ToList().IndexOf(_abLook));
+        _s.NotifyChanged();
         ReloadLooks();
     }
 
-    public void MoveLook(int index, int delta)
-    {
-        var all = AllLooks(First).ToList(); int def = LookRows.ToList().FindIndex(r => r.IsDefault);
-        int to = index + delta; if (to < 0 || to >= all.Count) return;
-        (all[index], all[to]) = (all[to], all[index]);
-        if (def == index) def = to; else if (def == to) def = index;
-        // The "Abilities for" picker follows its look too; a look moved to row 0 is the outfit's (it has no own abilities).
-        if (_abLook > 0 && _abLook == index) _abLook = to; else if (_abLook > 0 && _abLook == to) _abLook = index;
-        SetLooks("l:move", all, def);
-    }
+    public void MoveLook(int index, int delta) => Moved(SortieSlots.MoveOwn(_o, index, index + delta, () => _s.Checkpoint($"{_o.Id}:l:move")));
 
     /// <summary>
     /// Moves the look at <paramref name="from"/> to <paramref name="to"/>, shifting the ones in between. This is what a
     /// drag does; <see cref="MoveLook"/> only steps one place at a time.
     /// </summary>
-    public void MoveLookTo(int from, int to)
-    {
-        var all = AllLooks(First).ToList();
-        if (from == to || from < 0 || to < 0 || from >= all.Count || to >= all.Count) return;
-        int def = LookRows.ToList().FindIndex(r => r.IsDefault);
-        var moved = all[from];
-        all.RemoveAt(from);
-        all.Insert(to, moved);
-        // The "worn first" look follows its own row rather than staying at a position.
-        if (def == from) def = to;
-        else if (from < def && to >= def) def--;
-        else if (from > def && to <= def) def++;
-        if (_abLook > 0)
-        {
-            if (_abLook == from) _abLook = to;
-            else if (from < _abLook && to >= _abLook) _abLook--;
-            else if (from > _abLook && to <= _abLook) _abLook++;
-        }
-        SetLooks("l:drag", all, def);
-    }
+    public void MoveLookTo(int from, int to) => Moved(SortieSlots.MoveOwn(_o, from, to, () => _s.Checkpoint($"{_o.Id}:l:drag")));
 
-    public void RemoveLook(int index)
-    {
-        if (!CanRemoveLook) return;
-        var all = AllLooks(First).ToList();
-        if (all.Count < 2)
-        {
-            // #62: the last own slot goes while a bonus slot stays. The look stays as the source of the bonus slots.
-            Mutate("l:vanilla-only", b => b with { VanillaOnly = true }); // its own field: not merged with an earlier Remove
-            ReloadLooks();
-            return;
-        }
-        int def = LookRows.ToList().FindIndex(r => r.IsDefault);
-        all.RemoveAt(index);
-        def = def == index ? 0 : (def > index ? def - 1 : def);
-        _abLook = _abLook == index ? 0 : (_abLook > index ? _abLook - 1 : _abLook);
-        SetLooks("l:remove", all, def);
-    }
+    // #62: the last own slot has its own undo field: it is not merged with an earlier Remove.
+    public void RemoveLook(int index) =>
+        Moved(SortieSlots.RemoveOwn(_s.Project, _o, index, () => _s.Checkpoint($"{_o.Id}:" + (First.Variants.Count == 0 ? "l:vanilla-only" : "l:remove"))));
 
     /// <summary>Issue #30: puts a copy of the look at <paramref name="index"/> after it, with its own name, for every character.</summary>
-    public void CloneLook(int index) => InsertLookCopy(index, index + 1, LookRows.ElementAtOrDefault(index)?.Label ?? "");
+    public void CloneLook(int index) => Moved(SortieSlots.CloneOwn(_o, _item.Item, index, () => _s.Checkpoint())); // no field: two clones in a row are two undo steps
 
     /// <summary>Issue #30: Add slot in the Sortie mockup. The new slot is a copy of the main look at the end, named "New slot".</summary>
-    public void AddLook()
-    {
-        // #62: a vanilla-only outfit gets its own slot back first: its Main look.
-        if (VanillaOnly) { Mutate("l:own-slot", b => b with { VanillaOnly = false }); ReloadLooks(); return; }
-        InsertLookCopy(0, int.MaxValue, "New slot");
-    }
+    public void AddLook() => Moved(SortieSlots.AddOwn(_o, _item.Item, () => _s.Checkpoint(VanillaOnly ? $"{_o.Id}:l:own-slot" : "")));
 
     /// <summary>#62: the outfit has no own slot, only bonus slots under vanilla suits.</summary>
     public bool VanillaOnly => _o.Spec.VanillaOnly;
     /// <summary>#87: the outfit's own icon (the ICON local), the icon a look with no icon of its own shows.</summary>
     public string OutfitIcon => _o.Spec.IconFtexPath;
     /// <summary>#62: an own slot can go while another slot stays; an existing V Framework mod keeps its last own slot.</summary>
-    public bool CanRemoveLook => _o.Spec.CanRemoveSlot(own: true, ownCanGo: _s.Project?.Existing == null);
-
-    private void InsertLookCopy(int from, int at, string label)
-    {
-        if (from < 0 || from >= LookRows.Count) return;
-        string id = NewLookLang();
-        _s.Checkpoint(); // no field: two clones in a row are two undo steps
-        // #62: a bonus slot keeps showing its look when the new look pushes it down a place (-1: the new look has no old position).
-        if (at < LookRows.Count)
-        {
-            var order = Enumerable.Range(0, LookRows.Count).ToList();
-            order.Insert(at, -1);
-            _o.Spec.AlsoUnder = BonusSlots.FollowLooks(_o.Spec.AlsoUnder, order);
-        }
-        _item.Item.Text[id] = new(StringComparer.Ordinal) { ["eng"] = label };
-        foreach (var (who, b) in _o.Spec.Branches.ToList())
-        {
-            var all = AllLooks(b).ToList();
-            if (from >= all.Count) continue;
-            all.Insert(Math.Min(at, all.Count), all[from] with { DisplayName = id, Default = false });
-            _o.Spec.Branches[who] = b with { Base = all[0], Variants = all.Skip(1).ToList() };
-        }
-        if (_abLook > 0 && _abLook >= Math.Min(at, LookRows.Count)) _abLook++; // LookRows still has the old count here
-        _s.NotifyChanged();
-        ReloadLooks();
-    }
+    public bool CanRemoveLook => SortieSlots.CanRemoveOwn(_s.Project, _o);
 
     /// <summary>Sets enableArm on the look at this position, for every character.</summary>
     public void SetLookArm(int index, int v)
     {
-        bool? arm = v switch { 1 => true, 2 => false, _ => null };
-        _s.Checkpoint($"{_o.Id}:l:arm:{index}");
-        foreach (var (who, b) in _o.Spec.Branches.ToList())
-        {
-            if (index == 0) _o.Spec.Branches[who] = b with { Base = b.Base with { EnableArm = arm } };
-            else if (index - 1 < b.Variants.Count) { var vs = b.Variants.ToList(); vs[index - 1] = vs[index - 1] with { EnableArm = arm }; _o.Spec.Branches[who] = b with { Variants = vs }; }
-        }
-        _s.NotifyChanged();
-        ReloadLooks();
+        if (Edit(OutfitEdits.SetLookArm(_o, index, v switch { 1 => true, 2 => false, _ => null }, Before($"l:arm:{index}")))) ReloadLooks();
     }
 
     /// <summary>
@@ -818,33 +730,18 @@ public sealed class OutfitVm : Observable
     /// </summary>
     public void SetLookLogo(int index, string? logo)
     {
-        _s.Checkpoint($"{_o.Id}:l:logo:{index}");
-        foreach (var (who, b) in _o.Spec.Branches.ToList())
-        {
-            if (index == 0) _o.Spec.Branches[who] = b with { Base = b.Base with { IconFtexPath = logo } };
-            else if (index - 1 < b.Variants.Count) { var vs = b.Variants.ToList(); vs[index - 1] = vs[index - 1] with { IconFtexPath = logo }; _o.Spec.Branches[who] = b with { Variants = vs }; }
-        }
-        _s.NotifyChanged();
-        ReloadLooks();
+        if (Edit(OutfitEdits.SetLookLogo(_o, index, logo, Before($"l:logo:{index}")))) ReloadLooks();
     }
 
-    public void SetDefaultLook(int index) => SetLooks("l:default", AllLooks(First).ToList(), index);
+    public void SetDefaultLook(int index) => Moved(SortieSlots.SetWornFirst(_o, index, () => _s.Checkpoint($"{_o.Id}:l:default")));
 
     // ---- Heads ----
 
-    public bool HasHead(PlayerBranch who, string id) => _o.Spec.Branches.TryGetValue(who, out var b) && (b.Base.HeadOptions.Contains(id) || b.HeadOptions.Contains(id));
+    public bool HasHead(PlayerBranch who, string id) => OutfitEdits.HasHead(_o, who, id);
 
     public void SetHead(PlayerBranch who, string id, bool on)
     {
-        if (on == HasHead(who, id)) return;
-        _s.Checkpoint($"{_o.Id}:h:{who}:{id}");
-        var b = _o.Spec.Branches[who];
-        var heads = b.HeadOptions.Concat(b.Base.HeadOptions).Distinct().ToList();
-        if (on) heads.Add(id); else heads.Remove(id);
-        // Every look repeats the list (V Framework 1.7 gives a look without its own list no HEAD row).
-        _o.Spec.Branches[who] = b with { HeadOptions = heads.ToList(), Base = b.Base with { HeadOptions = heads.ToList() }, Variants = b.Variants.Select(v => v with { HeadOptions = heads.ToList() }).ToList() };
-        _s.NotifyChanged();
-        ReloadHeads();
+        if (Edit(OutfitEdits.SetHead(_o, who, id, on, Before($"h:{who}:{id}")))) ReloadHeads();
     }
 
     // ---- The bandana (issue #21): listed or not, and whether it respects development ----
@@ -867,40 +764,18 @@ public sealed class OutfitVm : Observable
         set { if (value != ListBandanaAvatar) { _s.Checkpoint($"{_o.Id}:h:bandana:avatar"); SetBandana(value, PlayerBranch.Avatar); } }
     }
     /// <summary>Issue #86: why the Avatar card has no development setting (.docs/Research_Avatar_Gated_Bandana.md).</summary>
-    public static string AvatarBandanaNote => "The Avatar's bandana is the game's own head, so the player can wear it at once. The wait for development is not available for the Avatar: the bandana that waits is built on Snake's bandana faces, and V Framework 1.7 can give the Avatar such a head only with an Avatar model file. The game file of the Avatar's bandana is not known.";
+    public static string AvatarBandanaNote => "The Avatar wears its own face with the Avatar's bandana. The bandana is available after the Bandana is developed on the R&D tab, the same as for Snake.";
 
     private void SetBandana(bool on, PlayerBranch who)
     {
-        GatedBandanas.List(_s.Project!, _o, on, GateBandanas, who);
+        // Issue #98: Snake's bandana is always the head that follows the vanilla development; the switch is now
+        // "Follows a vanilla development" on the R&D tab of the BANDANA head item. An old project keeps its form.
+        GatedBandanas.List(_s.Project!, _o, on, true, who);
         _s.NotifyChanged();
-        Raise(nameof(ListBandana)); Raise(nameof(ListBandanaAvatar)); Raise(nameof(GateEnabled)); Raise(nameof(BandanaNote));
+        Raise(nameof(ListBandana)); Raise(nameof(ListBandanaAvatar));
     }
 
-    /// <summary>The development setting applies only when the bandana is listed; it greys out when it is not.</summary>
-    public bool GateEnabled => ListBandana;
-
-    /// <summary>
-    /// True (the default): a bandana is only wearable once the vanilla one is developed, by adding it as a custom head
-    /// whose R&amp;D row follows the vanilla row. False: it is listed as the vanilla head, which V Framework 1.7 lets the
-    /// player wear straight away. The owner asked for this choice instead of the old fixed note. Changing it lists this
-    /// outfit's bandana again in the chosen form.
-    /// </summary>
-    public bool GateBandanas
-    {
-        get => _s.Settings.GateBandanas;
-        set
-        {
-            if (value == GateBandanas) return;
-            _s.Settings.GateBandanas = value; _s.Settings.Save();
-            if (ListBandana) { _s.Checkpoint($"{_o.Id}:h:bandana:gate"); SetBandana(true, PlayerBranch.Snake); }
-            Raise(); Raise(nameof(BandanaNote));
-        }
-    }
-    public string BandanaNote => !ListBandana
-        ? "The bandana isn't listed, so the development setting doesn't apply."
-        : GateBandanas
-        ? "A bandana is only wearable once the vanilla one is developed: it is added as a head of its own whose R&D row follows the vanilla row."
-        : "A bandana can be worn straight away: V Framework 1.7 doesn't check development for the game's own heads.";
+    public static string BandanaNote => "The bandana is added as a head of its own. By default it is wearable once the vanilla bandana is developed. To change this, select the BANDANA head item and use \"Follows a vanilla development\" on its R&D tab.";
 
     // ---- The mod's own heads (issue #21) ----
 
@@ -927,7 +802,7 @@ public sealed class OutfitVm : Observable
             foreach (var i in heads)
                 if (ModHeads.Fits(ProjectEdits.HeadOf(i)!.Spec, who))
                     ModHeadRows.Add(new ModHeadRow(this, who, ProjectEdits.HeadOf(i)!.Spec.Key, $"{(i.Title.Length > 0 ? i.Title : i.Id)} ({WearerTitle(who)})"));
-        Raise(nameof(HasHeads)); Raise(nameof(HasModHeads)); Raise(nameof(ListBandana)); Raise(nameof(GateEnabled)); Raise(nameof(CanListBandana)); Raise(nameof(CanListBandanaAvatar)); Raise(nameof(ListBandanaAvatar)); Raise(nameof(BandanaNote)); Raise(nameof(NoHeadNote)); Raise(nameof(HideHead)); Raise(nameof(HideHeadWarning));
+        Raise(nameof(HasHeads)); Raise(nameof(HasModHeads)); Raise(nameof(ListBandana)); Raise(nameof(CanListBandana)); Raise(nameof(CanListBandanaAvatar)); Raise(nameof(ListBandanaAvatar)); Raise(nameof(NoHeadNote)); Raise(nameof(HideHead)); Raise(nameof(HideHeadWarning));
     }
     public bool HasHeads => HeadGroups.Count > 0;
 
@@ -947,15 +822,10 @@ public sealed class OutfitVm : Observable
     /// </summary>
     public bool HideHead
     {
-        get => _o.Spec.Branches.Count > 0 && _o.Spec.Branches.Values.All(b => !b.AnyLookShowsHead());
+        get => OutfitEdits.HeadHidden(_o);
         set
         {
-            if (value == HideHead) return;
-            _s.Checkpoint($"{_o.Id}:head");
-            Look Set(Look l) => l with { EnableHead = value ? false : null };
-            foreach (var (who, b) in _o.Spec.Branches.ToList())
-                _o.Spec.Branches[who] = b with { Base = Set(b.Base), Variants = [.. b.Variants.Select(Set)] };
-            _s.NotifyChanged();
+            if (!Edit(OutfitEdits.HideHead(_o, value, Before("head")))) return;
             ReloadLooks();
             Raise(); Raise(nameof(HideHeadWarning)); Raise(nameof(NoHeadNote));
         }

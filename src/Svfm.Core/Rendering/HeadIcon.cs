@@ -100,6 +100,79 @@ public static class HeadIcon
         return (Share(crown), Share(back));
     }
 
+    private const string BandanaIcon = "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_bandana_alp.ftex";
+    private const string InfinityBandanaIcon = "/Assets/tpp/ui/texture/EquipIcon/suit/ui_st_infinity_bandana_alp.ftex";
+
+    /// <summary>
+    /// The infinity mark of the vanilla Infinity Bandana icon, at its place in the 256×128 icon: the pixels that differ
+    /// from the Bandana icon (two rings, at about x 148–187, y 75–95), the rest transparent. Null when the game lacks either icon.
+    /// </summary>
+    public static RgbaImage? InfinityMark(GameData game) => Marks.GetValue(game, g => new(ReadInfinityMark(g))).Value;
+
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<GameData, System.Runtime.CompilerServices.StrongBox<RgbaImage?>> Marks = new();
+
+    private static RgbaImage? ReadInfinityMark(GameData game)
+    {
+        if (game.TryReadTexture(BandanaIcon) is not { } a || game.TryReadTexture(InfinityBandanaIcon) is not { } b || a.Width != b.Width || a.Height != b.Height) return null;
+        var m = new RgbaImage(b.Width, b.Height);
+        for (int i = 0; i < b.Width * b.Height * 4; i += 4)
+        {
+            int d = 0;
+            for (int c = 0; c < 4; c++) d = Math.Max(d, Math.Abs(a.Pixels[i + c] - b.Pixels[i + c]));
+            if (d > 8) b.Pixels.AsSpan(i, 4).CopyTo(m.Pixels.AsSpan(i, 4));
+        }
+        return m;
+    }
+
+    /// <summary>
+    /// The files with the icon at <paramref name="icon"/> (an .ftex path without the extension) redrawn with
+    /// <paramref name="mark"/> over it (scaled to the icon's size).
+    /// </summary>
+    public static Dictionary<string, byte[]> WithInfinityMark(IReadOnlyDictionary<string, byte[]> files, string icon, RgbaImage mark)
+    {
+        var parts = new Dictionary<int, byte[]>();
+        for (int k = 1; k <= 6; k++) if (files.TryGetValue($"{icon}.{k}.ftexs", out var d)) parts[k] = d;
+        var img = FtexTexture.Read(files[icon + ".ftex"]).DecodeLargestAvailable(parts);
+        var copy = new Dictionary<string, byte[]>(files, StringComparer.Ordinal);
+        var marked = WithInfinityMark(img, mark);
+        var ft = FtexWriter.Write(marked, withAlpha: true, FtexKind.Linear);
+        for (int k = 1; k <= 6; k++) copy.Remove($"{icon}.{k}.ftexs");
+        copy[icon + ".ftex"] = ft.Ftex;
+        foreach (var (n, d) in ft.Ftexs) copy[$"{icon}.{n}.ftexs"] = d;
+        return copy;
+    }
+
+    /// <summary>The icon with <paramref name="mark"/> over it, the mark scaled to the icon's size when the sizes differ.</summary>
+    public static RgbaImage WithInfinityMark(RgbaImage icon, RgbaImage mark) =>
+        Over(icon.Width == mark.Width && icon.Height == mark.Height ? mark : Scaled(mark, icon.Width, icon.Height), icon);
+
+    /// <summary>Bilinear scale of <paramref name="img"/>; the colour is weighted by alpha so the transparent pixels do not darken the edges.</summary>
+    public static RgbaImage Scaled(RgbaImage img, int width, int height)
+    {
+        var o = new RgbaImage(width, height);
+        Span<float> c = stackalloc float[4];
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            float sx = Math.Clamp((x + 0.5f) * img.Width / width - 0.5f, 0, img.Width - 1);
+            float sy = Math.Clamp((y + 0.5f) * img.Height / height - 0.5f, 0, img.Height - 1);
+            int x0 = (int)sx, y0 = (int)sy, x1 = Math.Min(x0 + 1, img.Width - 1), y1 = Math.Min(y0 + 1, img.Height - 1);
+            float fx = sx - x0, fy = sy - y0;
+            c.Clear();
+            foreach (var (px, py, w) in new[] { (x0, y0, (1 - fx) * (1 - fy)), (x1, y0, fx * (1 - fy)), (x0, y1, (1 - fx) * fy), (x1, y1, fx * fy) })
+            {
+                var p = img.Pixel(px, py);
+                float wa = w * p[3];
+                for (int k = 0; k < 3; k++) c[k] += p[k] * wa;
+                c[3] += wa;
+            }
+            var q = o.Pixel(x, y);
+            for (int k = 0; k < 3; k++) q[k] = c[3] > 0 ? (byte)Math.Round(c[k] / c[3]) : (byte)0;
+            q[3] = (byte)Math.Round(c[3]);
+        }
+        return o;
+    }
+
     /// <summary>Alpha-over of two white-on-transparent drawings.</summary>
     public static RgbaImage Over(RgbaImage top, RgbaImage bottom)
     {

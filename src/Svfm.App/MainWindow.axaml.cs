@@ -157,9 +157,9 @@ public sealed partial class MainWindow : Window, IDialogs
         modsBrowse.Margin = new Thickness(8, 0, 0, 0);
         save.Click += (_, _) =>
         {
-            _vm.Session.Settings.GameFolder = gameBox.Text ?? "";
+            // The setter lets go of the game only when the folder changed (#99).
+            _vm.OpenScreen.GameFolder = gameBox.Text ?? "";
             _vm.Session.Settings.ModsFolder = modsBox.Text ?? "";
-            _vm.Session.ForgetGame();
             _vm.Session.Settings.Save();
             _vm.OpenScreen.RefreshSettings();
             window.Close();

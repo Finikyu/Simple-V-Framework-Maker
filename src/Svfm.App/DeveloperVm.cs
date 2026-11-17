@@ -64,6 +64,19 @@ public sealed class DeveloperVm : Observable
 
     public static IReadOnlyList<string> Levels { get; } = ["Everything", "Warnings and errors", "Errors and checks only"];
     public int Level { get => _level; set { if (Set(ref _level, value)) Rebuild(); } }
+    /// <summary>Developer mode: the throw-script editor shows the Announce step and its diagnostics (issue #97). Kept in the settings.</summary>
+    public bool DeveloperMode
+    {
+        get => _main.Session.Settings.DeveloperMode;
+        set
+        {
+            if (value == DeveloperMode) return;
+            _main.Session.Settings.DeveloperMode = value; _main.Session.Settings.Save();
+            DevLog.Info("ui", value ? "Developer mode on" : "Developer mode off");
+            foreach (var i in _main.Editor?.Items ?? []) i.Script?.Reload();
+            Raise();
+        }
+    }
     public string Text { get => _text; private set => Set(ref _text, value); }
     public string Note { get => _note; set => Set(ref _note, value); }
     public string Status { get => _status; private set => Set(ref _status, value); }

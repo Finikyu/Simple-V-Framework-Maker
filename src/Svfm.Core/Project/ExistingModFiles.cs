@@ -20,7 +20,8 @@ public static partial class ExistingMod
 
     /// <summary>
     /// Weapons: equip constant → (parts, package), from every AddToEquipIdTable entry in the mod's scripts
-    /// ({ TppEquip.EQP_WP_x, type, TppEquip.WP_x, block, parts path, package path }). An entry without a package (ammo) is left out.
+    /// ({ TppEquip.EQP_WP_x, type, TppEquip.WP_x, block, parts path, package path }). An entry without a package (ammo) is left out,
+    /// except an EQP_BLOCK_COMMON entry with a .parts: its model is in the resident common package (a custom thrown item, in game 16 Nov).
     /// </summary>
     private static Dictionary<string, (string parts, string fpk)> EquipPackages(IEnumerable<SandboxResult> runs)
     {
@@ -28,9 +29,26 @@ public static partial class ExistingMod
         foreach (var c in runs.SelectMany(r => r.Calls).Where(c => c.Path.EndsWith(".AddToEquipIdTable", StringComparison.Ordinal)))
             if (c.Arguments.FirstOrDefault() is LuaValue.Table t)
                 foreach (var e in t.Items.OfType<LuaValue.Table>())
-                    if (e.Items.Count >= 6 && e.Items[0] is LuaValue.Name n && e.Items[5] is LuaValue.Text { Value.Length: > 0 } f)
-                        all.TryAdd(n.Value, (StringOf(e.Items[4]), f.Value));
+                    if (e.Items.Count >= 6 && e.Items[0] is LuaValue.Name n)
+                    {
+                        if (e.Items[5] is LuaValue.Text { Value.Length: > 0 } f) all.TryAdd(n.Value, (StringOf(e.Items[4]), f.Value));
+                        else if (e.Items[3] is LuaValue.Name { Value: var b } && b.EndsWith("EQP_BLOCK_COMMON", StringComparison.Ordinal) && StringOf(e.Items[4]) is { Length: > 0 } parts)
+                            all.TryAdd(n.Value, (parts, Conversion.SupportWeaponConverter.CommonPackage + ".fpk"));
+                    }
         return all;
+    }
+
+    /// <summary>
+    /// A thrown item whose model the mod adds to the common package: the mod's loose textures that its models name, so the
+    /// preview draws them. Only the mod's own partial col_common_tpp.fpk is read, never the game's.
+    /// </summary>
+    private static void CollectCommonTextures(ExistingItem item, MgsvMod mod, Dictionary<string, List<string>> stems)
+    {
+        if (!item.Files.TryGetValue(Conversion.SupportWeaponConverter.CommonPackage + ".fpk", out var fpk)) return;
+        var codes = FoxPackage.Read(fpk).Files.Where(f => f.Extension == "fmdl")
+            .SelectMany(f => FmdlModel.Read(f.Data).Materials.SelectMany(m => m.Textures.Select(s => s.PathCode))).ToHashSet();
+        CollectFiles(item, mod, stems, mod.ArchiveFiles.Keys.Where(k => k.EndsWith(".ftex", StringComparison.OrdinalIgnoreCase)
+            && codes.Contains(FoxHash.PathCode64(k.StartsWith('/') ? k : "/" + k))));
     }
 
     /// <summary>
@@ -68,7 +86,9 @@ public static partial class ExistingMod
     private static Abilities? AbilitiesOf(LuaValue? v)
     {
         if (v is not LuaValue.Table t) return null;
-        return Abilities.Read(k => BoolOf(t[k]) == true, k => t[k] is LuaValue.Number n ? n.Value : null, k => TextOf(t[k]));
+        // V Framework reads a dashAttack string as on (OutfitLuaBindings.cpp), not as an attack ID.
+        return Abilities.Read(k => BoolOf(t[k]) == true || k == "dashAttack" && t[k] is LuaValue.Text, k => t[k] is LuaValue.Number n ? n.Value : null,
+            k => k == "dashAttack" ? Abilities.DashAttackOf(t[k]) : TextOf(t[k]));
     }
 
     private static List<string> Texts(LuaValue? v) => v is LuaValue.Table t ? t.Items.Select(TextOf).OfType<string>().ToList() : [];
@@ -85,13 +105,9 @@ public static partial class ExistingMod
         string icon = item.IconPath ?? "";
         // The display name stays the lang ID (the app shows the item's text for it), so an edit writes back an ID.
         Look? LookOf(LuaValue? v) => v is LuaValue.Table t && TextOf(t["fpkPath"]) is { } fpk
-            ? new Look
-            {
-                PartsPath = StringOf(t["partsPath"]), FpkPath = fpk, CamoFpk = TextOf(t["camoFpk"]), CamoFv2 = TextOf(t["camoFv2"]),
-                DisplayName = TextOf(t["displayName"]), IconFtexPath = TextOf(t["iconFtexPath"]),
-                EnableArm = BoolOf(t["enableArm"]), EnableHead = BoolOf(t["enableHead"]), Default = BoolOf(t["default"]) == true, HeadOptions = Texts(t["headOptions"]),
-                Abilities = AbilitiesOf(t["abilities"]),
-            }
+            ? Look.Keys.Aggregate(
+                new Look { PartsPath = "", FpkPath = fpk, Default = BoolOf(t["default"]) == true, HeadOptions = Texts(t["headOptions"]), Abilities = AbilitiesOf(t["abilities"]) },
+                (l, k) => k.Set(l, k.IsBool ? BoolOf(t[k.Name]) : TextOf(t[k.Name])))
             : null;
         List<OutfitColor> ColorsOf(LuaValue? v) => v is LuaValue.Table t
             ? t.Items.OfType<LuaValue.Table>().Where(c => TextOf(c["fv2"]) != null).Select(c => new OutfitColor(TextOf(c["fv2"])!, TextOf(c["fpk"]), TextOf(c["icon"]))).ToList()
@@ -100,8 +116,10 @@ public static partial class ExistingMod
         {
             var fpks = new Dictionary<string, string>(StringComparer.Ordinal);
             if (b["voiceFpk"] is LuaValue.Table vf) foreach (var (k, v) in vf.Fields) if (TextOf(v) is { } f) fpks[k] = f;
+            // Text is one package for all voice types (M8).
+            string? one = b["voiceFpk"] is LuaValue.Table ? null : TextOf(b["voiceFpk"]);
             string? type = TextOf(b["voiceType"]);
-            return fpks.Count == 0 && type == null ? null : new OutfitVoice { Fpks = fpks, Type = type };
+            return fpks.Count == 0 && one == null && type == null ? null : new OutfitVoice { Fpks = fpks, Fpk = one, Type = type };
         }
 
         ProjectItem? m = null;
@@ -139,7 +157,15 @@ public static partial class ExistingMod
                     for (int i = 0; i < st.Items.Count; i++)
                         if (st.Items[i] is LuaValue.Table s && TextOf(s["fpk"]) is { } sf) stages[i + 1] = (StringOf(s["fv2"]), sf);
                     string? fpk = TextOf(t["fpk"]) ?? stages.Values.Select(s => s.Item2).FirstOrDefault();
-                    return fpk == null ? null : new HeadBranch { Fv2 = TextOf(t["fv2"]), Fpk = fpk, FaceStages = stages };
+                    // A soldier face ID next to a model, as the writer gives it (a number or a TppEnemyFaceId name), so the
+                    // write-back keeps it. A table with the ID only has no model of its own and stays without one.
+                    string? face = t["TppEnemyFaceId"] switch
+                    {
+                        LuaValue.Number n => LuaLiteral.FormatNumber(n.Value),
+                        LuaValue.Name { Value: not ("nil" or "true" or "false") } nm => nm.Value,
+                        _ => null,
+                    };
+                    return fpk == null ? null : new HeadBranch { Fv2 = TextOf(t["fv2"]), Fpk = fpk, FaceStages = stages, EnemyFaceId = face };
                 }
                 foreach (var (field, who) in Branches)
                     if (args[field] is LuaValue.Table b && HeadOf(b) is { } hb) heads[who] = hb;
@@ -168,7 +194,9 @@ public static partial class ExistingMod
                 break;
             case ItemKind.Weapon:
                 // The row's equip constant names the AddToEquipIdTable entry that carries the package.
-                if (constTable?.Field(ParamSchema.Const, "equipID")?.Value is LuaValue.Name eq && equip.TryGetValue(eq.Value, out var e))
+                // A common-package row has a model to show only when the mod ships its own col_common_tpp.fpk.
+                if (constTable?.Field(ParamSchema.Const, "equipID")?.Value is LuaValue.Name eq && equip.TryGetValue(eq.Value, out var e)
+                    && (e.fpk != Conversion.SupportWeaponConverter.CommonPackage + ".fpk" || item.Files.ContainsKey(e.fpk)))
                 {
                     string type = constTable.Field(ParamSchema.Const, "equipDevelopTypeID")?.Value is LuaValue.Name tn ? tn.Value[(tn.Value.LastIndexOf('_') + 1)..] : "";
                     m = new WeaponItem

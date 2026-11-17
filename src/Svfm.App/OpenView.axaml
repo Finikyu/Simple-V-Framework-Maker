@@ -20,11 +20,14 @@
     <ScrollViewer>
       <Grid ColumnDefinitions="*,32,340" Margin="24,40" MaxWidth="1132">
         <StackPanel Grid.Column="0" Spacing="20">
-          <StackPanel Spacing="8">
-            <TextBlock Text="Turn a mod into V Framework content" FontSize="30" FontWeight="Bold" TextWrapping="Wrap" />
-            <TextBlock Foreground="#C9CDD2" MaxWidth="640" TextWrapping="Wrap" HorizontalAlignment="Left" LineHeight="21"
-                       Text="A replacer becomes its own outfit, head, weapon or item, so the vanilla game stays as it was. An existing V Framework mod opens for editing." />
-          </StackPanel>
+          <Grid ColumnDefinitions="Auto,*">
+            <Image Source="/Assets/logo.png" Width="88" Height="88" Margin="0,0,20,0" VerticalAlignment="Top" RenderOptions.BitmapInterpolationMode="HighQuality" />
+            <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
+              <TextBlock Text="Turn a mod into V Framework content" FontSize="30" FontWeight="Bold" TextWrapping="Wrap" />
+              <TextBlock Foreground="#C9CDD2" MaxWidth="640" TextWrapping="Wrap" HorizontalAlignment="Left" LineHeight="21"
+                         Text="A replacer becomes its own outfit, head, weapon or item, so the vanilla game stays as it was. An existing V Framework mod opens for editing." />
+            </StackPanel>
+          </Grid>
 
           <Grid MinHeight="260" Cursor="Hand" Background="#00000000" Name="DropZone">
             <Rectangle Stroke="{StaticResource DashBrush}" StrokeThickness="1.5" StrokeDashArray="4,4" RadiusX="12" RadiusY="12" Fill="{StaticResource PanelBrush}" />

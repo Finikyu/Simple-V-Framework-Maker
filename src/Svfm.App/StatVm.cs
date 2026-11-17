@@ -238,7 +238,7 @@ public sealed class StatsVm : Observable
             case SupportWeaponItem t:
             {
                 var sp = t.Spec; var id = t.Id;
-                var v = new StatsVm { TabTitle = "Stats", Intro = "How the thrown item behaves. Its look and model are those of the item it is thrown as." };
+                var v = new StatsVm { TabTitle = "Stats", Intro = "How the thrown item behaves. It has the mod's model and is held and thrown like the item it is thrown as." };
                 v.Groups.Add(new StatGroupVm("Carried and timing",
                 [
                     StatRowVm.Number(s, id + ":ammo", "Carried at once", 1, 99, 1, () => sp.Ammo, x => sp.Ammo = (int)(x ?? 1)),
@@ -255,7 +255,7 @@ public sealed class StatsVm : Observable
                 var v = new StatsVm { TabTitle = title, Intro = "The costume's behaviour, as the mod's script sets it. A value the script leaves out shows as 0 or off, and the build writes it only when you change it." };
                 var cmds = DogGearBehaviour.CommandTypes.Select((c, i) => new Choice(i.ToString(), c)).ToList();
                 var tacks = HorseTackBehaviour.TackNames.Select((t, i) => new Choice(i.ToString(), t)).ToList();
-                var rams = new[] { (0x69, "ATK_HorseBodyAttack"), (0x6A, "ATK_HorseBodyAttackMil1"), (0x6B, "ATK_HorseBodyAttackMil2"), (0x6C, "ATK_HorseBodyAttackMil3") }.Select(r => new Choice(r.Item1.ToString(), r.Item2)).ToList();
+                var rams = GameKnowledge.AttackIds.OrderBy(a => a.Key, StringComparer.Ordinal).Select(a => new Choice(a.Value.ToString(), a.Key)).ToList();
                 foreach (var branch in branches)
                 {
                     var rows = new List<StatRowVm>();
@@ -383,7 +383,7 @@ public sealed class StatsVm : Observable
                 {
                     var v = new StatsVm { TabTitle = "How the horse plays", Intro = "Left at Default, the tack plays like NORMAL." };
                     var tacks = new List<Choice> { Default }; for (int i = 0; i < HorseTackBehaviour.TackNames.Length; i++) tacks.Add(new Choice(i.ToString(), HorseTackBehaviour.TackNames[i]));
-                    var rams = new[] { "", "ATK_HorseBodyAttack", "ATK_HorseBodyAttackMil1", "ATK_HorseBodyAttackMil2", "ATK_HorseBodyAttackMil3" }.Select(a => new Choice(a, a == "" ? "Default" : a)).ToList();
+                    var rams = new[] { "" }.Concat(GameKnowledge.AttackIds.Keys.Order(StringComparer.Ordinal)).Select(a => new Choice(a, a == "" ? "Default" : a)).ToList();
                     HorseTackBehaviour H() => sp.Horse ?? new HorseTackBehaviour();
                     v.Groups.Add(new StatGroupVm("Horse",
                     [

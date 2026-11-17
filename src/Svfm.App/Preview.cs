@@ -453,7 +453,7 @@ public sealed class PreviewVm : Observable
     /// D-Dog's and D-Horse's left side (<see cref="IconFraming.DogBuddy"/>: camera on +X, which is a turn of -90), else the
     /// default view (Quiet's chest from the front; a weapon's 0 is already its side view, see <see cref="WeaponBaseYaw"/>).
     /// </summary>
-    public static (double Yaw, double Pitch) IconViewOf(ProjectItem? item) => ((item as ExistingItem)?.Model ?? item) switch
+    public static (double Yaw, double Pitch) IconViewOf(ProjectItem? item) => ModelOf(item) switch
     {
         HeadOptionItem => ((HeadIcon.Gear.Yaw + 360) % 360, HeadIcon.Gear.Pitch),
         BuddyOutfitItem { Spec.Buddy: "dog" or "horse" } => (270, 0),

@@ -233,7 +233,7 @@ public sealed class SortieVm : Observable
         foreach (var it in items)
         {
             var ivm = _ed.Items.FirstOrDefault(v => v.Item == it);
-            if ((it as OutfitItem ?? (it as ExistingItem)?.Model as OutfitItem) is { } o)
+            if (ProjectEdits.OutfitOf(it) is { } o)
             {
                 var also = ivm?.Also;
                 var first = o.Spec.Branches.Values.FirstOrDefault();
@@ -250,7 +250,7 @@ public sealed class SortieVm : Observable
                         // The slot shows its look's icon; a look with none shows the vanilla suit's (ExtendVanillaOutfit writes no ICON).
                         var src = first == null ? null : index < 0 ? first.Base : index < first.Variants.Count ? first.Variants[index] : null;
                         l.Add((merges ? BonusSlots.Key(it.Id, lang) : null, TextOf(it, lang), Rename(ivm, lang), src?.IconFtexPath, also == null ? null : (at, keys) => new SlotEdit(
-                            () => Do(key, at + 1, () => CloneAfter(suit, it.Id, lang, also.CloneSlot(t, index, lang)), true),
+                            () => Do(key, at + 1, () => also.CloneSlot(t, index, lang), true),
                             () => Do(key, at, () => also.RemoveSlot(t, index, lang), true),
                             merges ? d => Do(key, at + d, () => Reorder(suit, keys, at, at + d), true) : d => Do(key, at + d, () => also.MoveSlot(t, index, lang, d), true),
                             merges ? d => at + d >= 0 && at + d < keys.Count : d => p + d >= 0 && p + d < groups.Count,
@@ -316,8 +316,9 @@ public sealed class SortieVm : Observable
                 Edits = ov.VanillaOnly ? [null] : [.. looks.Select((_, k) => (SlotEdit?)new SlotEdit(() => Do(key, k + 1, () => ov.CloneLook(k)), () => Do(key, k, () => ov.RemoveLook(k)),
                     d => Do(key, k + d, () => ov.MoveLook(k, d)), d => k + d >= 0 && k + d < looks.Count, () => ov.CanRemoveLook))],
                 Add = () => Do(key, int.MaxValue, ov.AddLook),
-                // #87: the same field as the slot name on the Sortie slots tab. A vanilla-only outfit has no own slot to name.
-                Names = ov.VanillaOnly ? [null] : [.. ov.LookRows.Select((r, k) => (SlotName?)new SlotName(r.Label, t => r.Label = t, t => t.Trim() is { Length: > 0 } x ? x.ToUpperInvariant() : $"LOOK {k + 1}"))],
+                // #87: the same field as the slot name on the Sortie slots tab. A vanilla-only outfit has no own slot to name,
+                // and the build writes no slot name for an outfit with one slot.
+                Names = ov.VanillaOnly || !ov.CanNameLooks ? [null] : [.. ov.LookRows.Select((r, k) => (SlotName?)new SlotName(r.Label, t => r.Label = t, t => t.Trim() is { Length: > 0 } x ? x.ToUpperInvariant() : $"LOOK {k + 1}"))],
                 // A look with no icon of its own shows its branch's: the base look's, else the outfit's.
                 IconNames = ov.VanillaOnly ? [""] : [.. ov.LookRows.Select(r => IconName(r.Look.IconFtexPath ?? ov.LookRows[0].Look.IconFtexPath ?? ov.OutfitIcon))],
             });
@@ -334,21 +335,11 @@ public sealed class SortieVm : Observable
     /// <summary>#62: the one cell of the row of a vanilla-only outfit (it shows only as bonus slots).</summary>
     public const string BonusSlotsOnlyLook = "BONUS SLOTS ONLY";
 
-    /// <summary>Puts a cloned slot right after its source in the camo's BonusOrder, when one is set (the clone's undo step holds it).</summary>
-    private void CloneAfter(string suit, string itemId, string lang, string copy)
-    {
-        var p = _ed.Session.Project!; string camo = BonusSlots.CamoName(suit);
-        if (p.BonusOrder.GetValueOrDefault(camo) is not { } k || k.IndexOf(BonusSlots.Key(itemId, lang)) is not (>= 0 and var i)) return;
-        p.BonusOrder = new(p.BonusOrder, StringComparer.OrdinalIgnoreCase) { [camo] = [.. k[..(i + 1)], BonusSlots.Key(itemId, copy), .. k[(i + 1)..]] };
-    }
-
     /// <summary>Swaps the bonus slots at <paramref name="i"/> and <paramref name="j"/> of the camo's merged order.</summary>
     private void Reorder(string suit, List<string> keys, int i, int j)
     {
-        var k = keys.ToList(); (k[i], k[j]) = (k[j], k[i]);
-        var p = _ed.Session.Project!;
         _ed.Session.Checkpoint();
-        p.BonusOrder = new(p.BonusOrder, StringComparer.OrdinalIgnoreCase) { [BonusSlots.CamoName(suit)] = k };
+        SortieSlots.Reorder(_ed.Session.Project!, suit, keys, i, j);
         _ed.Session.NotifyChanged();
     }
 

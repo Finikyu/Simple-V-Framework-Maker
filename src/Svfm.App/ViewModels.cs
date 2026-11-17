@@ -542,7 +542,14 @@ public sealed class ItemVm : Observable
 
     private void LoadIcon()
     {
-        if (_s.Intake!.Icons.TryGetValue(Item.Id, out var img)) { using var ms = new MemoryStream(Png.Encode(img)); Icon = new Bitmap(ms); }
+        if (_s.Intake!.Icons.TryGetValue(Item.Id, out var img))
+        {
+            // The icon as the build writes it: with the infinity mark for a head with infinite ammo.
+            if (_s.Project is { } p && _s.Game is { } g && ProjectBuilder.GetsInfinityMark(p, Item) && Svfm.Core.Rendering.HeadIcon.InfinityMark(g) is { } mark)
+                img = Svfm.Core.Rendering.HeadIcon.WithInfinityMark(img, mark);
+            using var ms = new MemoryStream(Png.Encode(img));
+            Icon = new Bitmap(ms);
+        }
     }
 
     // ---- Icon controls (outfits made from a camo replacer) ----
@@ -1262,7 +1269,52 @@ public sealed class DevelopVm(Session s, ProjectItem item) : Observable
         Mutate("d:copy", d => _copyFrom.Row.Apply(d));
         Reload();
     }, () => _copyFrom != null);
-    public void Reload() { foreach (var n in new[] { nameof(GradeOn), nameof(Grade), nameof(DevelopCost), nameof(UsageCost), nameof(AlreadyDeveloped), nameof(DevelopNote), nameof(TimeMinutes), nameof(Section), nameof(SectionLevel), nameof(Section2), nameof(Section2Level), nameof(Resource1), nameof(Resource1Choice), nameof(Resource1Count), nameof(Resource2), nameof(Resource2Choice), nameof(Resource2Count), nameof(Usage1), nameof(Usage1Choice), nameof(Usage1Count), nameof(Usage2), nameof(Usage2Choice), nameof(Usage2Count), nameof(SkillOn), nameof(SkillList), nameof(SkillChoice), nameof(Unlock), nameof(UpgradeOn), nameof(UpgradeOf), nameof(UpgradeOfChoice), nameof(RankLimited), nameof(ResultLine), nameof(MissionOn), nameof(AfterMission), nameof(BluePrintList), nameof(BluePrintChoice), nameof(BluePrintPickOn), nameof(OwnBluePrintOn), nameof(OwnBluePrint), nameof(CopyFromInfo) }) Raise(n); }
+    // ---- Issue #98: the row follows a vanilla development (unlocks with it, never shown in R&D) ----
+    /// <summary>The kind codes of the vanilla rows that match this item, shown first in the list.</summary>
+    private string[] OwnKinds => item.Kind switch
+    {
+        ItemKind.Outfit or ItemKind.ExtraLooks or ItemKind.HeadOption => ["st"],
+        ItemKind.Weapon => ["wp", "weapon", "it"],
+        ItemKind.Item => ["it", "tl"],
+        ItemKind.BuddyOutfit => ["qe", "dh", "dd", "dw"],
+        _ => [],
+    };
+    /// <summary>An existing V Framework mod keeps its own follow table; the build refuses a change.</summary>
+    public bool FollowEditable => item is not ExistingItem;
+    public bool FollowOn
+    {
+        get => Dev.FollowsVanillaDevelopId != null;
+        set
+        {
+            if (value == FollowOn) return;
+            Mutate("d:follow", d => d with { FollowsVanillaDevelopId = value ? FollowList.FirstOrDefault()?.Id : null });
+            Raise(); Raise(nameof(FollowChoice)); Raise(nameof(FollowNote));
+        }
+    }
+    private string _followSearch = "";
+    public string FollowSearch { get => _followSearch; set { if (Set(ref _followSearch, value ?? "")) Raise(nameof(FollowList)); } }
+    /// <summary>All game developments, the item's own kind first, then by kind and name; the search box filters it.</summary>
+    public IReadOnlyList<VanillaRowChoice> FollowList
+    {
+        get
+        {
+            var own = OwnKinds;
+            var q = _followSearch.Trim();
+            return VanillaRows.Where(r => q.Length == 0 || r.Label.Contains(q, StringComparison.OrdinalIgnoreCase) || r.KindLabel.Contains(q, StringComparison.OrdinalIgnoreCase) || r.Id.ToString() == q)
+                .OrderBy(r => Array.IndexOf(own, r.KindCode) is var i && i >= 0 ? i : own.Length)
+                .ThenBy(r => r.KindLabel, StringComparer.OrdinalIgnoreCase).ThenBy(r => r.Label, StringComparer.OrdinalIgnoreCase).ToList();
+        }
+    }
+    public VanillaRowChoice? FollowChoice
+    {
+        get => Dev.FollowsVanillaDevelopId is { } id ? VanillaRows.FirstOrDefault(r => r.Id == id) : null;
+        set { if (value != null && value.Id != Dev.FollowsVanillaDevelopId) { Mutate("d:follow", d => d with { FollowsVanillaDevelopId = value.Id }); Raise(); Raise(nameof(FollowNote)); } }
+    }
+    public string FollowNote => FollowChoice is { } c
+        ? $"Unlocks when \"{c.Label}\" ({c.KindLabel}) is developed. The row is not shown in R&D, so the values below are not used. The Sortie cost on the Deployment tab still applies."
+        : Dev.FollowsVanillaDevelopId is { } id ? $"Follows the game development {id}." : "Off: the item has its own R&D row.";
+
+    public void Reload() { foreach (var n in new[] { nameof(FollowOn), nameof(FollowChoice), nameof(FollowNote), nameof(GradeOn), nameof(Grade), nameof(DevelopCost), nameof(UsageCost), nameof(AlreadyDeveloped), nameof(DevelopNote), nameof(TimeMinutes), nameof(Section), nameof(SectionLevel), nameof(Section2), nameof(Section2Level), nameof(Resource1), nameof(Resource1Choice), nameof(Resource1Count), nameof(Resource2), nameof(Resource2Choice), nameof(Resource2Count), nameof(Usage1), nameof(Usage1Choice), nameof(Usage1Count), nameof(Usage2), nameof(Usage2Choice), nameof(Usage2Count), nameof(SkillOn), nameof(SkillList), nameof(SkillChoice), nameof(Unlock), nameof(UpgradeOn), nameof(UpgradeOf), nameof(UpgradeOfChoice), nameof(RankLimited), nameof(ResultLine), nameof(MissionOn), nameof(AfterMission), nameof(BluePrintList), nameof(BluePrintChoice), nameof(BluePrintPickOn), nameof(OwnBluePrintOn), nameof(OwnBluePrint), nameof(CopyFromInfo) }) Raise(n); }
 }
 
 /// <summary>A material the game charges for development or deployment: the Lua's internal name and the game's own name.</summary>
@@ -1298,6 +1350,13 @@ public sealed class VanillaRowChoice(int id, Svfm.Core.Knowledge.VanillaDevelopR
     public int UsageGmp { get; } = row.UsageGmp;
     /// <summary>The game's own name for the row, with its grade.</summary>
     public string Label { get; } = $"{(englishName ?? row.Name)}  ·  grade {row.Grade}";
+    /// <summary>The kind code of the row, from its name ("name_st_37001" gives "st").</summary>
+    public string KindCode => Row.Name.Split('_') is { Length: > 2 } p ? p[1] : "";
+    public string KindLabel => KindCode switch
+    {
+        "st" => "Suit", "wp" or "weapon" => "Weapon", "it" => "Item", "arm" => "Arm", "dd" => "D-Dog", "dh" => "D-Horse",
+        "dw" => "D-Walker", "hl" => "Helicopter", "mb" => "Mother Base", "qe" => "Quiet", "tl" => "Tool", _ => "Other",
+    };
     public override string ToString() => Label;
 }
 

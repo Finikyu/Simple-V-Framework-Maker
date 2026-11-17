@@ -13,8 +13,12 @@ public enum AliasSource
     MgoWiki,
 }
 
-/// <summary>One parameter of an R&amp;D row: the game's positional name and the alias V Framework accepts for it.</summary>
-public sealed record ParamKey(string Positional, string? Alias, AliasSource Source);
+/// <summary>
+/// One parameter of an R&amp;D row: the game's positional name and the alias V Framework accepts for it.
+/// <paramref name="InGameFiles"/> is false for a field that only V Framework has (p18..p21, and langResultRankLimited,
+/// which has no positional name: its name is in <paramref name="Positional"/>).
+/// </summary>
+public sealed record ParamKey(string Positional, string? Alias, AliasSource Source, bool InGameFiles = true);
 
 /// <summary>
 /// The fields of one table of an R&amp;D row (<c>const</c> or <c>flow</c> of <c>AddToEquipDevelopTable</c>). A mod may spell a
@@ -25,7 +29,9 @@ public sealed record ParamKey(string Positional, string? Alias, AliasSource Sour
 /// The positional names are the game's: EquipDevelopConstSetting.lua writes exactly p00..p17 and p30..p36, and
 /// EquipDevelopFlowSetting.lua exactly p50..p74 (ParamSchemaTests checks both against the files on every run). The game
 /// files have no aliases, so each alias records its source. Where the sources disagree V Framework's name is used: p08 is
-/// <c>iconFtexPath</c> (MGO: ftexPath) and p52 is <c>grade</c> (MGO: developRank).
+/// <c>iconFtexPath</c> (MGO: ftexPath), p52 is <c>grade</c> (MGO: developRank), p51 is <c>sideGrade</c> (MGO:
+/// derivationIndex) and p70 is <c>unk70</c> (MGO: developLevel). V Framework's names are in k_ConstFieldSpecs and
+/// k_FlowFieldSpecs of EquipDevelop_AddToEquipDevelopTable.cpp.
 /// </para>
 /// </summary>
 public sealed class ParamSchema
@@ -43,7 +49,12 @@ public sealed class ParamSchema
             _byName.Add(k.Positional, k);
             if (k.Alias != null) _byName.Add(k.Alias, k);
         }
+        // Older SVFM ports used the MGO names. Find still reads them (full parity), and the writer uses the V Framework names.
+        foreach (var (old, pos) in OldNames)
+            if (_byName.TryGetValue(pos, out var k) && !_byName.ContainsKey(old)) _byName.Add(old, k);
     }
+
+    private static readonly (string Old, string Positional)[] OldNames = [("derivationIndex", "p51"), ("developLevel", "p70")];
 
     /// <summary>The parameter a field name means, given either spelling; null when the name is not a parameter of this table.</summary>
     public ParamKey? Find(string name) => _byName.GetValueOrDefault(name);
@@ -61,10 +72,14 @@ public sealed class ParamSchema
         P(10, "langPowerUpInfo0", AliasSource.Tool), P(11, "langPowerUpInfo1", AliasSource.Tool), P(12, "langPowerUpInfo2", AliasSource.Tool),
         P(13, "langPowerUpInfo3", AliasSource.Tool), P(14, "langPowerUpInfo4", AliasSource.Tool), P(15, "langPowerUpInfo5", AliasSource.Tool),
         P(16, "langPowerUpInfo6", AliasSource.Tool), P(17, "langPowerUpInfo7", AliasSource.Tool),
-        // There is no p18..p29: the game's file goes from p17 to p30.
+        // The game's file goes from p17 to p30. V Framework 1.7 also reads p18..p21.
+        P(18, "langPowerUpInfo8", AliasSource.VFrameworkDoc) with { InGameFiles = false }, P(19, "langPowerUpInfo9", AliasSource.VFrameworkDoc) with { InGameFiles = false },
+        P(20, "langPowerUpInfo10", AliasSource.VFrameworkDoc) with { InGameFiles = false }, P(21, "langPowerUpInfo11", AliasSource.VFrameworkDoc) with { InGameFiles = false },
         P(30, "langEquipRealName", AliasSource.Tool), P(31, "isResultRankLimited", AliasSource.Tool),
         P(32, "isCustomEnable", AliasSource.VFrameworkDoc), P(33, "isColorChangeEnable", AliasSource.VFrameworkDoc),
         P(34, "unk34", AliasSource.VFrameworkDoc), P(35, "isSecurityStaffEquip", AliasSource.VFrameworkDoc), P(36, "unk36", AliasSource.VFrameworkDoc),
+        // The text of a rank-limited row. V Framework reads it by this name only (kResultRankLimitedTextField).
+        new("langResultRankLimited", null, AliasSource.Tool, InGameFiles: false),
     ]);
 
     /// <summary>The <c>flow</c> table: how the item is developed (p50..p74).</summary>
@@ -72,7 +87,7 @@ public sealed class ParamSchema
     [
         // p50 is the vanilla row's index into the const file; the wiki gives it no name.
         P(50, null, AliasSource.None),
-        P(51, "derivationIndex", AliasSource.MgoWiki), P(52, "grade", AliasSource.Tool), P(53, "developGmpCost", AliasSource.Tool),
+        P(51, "sideGrade", AliasSource.VFrameworkDoc), P(52, "grade", AliasSource.Tool), P(53, "developGmpCost", AliasSource.Tool),
         // The section names are V Framework's own (k_FlowFieldSpecs in EquipDevelop_AddToEquipDevelopTable.cpp): the
         // main slot p55 is a level only, and sectionIDForDevelop/developSectionLv are the third slot, p63/p64 (issue #38).
         P(54, "usageGmpCost", AliasSource.Tool), P(55, "sectionLvForDevelop", AliasSource.Tool), P(56, "sectionID2ForDevelop", AliasSource.Tool),
@@ -81,7 +96,7 @@ public sealed class ParamSchema
         P(61, "resourceType2Count", AliasSource.Tool), P(62, "initialAvailable", AliasSource.Tool), P(63, "sectionIDForDevelop", AliasSource.Tool),
         P(64, "developSectionLv", AliasSource.Tool), P(65, "resourceUsageType1", AliasSource.Tool), P(66, "resourceUsageType1Count", AliasSource.Tool),
         P(67, "resourceUsageType2", AliasSource.Tool), P(68, "resourceUsageType2Count", AliasSource.Tool), P(69, "displayInfo", AliasSource.Tool),
-        P(70, "developLevel", AliasSource.MgoWiki), P(71, "developTimeMinute", AliasSource.Tool), P(72, "isValidMbCoin", AliasSource.MgoWiki),
+        P(70, "unk70", AliasSource.VFrameworkDoc), P(71, "developTimeMinute", AliasSource.Tool), P(72, "isValidMbCoin", AliasSource.MgoWiki),
         P(73, "intimacyPoint", AliasSource.MgoWiki), P(74, "isFobAvailable", AliasSource.MgoWiki),
     ]);
 }

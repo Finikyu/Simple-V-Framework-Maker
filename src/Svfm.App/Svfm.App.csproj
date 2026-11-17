@@ -6,6 +6,7 @@
     <RootNamespace>Svfm.App</RootNamespace>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
@@ -16,6 +17,8 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\Fonts\*.ttf" />
+    <AvaloniaResource Include="Assets\app.ico" />
+    <AvaloniaResource Include="Assets\logo.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Svfm.Core\Svfm.Core.csproj" />

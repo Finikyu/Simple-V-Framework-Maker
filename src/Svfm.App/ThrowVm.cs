@@ -31,13 +31,15 @@ public sealed class StepVm : Observable
 {
     private readonly EventVm _ev;
     public int Index { get; }
-    public StepVm(EventVm ev, int index) { _ev = ev; Index = index; Params = BuildParams(); }
+    public StepVm(EventVm ev, int index, int number) { _ev = ev; Index = index; Number = number; Params = BuildParams(); }
     public ThrowAction Action => _ev.Actions[Index];
-    public string Text => $"{Index + 1}.  {Action.Describe()}";
+    /// <summary>The number shown: hidden developer steps are not counted.</summary>
+    public int Number { get; }
+    public string Text => $"{Number}.  {Action.Describe()}";
     public ObservableCollection<StepParam> Params { get; }
     public bool HasParams => Params.Count > 0;
-    public Command Up => new(() => _ev.Move(Index, -1), () => Index > 0);
-    public Command Down => new(() => _ev.Move(Index, 1), () => Index < _ev.Actions.Count - 1);
+    public Command Up => new(() => _ev.Move(Index, -1), () => _ev.Target(Index, -1) >= 0);
+    public Command Down => new(() => _ev.Move(Index, 1), () => _ev.Target(Index, 1) >= 0);
     public Command Remove => new(() => _ev.RemoveAt(Index));
     public void RaiseText() => Raise(nameof(Text));
 
@@ -88,7 +90,7 @@ public sealed class StepVm : Observable
 }
 
 /// <summary>A kind of step the user can add.</summary>
-public sealed record StepKind(string Label, Func<ThrowAction> Make)
+public sealed record StepKind(string Label, Func<ThrowAction> Make, bool DeveloperOnly = false)
 {
     public override string ToString() => Label;
 }
@@ -98,22 +100,38 @@ public sealed class EventVm : Observable
 {
     private readonly ScriptVm _s;
     public ThrowEvent Event { get; }
-    public EventVm(ScriptVm s, ThrowEvent e) { _s = s; Event = e; Kinds = s.Kinds; }
+    public EventVm(ScriptVm s, ThrowEvent e) { _s = s; Event = e; }
     public string Label => char.ToUpperInvariant(ThrowEvents.Label(Event)[0]) + ThrowEvents.Label(Event)[1..];
     public string Message => ThrowEvents.Message(Event);
     public List<ThrowAction> Actions => _s.Script[Event];
     public ObservableCollection<StepVm> Steps { get; } = [];
     public bool Empty => Steps.Count == 0;
-    public IReadOnlyList<StepKind> Kinds { get; }
+    public IReadOnlyList<StepKind> Kinds => _s.Kinds;
     private StepKind? _kind;
     public StepKind? SelectedKind { get => _kind; set { Set(ref _kind, value); AddCommand.Raise(); } }
     public Command AddCommand => _add ??= new(() => { if (_kind != null) { _s.Edit($"{Event}:add"); Actions.Add(_kind.Make()); _s.Done(); } }, () => _kind != null);
     private Command? _add;
 
-    public void Rebuild() { Steps.Clear(); for (int i = 0; i < Actions.Count; i++) Steps.Add(new StepVm(this, i)); Raise(nameof(Empty)); }
+    /// <summary>Rebuilds the rows. Outside developer mode the Announce steps stay in the script (they still build) but are not shown.</summary>
+    public void Rebuild()
+    {
+        Steps.Clear();
+        for (int i = 0; i < Actions.Count; i++)
+            if (Shown(i)) Steps.Add(new StepVm(this, i, Steps.Count + 1));
+        if (_kind is { DeveloperOnly: true } && !_s.DeveloperMode) SelectedKind = null;
+        Raise(nameof(Empty)); Raise(nameof(Kinds));
+    }
     public void Before(int index) => _s.Edit($"{Event}:{index}");
-    public void Changed(int index) { _s.Done(false); if (index < Steps.Count) Steps[index].RaiseText(); }
-    public void Move(int i, int d) { _s.Edit(""); (Actions[i], Actions[i + d]) = (Actions[i + d], Actions[i]); _s.Done(); }
+    public void Changed(int index) { _s.Done(false); Steps.FirstOrDefault(s => s.Index == index)?.RaiseText(); }
+    /// <summary>The index of the next shown step from <paramref name="i"/> in direction <paramref name="d"/>, or -1. Hidden steps are skipped (#97).</summary>
+    public int Target(int i, int d)
+    {
+        int j = i + d;
+        while (j >= 0 && j < Actions.Count && !Shown(j)) j += d;
+        return j >= 0 && j < Actions.Count ? j : -1;
+    }
+    private bool Shown(int i) => _s.DeveloperMode || Actions[i] is not AnnounceAction;
+    public void Move(int i, int d) { int j = Target(i, d); if (j < 0) return; _s.Edit(""); (Actions[i], Actions[j]) = (Actions[j], Actions[i]); _s.Done(); }
     public void RemoveAt(int i) { _s.Edit(""); Actions.RemoveAt(i); _s.Done(); }
 }
 
@@ -147,15 +165,18 @@ public sealed class ScriptVm : Observable
             new StepKind("Fire", () => new FireAction()),
             new StepKind("Explosion with the item's blast", () => new ExplosionAction()),
             new StepKind("Noise", () => new NoiseAction(0x1C)),
-            new StepKind("Announce on screen", () => new AnnounceAction("hello")),
+            new StepKind("Announce on screen", () => new AnnounceAction("hello"), DeveloperOnly: true),
             new StepKind("Own Lua", () => new CustomLuaAction("")),
         ]);
-        Kinds = kinds;
+        _kinds = kinds;
         foreach (var e in ThrowEvents.All) Events.Add(new EventVm(this, e) { SelectedKind = null });
         Reload();
     }
     public ThrowScript Script => _script();
-    public IReadOnlyList<StepKind> Kinds { get; }
+    private readonly List<StepKind> _kinds;
+    /// <summary>Developer mode (Settings, switched on the Developer screen) shows the developer-only steps.</summary>
+    public bool DeveloperMode => _s.Settings.DeveloperMode;
+    public IReadOnlyList<StepKind> Kinds => DeveloperMode ? _kinds : _kinds.Where(k => !k.DeveloperOnly).ToList();
     public ObservableCollection<EventVm> Events { get; } = [];
     public ObservableCollection<string> Problems { get; } = [];
     public bool HasProblems => Problems.Count > 0;

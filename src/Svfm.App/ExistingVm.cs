@@ -38,14 +38,17 @@ public sealed class ExtraTextVm : Observable
 public sealed class FieldVm(Session s, ExistingItem item, ExistingField f) : Observable
 {
     public string Label => f.Label;
-    public bool IsBool => f.Type is FieldType.Bool or FieldType.Flag;
+    public bool IsDash => f.Path[^1] == "dashAttack";
+    public bool IsBool => f.Type is FieldType.Bool or FieldType.Flag && !IsDash;
     public bool IsNumber => f.Type == FieldType.Number;
     public bool IsText => f.Type == FieldType.Text;
     public bool Editable => f.Locked == null;
     public bool IsLocked => f.Locked != null;
     public string LockedNote => f.Locked == null ? "" : "Can't be changed here: " + f.Locked + ".";
     public string Note => f.Present ? "" : "not set in the script";
-    public bool BoolValue { get => (bool)f.Value; set { Change(value); } }
+    public bool BoolValue { get => f.Value is true; set { Change(value); } }
+    public IReadOnlyList<Choice> DashAttacks => Choice.DashAttacks;
+    public Choice DashValue { get => Choice.DashOf(f.Value); set { if (value != null) Change(Choice.DashValue(value)); } }
     public double NumberValue { get => (double)f.Value; set { Change(Math.Round(value, 3)); } }
     public string TextValue { get => (string)f.Value; set { Change(value); } }
     public bool Changed => f.Changed;
@@ -60,7 +63,7 @@ public sealed class FieldVm(Session s, ExistingItem item, ExistingField f) : Obs
         RaiseAll();
     }
 
-    public void RaiseAll() { Raise(nameof(BoolValue)); Raise(nameof(NumberValue)); Raise(nameof(TextValue)); Raise(nameof(Changed)); Raise(nameof(ChangedBrush)); }
+    public void RaiseAll() { Raise(nameof(BoolValue)); Raise(nameof(DashValue)); Raise(nameof(NumberValue)); Raise(nameof(TextValue)); Raise(nameof(Changed)); Raise(nameof(ChangedBrush)); }
 }
 
 public sealed class FieldGroupVm(string title, IEnumerable<FieldVm> fields)

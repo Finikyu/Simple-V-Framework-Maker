@@ -258,9 +258,9 @@ public static class LuaWriter
         if (h.BodyAttack is { } ba)
         {
             if (!System.Text.RegularExpressions.Regex.IsMatch(ba, "^ATK_[A-Za-z0-9_]+$")) throw new ArgumentException($"D-Horse body attack \"{ba}\" is not a TppDamage.ATK_* name.");
-            // The vanilla ids V Framework's own tack table holds (BuddyOutfitRegistry kTackBodyAttack, 0x69–0x6C), as a number so the
-            // module doesn't depend on TppDamage having the constant when it loads; any other row by its constant.
-            int? id = ba switch { "ATK_HorseBodyAttack" => 0x69, "ATK_HorseBodyAttackMil1" => 0x6A, "ATK_HorseBodyAttackMil2" => 0x6B, "ATK_HorseBodyAttackMil3" => 0x6C, _ => null };
+            // A name of the attack table (GameKnowledge.AttackIds) as its number, so the module doesn't depend on TppDamage
+            // having the constant when it loads; any other row by its constant.
+            int? id = Knowledge.GameKnowledge.AttackIds.TryGetValue(ba, out int known) ? known : null;
             f.Add(id is { } n ? $"bodyAttackId = {n} --[[ TppDamage.{ba} ]]" : $"bodyAttackId = TppDamage.{ba}");
         }
         if (h.SoundType is { } st)
@@ -277,14 +277,23 @@ public static class LuaWriter
         foreach (var t in v.Fpks.Keys.Append(v.Type).OfType<string>())
             if (!OutfitVoice.Types.Contains(t)) throw new ArgumentException($"Unknown voice type \"{t}\" (known: {string.Join(", ", OutfitVoice.Types)}).");
         if (v.Type != null) w.Append($"{ind}voiceType = {Str(v.Type)},\n");
-        if (v.Fpks.Count > 0)
+        if (v.Fpk != null) w.Append($"{ind}voiceFpk = {Str(v.Fpk)},\n");
+        else if (v.Fpks.Count > 0)
             w.Append($"{ind}voiceFpk = {{ {string.Join(", ", v.Fpks.OrderBy(kv => kv.Key, StringComparer.Ordinal).Select(kv => $"{kv.Key} = {Str(kv.Value)}"))} }},\n");
     }
 
     private static string Num(double v) => v.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
 
+    /// <summary>True when a wearer has 2 or more looks: the outfit then needs the look-name group (79) in its R&amp;D row.</summary>
+    public static bool IsMultiLook(IReadOnlyDictionary<PlayerBranch, OutfitBranch> branches) => branches.Values.Any(b => b.Variants.Count > 0);
+
+    /// <summary>The line that sets a one-look outfit up at registration (see <see cref="OutfitBlock"/>).</summary>
+    public static string OutfitInfoLine(string keyExpr) => $"  if V_Player.GetOutfitInfo then V_Player.GetOutfitInfo({keyExpr}) end\n";
+
     /// <summary>RegisterOutfit and its R&amp;D row, indented for the body of LoadLibraries.</summary>
-    public static string OutfitBlock(OutfitSpec o)
+    /// <param name="o">The outfit.</param>
+    /// <param name="multiLook">The look count of the whole outfit, when <paramref name="o"/> holds only some of its wearers.</param>
+    public static string OutfitBlock(OutfitSpec o, bool? multiLook = null)
     {
         var w = new StringBuilder();
         foreach (var line in o.Header) w.Append("  -- ").Append(OneLine(line)).Append('\n');
@@ -292,16 +301,21 @@ public static class LuaWriter
         w.Append($"  local ICON = {Str(o.IconFtexPath)}\n\n");
         w.Append("  V_Player.RegisterOutfit({\n");
         w.Append("    key = KEY,\n");
+        bool multi = multiLook ?? IsMultiLook(o.Branches);
         foreach (var (who, b) in o.Branches.OrderBy(kv => kv.Key))
         {
             w.Append($"    {BranchName(who)} = {{\n");
-            WriteLook(w, b.Base, "      ", isBase: true);
+            // V Framework 1.7 writes the main look's displayName over the row sub-line; with no look-name group that is
+            // the grade bar (owner, Nov 17, build C), so a one-look outfit leaves it out. The R&D row still names it.
+            WriteLook(w, multi ? b.Base : b.Base with { DisplayName = null }, "      ", isBase: true);
             if (b.CamoBonusType != null) w.Append($"      camoBonusType = {Str(b.CamoBonusType)},\n");
             else if (b.CamoBonusValues is { Count: > 0 } cv)
             {
+                // Issue #89: V Framework 1.7 reads each value one material early, so each value goes under the next name.
                 w.Append("      camoBonusValues = {\n");
-                foreach (var (mat, v) in cv.Where(kv => kv.Value != 0).OrderBy(kv => kv.Key, StringComparer.Ordinal))
-                    w.Append($"        {mat} = {Math.Clamp(v, 0, 255)},\n");
+                foreach (var (key, v) in cv.Where(kv => kv.Value != 0).Select(kv => (Key: Knowledge.GameKnowledge.CamoValueKey(kv.Key), kv.Value))
+                             .Where(kv => kv.Key != null).OrderBy(kv => kv.Key, StringComparer.Ordinal))
+                    w.Append($"        {key} = {Math.Clamp(v, 0, 255)},\n");
                 w.Append("      },\n");
             }
             if (b.PrimaryColors.Count > 0 || b.SecondaryColors.Count > 0)
@@ -327,15 +341,16 @@ public static class LuaWriter
         // The look-name group (79) makes the game fill a row with the fatigues cells (Naked/Standard/Scarf);
         // V Framework 1.7 writes its own cells over them only for rows with 2 or more looks. A one-look outfit
         // leaves the group out, as V Framework's own one-look outfits (Ocelot, Quiet) do, so its row has one cell.
-        bool multiLook = o.Branches.Values.Any(b => b.Variants.Count > 0);
-        WriteDevelopRow(w, "KEY", "TppEquip.EQP_SUIT", o.NameLang, o.RealNameLang, o.InfoLang, "ICON", o.Develop, outfitGroup: multiLook);
+        // Confirmed in game Nov 17 (M5 builds): 2 looks without the group cannot be cycled; 1 look with it fills the
+        // row with the fatigues cells, and they select fatigues.
+        WriteDevelopRow(w, "KEY", "TppEquip.EQP_SUIT", o.NameLang, o.RealNameLang, o.InfoLang, "ICON", o.Develop, outfitGroup: multi);
         if (o.Branches.Values.Any(b => b.Variants.Count == 0))
         {
             // V Framework 1.7 sets an outfit up at registration only from the ids it saved last session, and in the
             // list only when it has 2+ looks; a one-look outfit stays unset on its first launch (worn as fatigues,
             // wrong head). GetOutfitInfo sets it up now, so the first launch matches the later ones.
             w.Append("\n  -- Set up the outfit now: V Framework 1.7 otherwise waits until the second launch for one-look outfits.\n");
-            w.Append("  if V_Player.GetOutfitInfo then V_Player.GetOutfitInfo(KEY) end\n");
+            w.Append(OutfitInfoLine("KEY"));
         }
         return w.ToString();
     }
@@ -389,6 +404,8 @@ public static class LuaWriter
         if (e.PartsType != null && e.Branches.Values.Any(b => b.Variants.Count > 0))
             throw new ArgumentException("Variants don't work with a raw partsType; name the vanilla outfit instead.");
         var w = new StringBuilder();
+        // #90: V Framework 1.7 writes a look's displayName over the grade stars of a graded suit's row, so leave it out.
+        bool graded = e.Outfit != null && Knowledge.GameKnowledge.HasGrades(e.Outfit);
         foreach (var line in e.Header) w.Append("  -- ").Append(OneLine(line)).Append('\n');
         w.Append("  V_Player.ExtendVanillaOutfit({\n");
         if (e.Outfit != null)
@@ -402,7 +419,7 @@ public static class LuaWriter
             if (b.HeadOptions.Count > 0) w.Append($"      headOptions = {{ {string.Join(", ", b.HeadOptions.Select(Str))} }},\n");
             WriteVoice(w, b.Voice, "      ");
             if (!b.Abilities.IsEmpty) WriteAbilities(w, b.Abilities, "      ");
-            WriteVariants(w, b.Variants, "      ");
+            WriteVariants(w, b.Variants, "      ", noName: graded);
             w.Append("    },\n");
         }
         w.Append("  })\n");
@@ -444,14 +461,14 @@ public static class LuaWriter
         return w.ToString();
     }
 
-    private static void WriteVariants(StringBuilder w, List<Look> variants, string ind)
+    private static void WriteVariants(StringBuilder w, List<Look> variants, string ind, bool noName = false)
     {
         if (variants.Count == 0) return;
         w.Append($"{ind}variants = {{\n");
         foreach (var v in variants)
         {
             w.Append($"{ind}  {{\n");
-            WriteLook(w, v, ind + "    ", isBase: false);
+            WriteLook(w, noName ? v with { DisplayName = null } : v, ind + "    ", isBase: false);
             w.Append($"{ind}  }},\n");
         }
         w.Append($"{ind}}},\n");
@@ -480,10 +497,12 @@ public static class LuaWriter
         if (d.Skill is { } sk) w.Append($"      skill               = {(DevelopRow.IsNumber(sk) ? sk : Str(sk))},\n");
         if (d.RankLimited) w.Append("      isResultRankLimited = 1,\n");
         if (d.RankLimited && d.ResultRankLang != null) w.Append($"      langResultRankLimited = {Str(d.ResultRankLang)},\n");
-        // A row that follows a vanilla row writes its own bluePrintId (WriteDevelopRow); that one wins.
-        if (d.AfterMission is { } m && d.FollowsVanillaDevelopId == null)
+        // A row that follows a vanilla row is never shown in R&D; that bluePrintId wins (issue #98: every item kind).
+        if (d.FollowsVanillaDevelopId != null)
+            w.Append("      bluePrintId         = function() this.FollowVanillaDevelop(true) return false end,   -- never shown in R&D\n");
+        else if (d.AfterMission is { } m)
             w.Append($"      bluePrintId         = function() return TppStory.IsMissionCleard({m}) end,\n");
-        else if (d.BluePrint is { } bp && d.AfterMission == null && d.FollowsVanillaDevelopId == null)
+        else if (d.BluePrint is { } bp)
             w.Append($"      bluePrintId         = {DevelopRow.BluePrintLua(bp)},\n");
     }
 
@@ -500,8 +519,6 @@ public static class LuaWriter
         if (iconExpr != null) w.Append($"      iconFtexPath        = {iconExpr},\n");
         if (outfitGroup) w.Append("      equipDevelopGroupID = V_TppMbDev.EQP_OUTFIT_VARIANT_NAME,\n");
         WriteConstExtras(w, d);
-        if (d.FollowsVanillaDevelopId != null)
-            w.Append("      bluePrintId         = function() this.FollowVanillaDevelop(true) return false end,   -- never shown in R&D\n");
         w.Append("    },\n");
         w.Append("    flow = {\n");
         WriteFlow(w, d);
@@ -511,18 +528,14 @@ public static class LuaWriter
 
     private static void WriteLook(StringBuilder w, Look l, string ind, bool isBase)
     {
-        w.Append($"{ind}partsPath    = {Str(l.PartsPath)},\n");
-        w.Append($"{ind}fpkPath      = {Str(l.FpkPath)},\n");
-        if (l.CamoFpk != null) w.Append($"{ind}camoFpk      = {Str(l.CamoFpk)},\n");
-        if (l.CamoFv2 != null) w.Append($"{ind}camoFv2      = {Str(l.CamoFv2)},\n");
-        // iconFtexPath is the only per-look icon key V Framework has, and it takes a path (no extension), never a
-        // V_CallMenuIcon constant. The base look falls back to the outfit's own ICON local; a variant that leaves it
-        // out inherits its branch's icon, which is what V Framework does when the key is absent.
-        if (isBase) w.Append($"{ind}iconFtexPath = {(l.IconFtexPath != null ? Str(l.IconFtexPath) : "ICON")},\n");
-        else if (l.IconFtexPath != null) w.Append($"{ind}iconFtexPath = {Str(l.IconFtexPath)},\n");
-        if (l.DisplayName != null) w.Append($"{ind}displayName  = {Str(l.DisplayName)},\n");
-        if (l.EnableArm != null) w.Append($"{ind}enableArm    = {Bool(l.EnableArm.Value)},\n");
-        if (l.EnableHead != null) w.Append($"{ind}enableHead   = {Bool(l.EnableHead.Value)},\n");
+        foreach (var k in Look.Keys)
+        {
+            // iconFtexPath is the only per-look icon key V Framework has, and it takes a path (no extension), never a
+            // V_CallMenuIcon constant. The base look falls back to the outfit's own ICON local; a variant that leaves it
+            // out inherits its branch's icon, which is what V Framework does when the key is absent.
+            string? v = k.Get(l) switch { string s => Str(s), bool b => Bool(b), _ => isBase && k.Name == "iconFtexPath" ? "ICON" : null };
+            if (v != null) w.Append($"{ind}{k.Name,-12} = {v},\n");
+        }
         if (!isBase && l.HeadOptions.Count > 0) w.Append($"{ind}headOptions  = {{ {string.Join(", ", l.HeadOptions.Select(Str))} }},\n");
         if (!isBase && l.Default) w.Append($"{ind}default      = true,\n");
         if (!isBase && l.Abilities != null) WriteAbilities(w, l.Abilities, ind);
@@ -532,19 +545,24 @@ public static class LuaWriter
     {
         w.Append($"{ind}abilities = {{\n");
         string i2 = ind + "  ";
-        if (a.SilentFootsteps) w.Append($"{i2}silentFootsteps = true,\n");
-        if (a.QuietMovement) w.Append($"{i2}quietMovement = true,\n");
-        if (a.SprintSpeed is float s) w.Append($"{i2}sprintSpeed = {s.ToString("0.0##", CultureInfo.InvariantCulture)},\n");
-        if (a.RaidenRun) w.Append($"{i2}raidenRun = true,\n");
-        if (a.DashAttack) w.Append($"{i2}dashAttack = true,\n");
-        if (a.SprintSound) w.Append($"{i2}sprintSound = true,\n");
-        if (a.SprintSpark != null) w.Append($"{i2}sprintSpark = {Str(a.SprintSpark)},\n");
-        if (a.Defense > 0) w.Append($"{i2}defense = {Math.Clamp(a.Defense, 0, 9)},\n");
-        if (a.LifeRecovery > 0) w.Append($"{i2}lifeRecovery = {Math.Clamp(a.LifeRecovery, 0, 9)},\n");
-        if (a.RattleSuit != null) w.Append($"{i2}rattleSuit = {Str(a.RattleSuit)},\n");
-        if (a.DamageSe != null) w.Append($"{i2}damageSe = {Str(a.DamageSe)},\n");
+        foreach (var k in Abilities.Keys)
+        {
+            // A key that is off, 0 or not set is left out, so V Framework uses its default. A level stays in 0-9.
+            string? v = k.Get(a) switch
+            {
+                true => "true", string atk when k.Type == Project.FieldType.Bool => DashAttackLua(atk), float s => s.ToString("0.0##", CultureInfo.InvariantCulture), int n when n > 0 => Math.Clamp(n, 0, 9).ToString(CultureInfo.InvariantCulture),
+                string s => Str(s), _ => null,
+            };
+            if (v != null) w.Append($"{i2}{k.Name} = {v},\n");
+        }
         w.Append($"{ind}}},\n");
     }
+
+    /// <summary>The Lua value of a dash attack by its attack name: the number, as V Framework reads it, and the name in a comment.</summary>
+    public static string DashAttackLua(string name) =>
+        Abilities.IsDashAttackId(name)
+            ? $"{Knowledge.GameKnowledge.AttackIds[name]} --[[ TppDamage.{name} ]]"
+            : throw new ArgumentException($"Dash attack \"{name}\" is not a TppDamage.ATK_ name with a number up to {Knowledge.GameKnowledge.DashAttackLast}.");
 
     public static string BranchName(PlayerBranch b) => b switch
     {

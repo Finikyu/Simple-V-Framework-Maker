@@ -366,7 +366,8 @@ public static class LuaSource
     /// <param name="error">Why it could not be changed.</param>
     /// <param name="overName">Also replace a table given by a name or an expression (a local such as <c>LOOKS</c>), when the
     /// caller has checked that the new text gives back what the name stands for in every call: the new table goes in at
-    /// this one place, and the name and its other uses are left as they are.</param>
+    /// this one place, and the name and its other uses are left as they are. It also replaces text (voiceFpk as one
+    /// package, M8) after the same check.</param>
     /// <returns>The new source, or null.</returns>
     public static string? ReplaceTable(string source, LuaTable table, IReadOnlyList<string> path, string luaText, out string? error, bool overName = false)
     {
@@ -378,7 +379,7 @@ public static class LuaSource
             if (entry == null) return Insert(source, table, NestedTable(path.Skip(level).ToList(), luaText));
             if (last)
             {
-                if (entry.Kind is LuaLiteralKind.Table or LuaLiteralKind.Nil || (overName && entry.Kind == LuaLiteralKind.Other))
+                if (entry.Kind is LuaLiteralKind.Table or LuaLiteralKind.Nil || (overName && entry.Kind is LuaLiteralKind.Other or LuaLiteralKind.String))
                     return source[..entry.ValueStart] + luaText + source[entry.ValueEnd..];
                 error = $"\"{path[level]}\" is not a table in the script (it is " + (entry.Kind == LuaLiteralKind.Other ? "set by a name or an expression" : "a plain value") + ")";
                 return null;

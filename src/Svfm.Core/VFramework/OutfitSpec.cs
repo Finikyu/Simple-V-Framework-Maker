@@ -39,6 +39,20 @@ public static class PlayerBranches
 }
 
 /// <summary>
+/// One key of a V Framework <c>abilities</c> table. <paramref name="Label"/> and <paramref name="Type"/> are for the
+/// settings of an existing mod. <paramref name="Get"/> gives the property of <see cref="Abilities"/> as it is (bool,
+/// float?, int or string). <paramref name="Set"/> takes the value as a reader gives it: bool, double? or string?.
+/// </summary>
+public sealed record AbilityKey(string Name, string Label, Project.FieldType Type, Func<Abilities, object?> Get, Func<Abilities, object?, Abilities> Set)
+{
+    /// <summary>The value as a field of an existing mod holds it: a number is a double. Through decimal, so 1.3f is 1.3 and not 1.2999999523.</summary>
+    public object? Value(Abilities a) => Get(a) switch { float f => (double)(decimal)f, int i => (double)i, var v => v };
+}
+
+/// <summary>One key of a look that holds one value: text, or true/false when <paramref name="IsBool"/>. <paramref name="Set"/> takes string? or bool?.</summary>
+public sealed record LookKey(string Name, bool IsBool, Func<Look, object?> Get, Func<Look, object?, Look> Set);
+
+/// <summary>
 /// Outfit abilities (V Framework 1.7 <c>abilities</c> table). Null/false fields are left out of
 /// the Lua so V Framework uses its defaults.
 /// </summary>
@@ -50,6 +64,8 @@ public sealed record Abilities
     public float? SprintSpeed { get; init; }
     public bool RaidenRun { get; init; }
     public bool DashAttack { get; init; }
+    /// <summary>The TppDamage.ATK_ name the dash attack uses (number 1 to <see cref="Knowledge.GameKnowledge.DashAttackLast"/>); null: the default attack. Set only with <see cref="DashAttack"/>.</summary>
+    public string? DashAttackId { get; init; }
     public bool SprintSound { get; init; }
     /// <summary>.vfx path, packed with the outfit.</summary>
     public string? SprintSpark { get; init; }
@@ -72,13 +88,64 @@ public sealed record Abilities
     /// <param name="flag">True when the key is on.</param>
     /// <param name="number">The number of the key; null when the source has none.</param>
     /// <param name="text">The text of the key; null when the source has none.</param>
-    public static Abilities Read(Func<string, bool> flag, Func<string, double?> number, Func<string, string?> text) => new()
+    public static Abilities Read(Func<string, bool> flag, Func<string, double?> number, Func<string, string?> text) =>
+        // dashAttack can give text: the attack name of a dash attack. Other text, and the other switches, read through the flag.
+        Keys.Aggregate(new Abilities(), (a, k) => k.Set(a, k.Type switch
+        {
+            Project.FieldType.Bool => k.Name == "dashAttack" && text(k.Name) is { } id && IsDashAttackId(id) ? id : flag(k.Name),
+            Project.FieldType.Number => number(k.Name),
+            _ => text(k.Name),
+        }));
+
+    /// <summary>
+    /// The attack name of a dashAttack value that V Framework reads as an attack ID: <c>TppDamage.ATK_x</c> or its number,
+    /// 1 to <see cref="Knowledge.GameKnowledge.DashAttackLast"/> (OutfitLuaBindings.cpp). Null for any other value. The
+    /// number 1 is an attack ID too (ATK_PushSlideInterp), as V Framework reads it; only true and false are on and off.
+    /// </summary>
+    public static string? DashAttackOf(Formats.LuaValue? v)
     {
-        SilentFootsteps = flag("silentFootsteps"), QuietMovement = flag("quietMovement"), RaidenRun = flag("raidenRun"), DashAttack = flag("dashAttack"),
-        SprintSound = flag("sprintSound"), SprintSpeed = number("sprintSpeed") is { } s && s != 0 ? (float)s : null,
-        SprintSpark = text("sprintSpark"), Defense = (int)Math.Round(number("defense") ?? 0), LifeRecovery = (int)Math.Round(number("lifeRecovery") ?? 0),
-        RattleSuit = text("rattleSuit"), DamageSe = text("damageSe"),
-    };
+        var ids = Knowledge.GameKnowledge.AttackIds;
+        string? name = v switch
+        {
+            Formats.LuaValue.Name { Value: var n } when n.StartsWith("TppDamage.", StringComparison.Ordinal) => n["TppDamage.".Length..],
+            Formats.LuaValue.Number { Value: var d } when d >= 1 && d == Math.Floor(d) => ids.FirstOrDefault(kv => kv.Value == d).Key,
+            _ => null,
+        };
+        return name != null && IsDashAttackId(name) ? name : null;
+    }
+
+    /// <summary>True for a TppDamage.ATK_ name with a number up to <see cref="Knowledge.GameKnowledge.DashAttackLast"/>: a name that a dash attack can use.</summary>
+    public static bool IsDashAttackId(string name) =>
+        Knowledge.GameKnowledge.AttackIds.TryGetValue(name, out int id) && id >= 1 && id <= Knowledge.GameKnowledge.DashAttackLast;
+
+    private static AbilityKey Flag(string name, string label, Func<Abilities, bool> get, Func<Abilities, bool, Abilities> set) =>
+        new(name, label, Project.FieldType.Bool, a => get(a), (a, v) => set(a, v is true));
+    private static AbilityKey Level(string name, string label, Func<Abilities, int> get, Func<Abilities, int, Abilities> set) =>
+        new(name, label, Project.FieldType.Number, a => get(a), (a, v) => set(a, (int)Math.Round(v as double? ?? 0)));
+    private static AbilityKey Text(string name, string label, Func<Abilities, string?> get, Func<Abilities, string?, Abilities> set) =>
+        new(name, label, Project.FieldType.Text, get, (a, v) => set(a, v as string));
+
+    /// <summary>
+    /// The keys of a V Framework <c>abilities</c> table, in the order <see cref="LuaWriter"/> writes them. The writer, the
+    /// readers (<see cref="Read"/>) and the write-back of an existing mod all use this list, so a new ability is added
+    /// here only (and in <see cref="Ticked"/>). A field, not a property: the tests that list the properties do not see it.
+    /// </summary>
+    public static readonly IReadOnlyList<AbilityKey> Keys =
+    [
+        Flag("silentFootsteps", "Silent footsteps", a => a.SilentFootsteps, (a, v) => a with { SilentFootsteps = v }),
+        Flag("quietMovement", "Quiet's moves", a => a.QuietMovement, (a, v) => a with { QuietMovement = v }),
+        new("sprintSpeed", "Sprint speed (0 = normal)", Project.FieldType.Number, a => a.SprintSpeed, (a, v) => a with { SprintSpeed = v is double s && s != 0 ? (float)s : null }),
+        Flag("raidenRun", "Raiden's run", a => a.RaidenRun, (a, v) => a with { RaidenRun = v }),
+        // Three states: off (false), on (true) or a named attack (its ATK_ name as text).
+        new("dashAttack", "Dash attack", Project.FieldType.Bool, a => a.DashAttackId ?? (object)a.DashAttack,
+            (a, v) => v is string id ? a with { DashAttack = true, DashAttackId = id } : a with { DashAttack = v is true, DashAttackId = null }),
+        Flag("sprintSound", "Sprint sound", a => a.SprintSound, (a, v) => a with { SprintSound = v }),
+        Text("sprintSpark", "Sprint sparks (.vfx)", a => a.SprintSpark, (a, v) => a with { SprintSpark = v }),
+        Level("defense", "Defense (0-9)", a => a.Defense, (a, v) => a with { Defense = v }),
+        Level("lifeRecovery", "Life recovery (0-9)", a => a.LifeRecovery, (a, v) => a with { LifeRecovery = v }),
+        Text("rattleSuit", "Cloth sound", a => a.RattleSuit, (a, v) => a with { RattleSuit = v }),
+        Text("damageSe", "Hit sound", a => a.DamageSe, (a, v) => a with { DamageSe = v }),
+    ];
 
     /// <summary>
     /// The settings that are on, in the words of the Abilities tab. The preset line is made from this, so it cannot
@@ -93,7 +160,7 @@ public sealed record Abilities
         if (SprintSpeed != null) l.Add("Own sprint speed " + SprintSpeed.Value.ToString("0.0#", f));
         if (RaidenRun) l.Add("Raiden run");
         if (SprintSound) l.Add("Sprint sound");
-        if (DashAttack) l.Add("Dash attack");
+        if (DashAttack) l.Add(DashAttackId is { } id ? "Dash attack " + id : "Dash attack");
         if (SprintSpark != null) l.Add("Sprint sparks");
         if (Defense != 0) l.Add("Defense " + Defense);
         if (LifeRecovery != 0) l.Add("Life recovery " + LifeRecovery);
@@ -140,6 +207,22 @@ public sealed record Look
     /// </summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public Abilities? Abilities { get; init; }
+
+    /// <summary>
+    /// The keys of a look that hold one value, in the order <see cref="LuaWriter"/> writes them. The writer, the reader
+    /// and the write-back of an existing mod use this list. The tables (headOptions, abilities) and <c>default</c> are not here.
+    /// </summary>
+    public static readonly IReadOnlyList<LookKey> Keys =
+    [
+        new("partsPath", false, l => l.PartsPath, (l, v) => l with { PartsPath = v as string ?? "" }),
+        new("fpkPath", false, l => l.FpkPath, (l, v) => l with { FpkPath = v as string ?? "" }),
+        new("camoFpk", false, l => l.CamoFpk, (l, v) => l with { CamoFpk = v as string }),
+        new("camoFv2", false, l => l.CamoFv2, (l, v) => l with { CamoFv2 = v as string }),
+        new("iconFtexPath", false, l => l.IconFtexPath, (l, v) => l with { IconFtexPath = v as string }),
+        new("displayName", false, l => l.DisplayName, (l, v) => l with { DisplayName = v as string }),
+        new("enableArm", true, l => l.EnableArm, (l, v) => l with { EnableArm = v as bool? }),
+        new("enableHead", true, l => l.EnableHead, (l, v) => l with { EnableHead = v as bool? }),
+    ];
 }
 
 /// <summary>The vanilla heads each character can wear with a normal suit (V Framework head aliases).</summary>
@@ -184,8 +267,37 @@ public sealed record OutfitVoice
 {
     /// <summary>Voice type → voice package (.fpk), e.g. "snak" → "/Assets/tpp/pack/player/parts/V_plvoice_raiden.fpk".</summary>
     public Dictionary<string, string> Fpks { get; init; } = new(StringComparer.Ordinal);
+    /// <summary>One voice package for all voice types (voiceFpk as text, M8); null = a package for each voice type (<see cref="Fpks"/>).</summary>
+    public string? Fpk { get; init; }
     /// <summary>The voice type the player speaks with ("snak", "ddmsoldiera"…); null = the character's own.</summary>
     public string? Type { get; init; }
+
+    /// <summary>This voice with one package for all types: the package of its voice type, else the first by type name.</summary>
+    public OutfitVoice OneForAll() => Fpk != null || Fpks.Count == 0 ? this : this with
+    {
+        Fpk = Type != null && Fpks.TryGetValue(Type, out var f) ? f : Fpks.OrderBy(kv => kv.Key, StringComparer.Ordinal).First().Value,
+        Fpks = new(StringComparer.Ordinal),
+    };
+
+    /// <summary>
+    /// This voice with a package for each voice type: the one package goes to the voice type, else to each type of the
+    /// wearer. Not to all 11 types: V Framework keeps 8 entries at most (kMaxVoiceFpkByType).
+    /// </summary>
+    public OutfitVoice EachType(PlayerBranch who) => Fpk == null ? this : this with
+    {
+        Fpk = null,
+        Fpks = (Type != null ? [Type] : TypesOf(who)).ToDictionary(t => t, _ => Fpk, StringComparer.Ordinal),
+    };
+
+    /// <summary>The voice types a wearer speaks with by default.</summary>
+    private static IEnumerable<string> TypesOf(PlayerBranch who) => who switch
+    {
+        PlayerBranch.DdMale => Types.Where(t => t.StartsWith("ddm", StringComparison.Ordinal)),
+        PlayerBranch.DdFemale => Types.Where(t => t.StartsWith("ddf", StringComparison.Ordinal)),
+        PlayerBranch.Ocelot => ["ocelot"],
+        PlayerBranch.Quiet => ["quiet"],
+        _ => ["snak"],
+    };
 
     /// <summary>The voice types (Custom_Outfits wiki): Snake/Avatar snak, DD male ddmsoldiera–d, DD female ddfsoldiera–d, ocelot, quiet.</summary>
     public static readonly IReadOnlyList<string> Types =
@@ -422,9 +534,11 @@ public sealed class HeadOptionSpec
     /// <summary>
     /// The Snake branch wears Snake's own face (bandana faces, accessory heads, face mods). V Framework 1.7 has Avatar
     /// read Snake's branch of a custom outfit, so Avatar would wear Snake's face; the builder gives such outfits an
-    /// Avatar branch without these heads.
+    /// Avatar branch without these heads, unless the head has its own Avatar branch.
     /// </summary>
     public bool SnakeFaceOnly { get; init; }
+    /// <summary>Avatar would wear Snake's face: the head is built on it and has no Avatar branch of its own.</summary>
+    public bool AvatarWouldWearSnakeFace => SnakeFaceOnly && !Branches.ContainsKey(PlayerBranch.Avatar);
     /// <summary>R&amp;D row: name lang ID and icon. Without a name no row is written.</summary>
     public string? NameLang { get; init; }
     /// <summary>R&amp;D row: real name and description lang IDs (shown when the head is picked).</summary>

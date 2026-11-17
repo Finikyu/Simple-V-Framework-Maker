@@ -45,8 +45,11 @@ public sealed class ExistingField
     public bool Changed => !Equals(Value, Original);
 
     /// <summary>The value as Lua source text.</summary>
-    public object ForLua => Value is LuaSource.Code or string ? Value : Type switch
+    public object ForLua => Value is LuaSource.Code ? Value : Type switch
     {
+        // A switch with text is a dash attack by its attack name (Abilities dashAttack key).
+        FieldType.Bool when Value is string atk => new LuaSource.Code(LuaWriter.DashAttackLua(atk)),
+        _ when Value is string => Value,
         FieldType.Flag => WrittenAsBool ? (bool)Value : (object)((bool)Value ? 1 : 0),
         FieldType.Number => (double)Value,
         _ => Value,
@@ -225,19 +228,6 @@ public sealed partial class ExistingModData
 /// <summary>Opens an existing V Framework mod for editing, and builds it back with only the edited text and settings changed.</summary>
 public static partial class ExistingMod
 {
-    /// <summary>The keys of an <c>abilities</c> table, and the value <see cref="LuaWriter"/> gives each from <see cref="Abilities"/> (null: left out).</summary>
-    private static readonly (string field, string label, FieldType type, Func<Abilities, object?> get)[] AbilityFields =
-    [
-        ("silentFootsteps", "Silent footsteps", FieldType.Bool, a => a.SilentFootsteps), ("quietMovement", "Quiet's moves", FieldType.Bool, a => a.QuietMovement),
-        ("raidenRun", "Raiden's run", FieldType.Bool, a => a.RaidenRun), ("dashAttack", "Dash attack", FieldType.Bool, a => a.DashAttack),
-        ("sprintSound", "Sprint sound", FieldType.Bool, a => a.SprintSound),
-        // Through decimal, so 1.3f is written as 1.3 and not as 1.2999999523.
-        ("sprintSpeed", "Sprint speed (0 = normal)", FieldType.Number, a => a.SprintSpeed is { } s ? (double)(decimal)s : null),
-        ("sprintSpark", "Sprint sparks (.vfx)", FieldType.Text, a => a.SprintSpark),
-        ("defense", "Defense (0-9)", FieldType.Number, a => (double)a.Defense), ("lifeRecovery", "Life recovery (0-9)", FieldType.Number, a => (double)a.LifeRecovery),
-        ("rattleSuit", "Cloth sound", FieldType.Text, a => a.RattleSuit), ("damageSe", "Hit sound", FieldType.Text, a => a.DamageSe),
-    ];
-
     private static readonly (string field, string label)[] BranchNames =
     [
         ("snake", "Snake / Avatar"), ("avatar", "Avatar"), ("ddMale", "DD male"), ("ddFemale", "DD female"), ("ocelot", "Ocelot"), ("quiet", "Quiet"),
@@ -599,6 +589,7 @@ public static partial class ExistingMod
         item.EquipId = equipId;
         var weapon = equipId != null && equip.TryGetValue(equipId, out var e) ? e.fpk : null;
         CollectFiles(item, mod, stems, found.Select(f => f.text).Append(item.IconPath ?? "").Append(weapon ?? ""));
+        CollectCommonTextures(item, mod, stems);
         item.Model = ModelOf(item, args, constTable, equip);
         // Every place the item's calls write its icon path, so a game icon or a new icon file can be named there.
         if (item.IconPath is { Length: > 0 } iconText)
@@ -625,8 +616,8 @@ public static partial class ExistingMod
             if (kind is ItemKind.Outfit or ItemKind.ExtraLooks)
                 foreach (var (field, display) in BranchNames)
                     if (args[field] is LuaValue.Table && !(item.Model is OutfitItem o && o.Spec.Branches.ContainsKey(Branches[field])))
-                        foreach (var (name, label, type, _) in AbilityFields)
-                            item.Fields.Add(MakeField($"Abilities · {display}", label, type, modulePath, calls, 0, [field, "abilities", name], src, written, writtenAsFlag: false));
+                        foreach (var k in Abilities.Keys)
+                            item.Fields.Add(MakeField($"Abilities · {display}", k.Label, k.Type, modulePath, calls, 0, [field, "abilities", k.Name], src, written, writtenAsFlag: false));
             if (kind == ItemKind.HeadOption)
                 item.Fields.Add(MakeField("Abilities", "Infinite ammo", FieldType.Bool, modulePath, calls, 0, ["abilities", "infiniteAmmo"], src, written, false));
             if (kind == ItemKind.BuddyOutfit) BindBuddy(item, args, modulePath, calls, src, written);
@@ -660,6 +651,8 @@ public static partial class ExistingMod
         // Only a game blueprint is set here; a mod's own one (OwnBluePrint) is never written, so the script keeps it.
         ("const", "bluePrintId", FieldType.Text, d => d.BluePrint is { } bp ? new LuaSource.Code(DevelopRow.BluePrintLua(bp)) : null),
         ("const", "isResultRankLimited", FieldType.Flag, d => d.RankLimited), ("const", "langResultRankLimited", FieldType.Text, d => NullIfEmpty(d.ResultRankLang)),
+        // The look-name group: not in the row, so ApplyDevelop leaves it; ApplyOutfit sets it from the look count.
+        ("const", "equipDevelopGroupID", FieldType.Number, _ => null),
     ];
 
     private static string? NullIfEmpty(string? s) => string.IsNullOrEmpty(s) ? null : s;
@@ -763,22 +756,27 @@ public static partial class ExistingMod
         {
             if (!model.Spec.Branches.TryGetValue(who, out var branch)) continue;
             var f = new Dictionary<string, ExistingField>(StringComparer.Ordinal);
-            foreach (var (name, _, type, _) in AbilityFields) item.SpecFields.Add(f[name] = at([field, "abilities", name], type));
-            item.SpecFields.Add(f["camoBonusType"] = at([field, "camoBonusType"], FieldType.Text));
+            foreach (var k in Abilities.Keys) item.SpecFields.Add(f[k.Name] = at([field, "abilities", k.Name], k.Type));
+            // V Framework takes the camo by its name or by its number (0 to 116, the same list as GameKnowledge.Camos). A
+            // number shows as its name. It stays in the script until the user makes a new choice, which is written as a name.
+            bool camoNumber = (args[field] as LuaValue.Table)?["camoBonusType"] is LuaValue.Number;
+            item.SpecFields.Add(f["camoBonusType"] = at([field, "camoBonusType"], camoNumber ? FieldType.Number : FieldType.Text));
             var values = new Dictionary<string, int>(StringComparer.Ordinal);
             if ((args[field] as LuaValue.Table)?["camoBonusValues"] is LuaValue.Table cv)
                 foreach (var (ground, _) in cv.Fields)
                 {
                     var v = at([field, "camoBonusValues", ground], FieldType.Number);
                     item.SpecFields.Add(v);
-                    if (v is { Locked: null, Original: double d } && d != 0) values[ground] = (int)Math.Round(d);
+                    // Issue #89: a key reaches the material one before it in game (GameKnowledge.CamoValueKey).
+                    if (v is { Locked: null, Original: double d } && d != 0 && GameKnowledge.CamoValueMaterial(ground) is { } mat) values[mat] = (int)Math.Round(d);
                 }
             string? S(string k) => f[k] is { Locked: null, Original: string { Length: > 0 } s } ? s : null;
             model.Spec.Branches[who] = branch with
             {
                 // A key that the script does not set has the number 0 (ExistingField.Original), which is no own sprint speed.
                 Abilities = Abilities.Read(k => f[k] is { Locked: null, Original: true }, k => f[k] is { Locked: null, Original: double d } ? d : null, S),
-                CamoBonusType = S("camoBonusType"),
+                CamoBonusType = f["camoBonusType"] is { Locked: null, Original: double camo }
+                    ? Knowledge.GameKnowledge.Camos.FirstOrDefault(c => c.PlayerCamoType == camo)?.Name : S("camoBonusType"),
                 CamoBonusValues = values.Count > 0 ? values : null,
             };
         }
@@ -790,12 +788,12 @@ public static partial class ExistingMod
     /// <paramref name="b"/>, or the whole branch when <paramref name="sub"/> is null. Null when the writer leaves it out.
     /// A looks-only branch has all its looks in variants.
     /// </summary>
-    private static string? Written(PlayerBranch who, OutfitBranch b, bool looksOnly, string? sub)
+    private static string? Written(PlayerBranch who, OutfitBranch b, bool looksOnly, string? sub, bool? multiLook = null)
     {
         if (looksOnly) b = b with { Variants = [b.Base, .. b.Variants] };
         var spec = new OutfitSpec { Key = "k", NameLang = "n", IconFtexPath = "" };
         spec.Branches[who] = b;
-        string lua = LuaWriter.OutfitBlock(spec);
+        string lua = LuaWriter.OutfitBlock(spec, multiLook);
         var t = LuaSource.FindCalls(lua, "V_Player.RegisterOutfit")[0].Arguments[0].Table!;
         var e = t.Find(LuaWriter.BranchName(who))!;
         if (sub != null) e = e.Table!.Find(sub);
@@ -841,14 +839,6 @@ public static partial class ExistingMod
         return null;
     }
 
-    private static readonly string[] LookKeys = ["partsPath", "fpkPath", "camoFpk", "camoFv2", "displayName", "iconFtexPath", "enableArm", "enableHead"];
-
-    private static object? LookValue(Look l, string key) => key switch
-    {
-        "partsPath" => l.PartsPath, "fpkPath" => l.FpkPath, "camoFpk" => l.CamoFpk, "camoFv2" => l.CamoFv2, "displayName" => l.DisplayName,
-        "iconFtexPath" => l.IconFtexPath, "enableArm" => l.EnableArm, "enableHead" => l.EnableHead, _ => null,
-    };
-
     /// <summary>
     /// Puts the edited outfit model into the script, key by key: abilities, camo, voice type and the main look's keys go
     /// into <see cref="ExistingItem.SpecFields"/>; variants, headOptions, colors and voiceFpk, and a branch added or taken
@@ -879,7 +869,7 @@ public static partial class ExistingMod
                 string? icon = IconText(item) ?? orig.Values.Select(o => o.Base.IconFtexPath).FirstOrDefault(i => i != null);
                 var b = now.Base.IconFtexPath == null ? now with { Base = now.Base with { IconFtexPath = icon } } : now;
                 if (b.Base.IconFtexPath == null) { why.Add($"{field}: a new wearer needs an icon, and the script names none"); continue; }
-                try { ops.Add(([field], Written(who, b, false, null))); }
+                try { ops.Add(([field], Written(who, b, false, null, LuaWriter.IsMultiLook(m.Spec.Branches)))); }
                 catch (ArgumentException e) { why.Add($"{field}: {e.Message}"); }
                 continue;
             }
@@ -898,7 +888,7 @@ public static partial class ExistingMod
                 }
                 f.Value = value;
             }
-            foreach (var (name, _, type, get) in AbilityFields) Set([field, "abilities", name], type, get(now.Abilities), get(was.Abilities));
+            foreach (var k in Abilities.Keys) Set([field, "abilities", k.Name], k.Type, k.Value(now.Abilities), k.Value(was.Abilities));
             Set([field, "camoBonusType"], FieldType.Text, now.CamoBonusType, was.CamoBonusType);
             // V Framework uses the type over the values, so the values are written only when the branch has no type.
             if (now.CamoBonusType == null)
@@ -906,18 +896,28 @@ public static partial class ExistingMod
                 var a = was.CamoBonusValues ?? new Dictionary<string, int>();
                 var c = now.CamoBonusValues ?? new Dictionary<string, int>();
                 foreach (var ground in a.Keys.Union(c.Keys))
-                    Set([field, "camoBonusValues", ground], FieldType.Number, (double)c.GetValueOrDefault(ground), (double)a.GetValueOrDefault(ground));
+                    if (GameKnowledge.CamoValueKey(ground) is { } key)
+                        Set([field, "camoBonusValues", key], FieldType.Number, (double)c.GetValueOrDefault(ground), (double)a.GetValueOrDefault(ground));
             }
             // The main look's keys, one by one (a looks-only branch has its main look in variants).
+            // Down to 1 look: the main look's name goes, as the writer leaves it out (it is drawn over the grade bar).
+            var nowBase = LookCountNow(item) == false ? now.Base with { DisplayName = null } : now.Base;
             if (!looksOnly)
-                foreach (var key in LookKeys)
+                foreach (var (key, _, get, _) in Look.Keys)
                 {
-                    object? v = LookValue(now.Base, key), o = LookValue(was.Base, key);
+                    object? v = get(nowBase), o = get(was.Base);
                     if (Equals(v, o)) continue;
                     if (v == null)
                     {
                         if (item.Call.locked is { } l) why.Add($"{field}.{key}: can't be taken out ({l})");
                         else ops.Add(([field, key], null));
+                    }
+                    // A switch the script leaves out reads as off, so Set would see no change; V Framework's default is on
+                    // (enableArm: the bionic arm and prosthetics stay on the look, owner Nov 17). Write it out.
+                    else if (v is bool on && o == null)
+                    {
+                        if (item.Call.locked is { } l) why.Add($"{field}.{key}: can't be added ({l})");
+                        else ops.Add(([field, key], on ? "true" : "false"));
                     }
                     else Set([field, key], v is bool ? FieldType.Bool : FieldType.Text, v, o);
                 }
@@ -938,8 +938,23 @@ public static partial class ExistingMod
                 ops.Add(([field, sub], after));
             }
         }
+        // The look count crossed 1: the R&D row's look-name group follows it, as LuaWriter.OutfitBlock gives it (M5).
+        if (LookCountNow(item) is { } multi && item.DevelopFields.FirstOrDefault(f => f.Label == "equipDevelopGroupID") is { } g)
+        {
+            // Any group the script sets is the look-name group (a name such as V_TppMbDev.EQP_OUTFIT_VARIANT_NAME locks it).
+            if (!multi && g.Present) remove.Add(g);
+            else if (multi && !g.Present)
+            {
+                if (g.Locked != null) why.Add($"R&D equipDevelopGroupID: can't be added for the new look count ({g.Locked})");
+                else g.Value = new LuaSource.Code("V_TppMbDev.EQP_OUTFIT_VARIANT_NAME");
+            }
+        }
         return why;
     }
+
+    /// <summary>When an edit takes an outfit from 1 look to 2 or more (true) or back (false); else null.</summary>
+    private static bool? LookCountNow(ExistingItem item) =>
+        item.DevelopFields.Count > 0 && item.Model is OutfitItem m && item.OutfitOriginal is { } orig && LuaWriter.IsMultiLook(m.Spec.Branches) is var now && now != LuaWriter.IsMultiLook(orig) ? now : null;
 
     /// <summary>A character's table of a head option as <see cref="LuaWriter.HeadBlock"/> writes it.</summary>
     private static string HeadWritten(PlayerBranch who, HeadBranch b)
@@ -993,10 +1008,13 @@ public static partial class ExistingMod
         object original = type switch { FieldType.Bool => false, FieldType.Number => 0d, FieldType.Flag => false, _ => "" };
         bool present = false, asBool = false;
         string? locked = null;
-        if (current is LuaValue.Number n)
+        // V Framework reads dashAttack as on/off or as an attack ID (issue #96): an ID reads as its attack name.
+        if (type == FieldType.Bool && path[^1] == "dashAttack" && Abilities.DashAttackOf(current) is { } attack) { present = true; original = attack; }
+        else if (current is LuaValue.Number n)
         {
             present = true;
             if (type == FieldType.Text) locked = "the script gives a number where text is expected";
+            else if (type == FieldType.Bool && n.Value is not (0 or 1)) locked = "the script gives a number (an ID) where the tool has only on and off";
             else original = type is FieldType.Bool or FieldType.Flag ? n.Value != 0 : n.Value;
         }
         else if (current is LuaValue.Name { Value: "true" or "false" } b)
@@ -1142,6 +1160,20 @@ public static partial class ExistingMod
                 var updated = lua == null ? LuaSource.RemoveField(sources[module], table, path, out var err) : LuaSource.ReplaceTable(sources[module], table, path, lua, out err, overName: true);
                 if (updated == null) errors.Add($"{who}: {err}.");
                 else sources[module] = updated;
+            }
+            // Down to 1 look: the GetOutfitInfo line after the R&D row, as the writer gives a one-look outfit.
+            if (LookCountNow(item) == false && item.DevelopFields.FirstOrDefault() is { } rd && !sources[rd.Module].Contains("GetOutfitInfo"))
+            {
+                string src = sources[rd.Module];
+                var sites = LuaSource.FindCalls(src, rd.CallPath);
+                var call = rd.Site < sites.Count && sites[rd.Site].Arguments.Count > 1 ? sites[rd.Site] : null;
+                if (call == null || StatementOf(src, call, out _) is not (_, var end))
+                    errors.Add($"\"{item.Title}\" · GetOutfitInfo: the R&D row in the script was not found or is not a statement of its own.");
+                else
+                {
+                    string nl = src.Contains("\r\n") ? "\r\n" : "\n";
+                    sources[rd.Module] = src[..end] + LuaWriter.OutfitInfoLine(src[call.Arguments[0].Start..call.Arguments[0].End].Trim()).Replace("\n", nl) + src[end..];
+                }
             }
         }
         // Removed items: their calls come out after every value is written (the fields count the calls as the mod has them).

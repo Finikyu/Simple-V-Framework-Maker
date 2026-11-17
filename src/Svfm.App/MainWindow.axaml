@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:app="using:Svfm.App"
         x:Class="Svfm.App.MainWindow" x:DataType="app:MainVm"
-        Title="Simple V Framework Maker" Width="1280" Height="820" MinWidth="1040" MinHeight="640">
+        Title="Simple V Framework Maker" Icon="/Assets/app.ico" Width="1280" Height="820" MinWidth="1040" MinHeight="640">
   <Window.DataTemplates>
     <DataTemplate DataType="app:OpenVm"><app:OpenView /></DataTemplate>
     <DataTemplate DataType="app:FoundVm"><app:FoundView /></DataTemplate>

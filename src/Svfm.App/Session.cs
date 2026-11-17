@@ -47,8 +47,10 @@ public sealed class Session : Observable
         }
         private set { lock (_gameLock) { _game = value; _gameChecked = Environment.TickCount64; } }
     }
-    public MgsvMod? Source { get; private set; }
-    public IntakeResult? Intake { get; private set; }
+    /// <summary>The open project and its flows (null when no project is open). This class adds the log and the change notice.</summary>
+    private OpenProject? _open;
+    public MgsvMod? Source => _open?.Source;
+    public IntakeResult? Intake => _open?.Intake;
     public ModProject? Project => Intake?.Project;
     public string? ProjectFile { get; private set; }
     /// <summary>One background job on the Intake at a time: an icon render and a copy both run the converter, which changes the project.</summary>
@@ -81,40 +83,37 @@ public sealed class Session : Observable
     /// <summary>Opens the game (checks the folder) and a mod, and ports what the app can. The slow part runs off the UI thread.</summary>
     /// <param name="modPath">The .mgsv or .zip.</param>
     /// <returns>What was found.</returns>
-    public string? SourceInner { get; private set; }
+    public string? SourceInner => _open?.SourceInner;
 
     /// <summary>Other mods opened together with the main one: its separate parts (textures, another character's body) or the model mod its textures are for.</summary>
-    public IReadOnlyList<ExtraMod> Extras { get; private set; } = [];
+    public IReadOnlyList<ExtraMod> Extras => _open?.Extras ?? [];
 
     /// <summary>The items of the project file just opened whose edits could not be put back (the mod changed since the save).</summary>
-    public IReadOnlyList<string> NotApplied { get; private set; } = [];
+    public IReadOnlyList<string> NotApplied => _open?.NotApplied ?? [];
 
     public async Task<IntakeResult> OpenModAsync(string modPath, string? inner = null, IReadOnlyList<ExtraMod>? extras = null, IReadOnlySet<string>? savedIds = null)
     {
         DevLog.Info("open", "Opening " + modPath + (inner != null ? " (" + inner + ")" : ""));
         if (Settings.GameFolder.Length == 0) throw new InvalidOperationException("Choose the game folder first.");
-        var folder = Settings.GameFolder;
-        var (game, source, intake) = await Task.Run(() =>
-        {
-            var g = Game ?? GameFactory(folder);
-            var m = MgsvMod.Open(modPath, inner);
-            var whole = extras is not { Count: > 0 } ? m : MgsvMod.Combine([.. extras.Select(x => MgsvMod.Open(x.Path, x.Inner)), m], null, m);
-            // A project file: the IDs it has decide the "Unique mod IDs" switch (Intake.OpenAsSaved).
-            return (g, m, savedIds == null ? Svfm.Core.Project.Intake.Open(g, whole) : Svfm.Core.Project.Intake.OpenAsSaved(u => Svfm.Core.Project.Intake.Open(g, whole, u), savedIds));
-        });
+        var (intake, open) = await OpenProject.OpenModAsync(GameNow, modPath, inner, extras, savedIds, IntakeWork);
         // A mod with nothing to port does not replace the open project: the caller shows why, and the old session stays whole (#47).
-        if (intake.Project == null) return intake;
-        Game = game; Source = source; Intake = intake; SourceInner = inner; Extras = extras ?? []; NotApplied = [];
+        if (open == null) return intake;
+        Take(open, null);
+        return intake;
+    }
+
+    private GameData GameNow() => Game ?? GameFactory(Settings.GameFolder);
+
+    /// <summary>Makes a project the open one.</summary>
+    private void Take(OpenProject open, string? file)
+    {
+        Game = open.Game; _open = open; ProjectFile = file;
         // The R&D tab's "copy from a vanilla item" picker names rows from the game's own text, so it needs the game open
         // before it is built. Without this the picker listed raw lang IDs ("name_st_19001") instead of "Olive Drab",
         // which is exactly what the owner said made the feature useless: "we don't know the IDs and the user shouldn't be
-        // assumed to do so".
-        Svfm.Core.Knowledge.GameKnowledge.EnglishNamesGame = game;
+        // assumed to do so". OpenProject sets the game of the names (GameKnowledge.EnglishNamesGame) when it opens the mod.
         DevelopVm.RefreshVanillaRows();
-        ProjectFile = null;
-        Edits = intake.Project != null ? new ProjectEdits(intake) : null;
         NotifyChanged();
-        return intake;
     }
 
     /// <summary>
@@ -127,7 +126,21 @@ public sealed class Session : Observable
     /// <returns>What was found in it.</returns>
     public Task<IntakeResult> NewProjectFromModAsync(string modPath) => OpenModAsync(modPath);
 
-    public void ForgetGame() { Game = null; }
+    /// <summary>
+    /// Lets go of the game after a change of the game folder. When nothing open uses it, it is closed, so that its files are
+    /// not locked and its memory is released (T11). The open project still reads the game it was opened with (icon jobs,
+    /// issue #99): that one is not disposed, and its files close when it is collected.
+    /// </summary>
+    /// <returns>True when the old game was disposed.</returns>
+    public bool ForgetGame()
+    {
+        GameData? old;
+        lock (_gameLock) { old = _game; _game = null; _gameChecked = Environment.TickCount64; }
+        if (old == null || _open?.Game == old) return false;
+        if (Svfm.Core.Knowledge.GameKnowledge.EnglishNamesGame == old) Svfm.Core.Knowledge.GameKnowledge.EnglishNamesGame = null;
+        old.Dispose();
+        return true;
+    }
 
     private (GameData Game, Svfm.Core.Knowledge.EquipTables? Tables)? _equip;
     /// <summary>The game's weapon part tables, read once for each game. Null with no game open.</summary>
@@ -144,7 +157,7 @@ public sealed class Session : Observable
     // ---- Edits: undo, Reset, Compare and the project file are in ProjectEdits ----
 
     /// <summary>The edits of the open project (null when no project is open).</summary>
-    public ProjectEdits? Edits { get; private set; }
+    public ProjectEdits? Edits => _open?.Edits;
 
     /// <summary>Puts parts of an item back as the original had them (one undo step).</summary>
     public void ResetPart(ProjectItem i, params EditPart[] parts)
@@ -186,11 +199,11 @@ public sealed class Session : Observable
     public void SaveProject(string file)
     {
         DevLog.Info("project", "Saving " + file);
-        var edits = Edits ?? throw new InvalidOperationException("Nothing to save.");
+        var open = _open ?? throw new InvalidOperationException("Nothing to save.");
         // Written beside it and then moved over it, so a failed write never leaves a cut-off project file.
-        File.WriteAllText(file + ".tmp", edits.Save(Source!.SourcePath, SourceInner, Extras));
+        File.WriteAllText(file + ".tmp", open.Save());
         File.Move(file + ".tmp", file, overwrite: true);
-        ProjectFile = file; edits.MarkSaved();
+        ProjectFile = file; open.Edits.MarkSaved();
         NotifyChanged();
     }
 
@@ -199,20 +212,16 @@ public sealed class Session : Observable
     /// <returns>The copy.</returns>
     public async Task<ProjectItem> DuplicateAsync(ProjectItem item)
     {
-        Checkpoint();
-        var intake = Intake!;
-        await IntakeWork.WaitAsync();
-        ProjectItem copy;
-        try { copy = await Task.Run(() => intake.Duplicate(item)); } finally { IntakeWork.Release(); }
-        Edits!.AddCopy(item, copy);
+        DevLog.Info("edit", "change");
+        var copy = await _open!.DuplicateAsync(item);
         NotifyChanged();
         return copy;
     }
 
     public void Remove(ProjectItem item)
     {
-        Checkpoint();
-        Project!.Items.Remove(item);
+        DevLog.Info("edit", "change");
+        _open!.Remove(item);
         NotifyChanged();
     }
 
@@ -221,27 +230,12 @@ public sealed class Session : Observable
     /// <returns>What was found.</returns>
     public async Task<IntakeResult> OpenProjectAsync(string file)
     {
-        var sp = ProjectEdits.Read(File.ReadAllText(file));
-        if (!File.Exists(sp.SourceMod)) throw new FileNotFoundException($"The mod this project was made from is missing: {sp.SourceMod}");
-        // The open takes the session and the merges then change it, so a failure part-way puts the old session back (#47).
-        var old = (Game, Source, Intake, SourceInner, Extras, NotApplied, ProjectFile, Edits);
-        try
-        {
-            var savedIds = sp.Items.Select(i => i.Id).Concat(sp.Removed ?? []).ToHashSet(StringComparer.Ordinal);
-            var res = await OpenModAsync(sp.SourceMod, sp.SourceInner, sp.Extras, savedIds);
-            if (res.Project == null) throw new InvalidDataException("The mod can't be opened any more.");
-            foreach (var m in sp.Merged) { if (!Svfm.Core.Project.Intake.IsMadeByApp(m) && !File.Exists(m.Path)) throw new FileNotFoundException($"A mod merged into this project is missing: {m.Path}"); await MergeModsAsync([m], savedIds); }
-            NotApplied = Edits!.Apply(sp);
-            ProjectFile = file;
-            NotifyChanged();
-            return res;
-        }
-        catch
-        {
-            (Game, Source, Intake, SourceInner, Extras, NotApplied, ProjectFile, Edits) = old;
-            NotifyChanged();
-            throw;
-        }
+        DevLog.Info("open", "Opening " + file);
+        if (Settings.GameFolder.Length == 0) throw new InvalidOperationException("Choose the game folder first.");
+        // A failure part-way throws before the session takes the project, so the old session stays whole (#47).
+        var open = await OpenProject.OpenFileAsync(GameNow, file, IntakeWork);
+        Take(open, file);
+        return open.Intake;
     }
 
     /// <summary>Mods whose items were merged into the open project (listed in the project file).</summary>
@@ -256,12 +250,9 @@ public sealed class Session : Observable
     /// <param name="savedIds">The item IDs of the project file that is opening, else null.</param>
     public async Task MergeModsAsync(IReadOnlyList<ExtraMod> mods, IReadOnlySet<string>? savedIds = null)
     {
-        var edits = Edits ?? throw new InvalidOperationException("No project.");
-        var folder = Settings.GameFolder;
-        var host = Intake;
-        var others = await Task.Run(() => { var game = Game ?? GameFactory(folder); return mods.Select(m => savedIds == null ? Svfm.Core.Project.Intake.OpenExtra(game, m, host) : Svfm.Core.Project.Intake.OpenAsSaved(u => Svfm.Core.Project.Intake.OpenExtra(game, m, host, u), savedIds)).ToList(); });
-        Checkpoint();
-        for (int i = 0; i < mods.Count; i++) edits.Merge(mods[i], others[i]);
+        var open = _open ?? throw new InvalidOperationException("No project.");
+        await open.MergeAsync(mods, savedIds);
+        DevLog.Info("edit", "change");
         NotifyChanged();
     }
 
@@ -274,32 +265,10 @@ public sealed class Session : Observable
     /// <param name="on">True to make it, false to remove it.</param>
     public async Task SetCopyAsync(ProjectItem source, CopyKind kind, bool on)
     {
-        // The tick box shows the copy only when it is made: a second click in that time must not make a second copy.
-        if (_copyInProgress) return;
-        _copyInProgress = true;
-        try { await SetCopyCoreAsync(source, kind, on); } finally { _copyInProgress = false; }
-    }
-    private bool _copyInProgress;
-
-    private async Task SetCopyCoreAsync(ProjectItem source, CopyKind kind, bool on)
-    {
-        var edits = Edits ?? throw new InvalidOperationException("No project.");
-        var have = edits.CopiesFor(source, kind);
-        if (on == have.Count > 0) return;
-        if (!on)
-        {
-            Checkpoint();
-            foreach (var i in have) Project!.Items.Remove(i);
-            NotifyChanged();
-            return;
-        }
-        if (kind == CopyKind.Quiet) { await MergeModAsync(OutfitCopies.QuietExtra(source)); return; }
-        Checkpoint();
-        var intake = Intake!;
-        await IntakeWork.WaitAsync();
-        ProjectItem copy;
-        try { copy = await Task.Run(() => OutfitCopies.MakeWearerCopy(intake, (OutfitItem)source, kind)); } finally { IntakeWork.Release(); }
-        edits.AddCopy(source, copy);
+        // The tick box shows the copy only when it is made: a second click in that time must not make a second copy (OpenProject.SetCopyAsync).
+        var open = _open ?? throw new InvalidOperationException("No project.");
+        if (!await open.SetCopyAsync(source, kind, on)) return;
+        DevLog.Info("edit", "change");
         NotifyChanged();
     }
 }

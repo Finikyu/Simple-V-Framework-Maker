@@ -15,6 +15,7 @@
       <Button Content="Show log" Command="{Binding ShowLog}" Margin="0,0,8,6" />
       <Button Content="Show last build report" Command="{Binding ShowBuildReport}" Margin="0,0,8,6" />
       <Button Content="Dump mod as JSON" Command="{Binding ShowDump}" Margin="0,0,8,6" ToolTip.Tip="Shows the parsed data of the open mod as JSON and saves it in the logs folder. Binary data is only counted." />
+      <CheckBox Name="DeveloperModeBox" Content="Developer mode" IsChecked="{Binding DeveloperMode}" Margin="0,0,8,6" ToolTip.Tip="Shows the developer tools in the editor: the Announce on screen step of a thrown item's script, and the Announce steps that a script already has." />
       <ComboBox ItemsSource="{x:Static app:DeveloperVm.Levels}" SelectedIndex="{Binding Level}" Margin="0,0,8,6" />
       <TextBox Text="{Binding Note}" PlaceholderText="Note: what are you testing?" Width="320" Margin="0,0,8,6" />
       <Button Content="Add note" Command="{Binding AddNote}" Margin="0,0,8,6" />

@@ -71,7 +71,7 @@ public static class ModClassifier
         var support = game != null ? SupportWeaponConverter.Detect(game, mod) : [];
         foreach (var sw in support)
             routes.Add(sw.Thrown
-                ? $"Thrown support weapon model replacer ({SupportWeaponConverter.Family(sw.VanillaEquip)}): model not portable. {sw.Reason}"
+                ? $"Thrown support weapon model replacer ({SupportWeaponConverter.Family(sw.VanillaEquip)}): a new item thrown like it, with the mod's model."
                 : $"Placed support weapon model replacer ({SupportWeaponConverter.Family(sw.VanillaEquip)}): not portable. {sw.Reason}");
         if (items.Count > 0 && weapons.Count == 0 && support.Count == 0)
             // Not tried: replacing a vanilla item id through AddToEquipIdTable (a risk to every mission).

@@ -19,12 +19,19 @@ public sealed record HeadAddonOption(string Id, string Title, string Description
 /// stage one package holds copies of the vanilla face package(s), the extra models (only their own mesh groups shown)
 /// and every option's .fv2; its texture pack is the vanilla face pack plus the small mips of the textures the extra
 /// models use. Vanilla faces: face0/1/2 = stages 1–3, face4/5/6 the same with the bandana.
-/// Avatar: V Framework uses the Snake branch for Avatar, so Avatar would wear Snake's face; options are Snake only.
+/// Avatar: every option also gets an Avatar branch: one package with the extra models and an .fv2 per option that
+/// attaches only them, worn on the Avatar's own face. A bandana option also attaches the Avatar's vanilla bandana: a copy
+/// of the Avatar face model avm0_type0 with only its bandana group (g2, hidden in the face) shown, with the face's cloth
+/// .sim for the tails.
 /// </summary>
 public static class SnakeHeadAddon
 {
     private const string FacePkg = "/Assets/tpp/pack/player/fova/plfova_sna0_face{0}_v00";
     private const string FaceFv2 = "/Assets/tpp/fova/chara/sna/sna0_face{0}_v00.fv2";
+    private const string AvatarFacePkg = "/Assets/tpp/pack/player/avatar/face/plfova_avm0_type0_v00";
+    private const string AvatarFaceModel = "/Assets/tpp/chara/avm/Scenes/avm0_type0_def.fmdl";
+    /// <summary>The mesh group of the Avatar bandana in <see cref="AvatarFaceModel"/> (meshes 7 and 8, avm_bdn0 textures).</summary>
+    private const int AvatarBandanaGroup = 2;
 
     /// <summary>
     /// Adds the options as head options (with their files) and returns them. <paramref name="texturesFrom"/> are texture
@@ -118,6 +125,35 @@ public static class SnakeHeadAddon
             stageFiles[stage] = (pkg + ".fpk", fv2s);
         }
 
+        // Avatar: V Framework 1.7 loads the head's avatar files through the game's Avatar head-option slot and keeps the
+        // Avatar's own face (kHideAvatarCreatorFace is false). So the .fv2 attaches only the extra models, plus the
+        // Avatar's own bandana for a bandana option (Snake's bandana is part of his face model).
+        var avatarFv2 = new Dictionary<string, string>();
+        string avatarPkg = $"/Assets/tpp/pack/player/fova/plfova_{setPrefix}_av";
+        string avatarBandana = $"/Assets/tpp/chara/sna/Scenes/{setPrefix}_avbandana.fmdl";
+        ulong? avatarBandanaSim = null;
+        {
+            var fpk = new FoxPackage();
+            var fpkd = new FoxPackage { IsFpkd = true };
+            var pack = new TexturePack();
+            foreach (var t in extraTextures) pack.Textures.Add(t);
+            foreach (var (id, path) in modelPath) fpk.Files.Add(new PackageFile(path, modelData[id]));
+            if (anyBandana) avatarBandanaSim = AddAvatarBandana(game, avatarBandana, fpk, fpkd, pack, notes);
+            foreach (var o in options)
+            {
+                var list = o.Models.Select(mid => new Fv2File.ModelAttach(FoxHash.PathCode64(modelPath[mid]))).ToList();
+                if (o.Bandana) list.Insert(0, new Fv2File.ModelAttach(FoxHash.PathCode64(avatarBandana), avatarBandanaSim));
+                string fv2Path = $"/Assets/tpp/fova/chara/sna/{setPrefix}_{o.Id}_av.fv2";
+                fpk.Files.Add(new PackageFile(fv2Path, Fv2File.Attach(list).Write()));
+                avatarFv2[o.Id] = fv2Path;
+            }
+            PackageOrder.ApplySnakeBiteOrder(fpk);
+            PackageOrder.ApplySnakeBiteOrder(fpkd);
+            files[avatarPkg + ".fpk"] = fpk.Write();
+            files[avatarPkg + ".fpkd"] = fpkd.Write();
+            files[avatarPkg + ".pftxs"] = pack.Write();
+        }
+
         var items = new List<HeadOptionItem>();
         bool first = true;
         foreach (var o in options)
@@ -143,6 +179,11 @@ public static class SnakeHeadAddon
             };
             spec.Header.Add($"{o.Title}: Snake's {(o.Bandana ? "bandana " : "")}face with {string.Join(" + ", o.Models)}, one package per Demon stage.");
             spec.Branches[PlayerBranch.Snake] = new HeadBranch { Fv2 = stages[1].Item1, Fpk = stages[1].fpk, FaceStages = stages };
+            if (avatarFv2.TryGetValue(o.Id, out var av))
+            {
+                spec.Branches[PlayerBranch.Avatar] = new HeadBranch { Fv2 = av, Fpk = avatarPkg + ".fpk" };
+                spec.Header.Add($"{o.Title} (Avatar): the Avatar's own face with {string.Join(" + ", (o.Bandana ? o.Models.Prepend("the Avatar bandana") : o.Models))}.");
+            }
             var item = new HeadOptionItem { Id = o.Id, Key = key, Prefix = prefix, Spec = spec, Title = o.Title };
             item.SetText($"{prefix}_name", o.Title);
             item.SetText($"{prefix}_info", o.Description);
@@ -152,6 +193,34 @@ public static class SnakeHeadAddon
             items.Add(item);
         }
         return items;
+    }
+
+    /// <summary>
+    /// Adds the Avatar's vanilla bandana to an Avatar head package: a copy of the Avatar face model with only the bandana
+    /// group shown (at <paramref name="modelPath"/>), the face's cloth .sim and the bandana textures' small mips. Returns the
+    /// .sim's path code for the .fv2 attach, or null (with a note) when the game has none.
+    /// </summary>
+    internal static ulong? AddAvatarBandana(GameData game, string modelPath, FoxPackage fpk, FoxPackage fpkd, TexturePack pack, List<string> notes)
+    {
+        ulong? sim = null;
+        var avfpk = FoxPackage.Read(game.Read(AvatarFacePkg + ".fpk"));
+        byte[] face = avfpk.Find(AvatarFaceModel)?.Data ?? throw new InvalidDataException($"{AvatarFacePkg}.fpk has no {AvatarFaceModel}.");
+        fpk.Files.Add(new PackageFile(modelPath, FmdlModel.ShowOnlyGroups(face, new HashSet<int> { AvatarBandanaGroup })));
+        // The cloth physics of the bandana tails: the vanilla face .fv2 attaches the face model with the one .sim of the
+        // face .fpkd (avm0_type0_hair2.sim). The copy keeps the face's bones, so the same .sim drives its tails.
+        if (game.TryRead(AvatarFacePkg + ".fpkd") is { } avd
+            && FoxPackage.Read(avd).Files.Where(f => f.Path.EndsWith(".sim", StringComparison.Ordinal)).ToList() is [var simFile])
+        {
+            fpkd.Files.Add(simFile);
+            sim = FoxHash.PathCode64(simFile.Path);
+        }
+        else notes.Add($"{AvatarFacePkg}: no cloth .sim found for the Avatar bandana; its tails do not move.");
+        // The bandana textures (avm_bdn0): small mips from the Avatar face pack; the full .ftex files are in texture0.
+        var fm = FmdlModel.Read(face);
+        var codes = fm.Meshes.Where(x => x.MeshGroup == AvatarBandanaGroup).SelectMany(x => fm.Materials[x.MaterialIndex].Textures).Select(t => t.PathCode).ToHashSet();
+        if (game.TryRead(AvatarFacePkg + ".pftxs") is { } avt)
+            foreach (var t in TexturePack.Read(avt).Textures) if (codes.Contains(t.PathCode) && pack.Find(t.PathCode) == null) pack.Textures.Add(t);
+        return sim;
     }
 
     /// <summary>
@@ -196,7 +265,7 @@ public static class SnakeHeadAddon
     public static List<ExtraLooksItem> OfferOnVanillaSuits(ModProject p, string setId, IReadOnlyList<string> headKeys, PlayerBranch who)
     {
         var items = new List<ExtraLooksItem>();
-        string tag = who switch { PlayerBranch.DdMale => "m", PlayerBranch.DdFemale => "f", _ => "" };
+        string tag = who switch { PlayerBranch.DdMale => "m", PlayerBranch.DdFemale => "f", PlayerBranch.Avatar => "a", _ => "" };
         foreach (var t in SuitsWithHeads(who))
         {
             var x = new ExtraLooksItem

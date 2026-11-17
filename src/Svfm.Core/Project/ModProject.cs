@@ -338,6 +338,14 @@ public sealed class ProjectBuildResult
 
 public static class ProjectBuilder
 {
+    /// <summary>
+    /// True when the build draws the infinity mark on the item's icon: a head option with infinite ammo whose icon file
+    /// the project ships and no other item uses. An existing V Framework mod is built as it is (no mark).
+    /// </summary>
+    public static bool GetsInfinityMark(ModProject p, ProjectItem item) =>
+        p.Existing == null && item is HeadOptionItem { Spec: { InfiniteAmmo: true, IconFtexPath: { } icon } }
+        && item.Files.ContainsKey(icon + ".ftex") && !p.Items.Any(i => i != item && IntakeResult.IconPathOf(i) == icon);
+
     /// <param name="p">The project.</param>
     /// <param name="game">When given, checks that nothing but the shared language packages lands on a vanilla path.</param>
     public static ProjectBuildResult Build(ModProject p, GameData? game = null)
@@ -348,6 +356,8 @@ public static class ProjectBuilder
         // The swapped part's model is merged into the receiver model (the game draws only that model).
         // Then the camo chosen on the Stats tab is painted into the models (the swapped parts included).
         if (game != null) foreach (var w in p.Items.OfType<WeaponItem>().Where(w => w.Spec.Tuning != null)) Conversion.WeaponConverter.MakeCurrent(game, w);
+        // New entries in the resident common package, merged by SnakeBite; the vanilla entries stay (SupportWeaponConverter.AddTo).
+        static bool IsCommonPart(string path) => path is Conversion.SupportWeaponConverter.CommonPackage + ".fpk" or Conversion.SupportWeaponConverter.CommonPackage + ".fpkd";
         var errors = new List<string>();
         var warnings = new List<string>();
 
@@ -357,7 +367,7 @@ public static class ProjectBuilder
         foreach (var g in p.Items.GroupBy(i => i.Prefix).Where(g => g.Count() > 1)) errors.Add($"Two items have the file prefix \"{g.Key}\".");
         var owner = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var item in p.Items)
-            foreach (var path in item.Files.Keys)
+            foreach (var path in item.Files.Keys.Where(k => !IsCommonPart(k)))
             {
                 // Items may share a file (textures from one mod used by several outfits) when it is the same file.
                 if (owner.TryGetValue(path, out var other) && other != item.Id
@@ -425,7 +435,7 @@ public static class ProjectBuilder
         // Avatar reads Snake's branch of a custom outfit (V Framework 1.7 GetPTData), so heads built on Snake's own face
         // would put Snake's face on Avatar: such outfits get an Avatar branch without them. An outfit's own Avatar branch
         // (headOptions are per branch in 1.7) loses them too (issue #65).
-        var snakeFace = p.Items.OfType<HeadOptionItem>().Where(h => h.Spec.SnakeFaceOnly).Select(h => h.Spec.Key).ToHashSet(StringComparer.Ordinal);
+        var snakeFace = p.Items.OfType<HeadOptionItem>().Where(h => h.Spec.AvatarWouldWearSnakeFace).Select(h => h.Spec.Key).ToHashSet(StringComparer.Ordinal);
         if (snakeFace.Count > 0)
             foreach (var o in p.Items.OfType<OutfitItem>())
             {
@@ -446,7 +456,7 @@ public static class ProjectBuilder
             foreach (var k in keys.Distinct())
                 if (customHeads.TryGetValue(k, out var h) && !Fits(h.Spec, who))
                     errors.Add($"\"{itemId}\" ({LuaWriter.BranchName(who)}): head \"{h.Title}\" was not made for {LuaWriter.BranchName(who)}" +
-                        (h.Spec.SnakeFaceOnly && who == PlayerBranch.Avatar ? " (it is built on Snake's face)." : " (its mod has no model for that character)."));
+                        (h.Spec.AvatarWouldWearSnakeFace && who == PlayerBranch.Avatar ? " (it is built on Snake's face)." : " (its mod has no model for that character)."));
         }
         foreach (var o in p.Items.OfType<OutfitItem>())
             foreach (var (who, br) in o.Spec.Branches)
@@ -457,11 +467,10 @@ public static class ProjectBuilder
 
         var header = new List<string> { $"{p.Name} {p.Version}" + (p.Author.Length > 0 ? $" by {p.Author}" : "") };
         header.AddRange(p.Items.Select(i => $"  {i.Kind}: {(i.Title.Length > 0 ? i.Title : i.Id)}" + (i.Key != null ? $" [{i.Key}]" : "")));
-        var follow = p.Items.OfType<HeadOptionItem>().Where(h => h.Spec.Develop.FollowsVanillaDevelopId != null && h.Spec.NameLang != null)
-            .Select(h => (h.Spec.Key, Id: h.Spec.Develop.FollowsVanillaDevelopId!.Value))
-            .Concat(p.Items.OfType<OutfitItem>().Where(o => o.Spec.Develop.FollowsVanillaDevelopId != null)
-                .Select(o => (o.Spec.Key, Id: o.Spec.Develop.FollowsVanillaDevelopId!.Value)))
-            .ToDictionary(x => x.Key, x => x.Id);
+        // Every item kind with an R&D row can follow a vanilla row (issue #98). An existing mod's script keeps its own table;
+        // a head with no name has no row.
+        var follow = p.Items.Where(i => i is not ExistingItem && i.Key != null && i.NameLangId != null && i.RdRow?.FollowsVanillaDevelopId != null)
+            .ToDictionary(i => i.Key!, i => i.RdRow!.FollowsVanillaDevelopId!.Value);
         // Outfits first, then one call for each vanilla camo with the bonus slots of every item.
         var blocks = p.Items.Where(i => i is not ExtraLooksItem { Spec.Outfit: not null }).Select(i => i is OutfitItem o ? o.OwnBlock() : i.LuaBlock())
             .Where(b => b.Length > 0).Concat(bonus.Select(LuaWriter.ExtendBlock)).ToList();
@@ -477,7 +486,30 @@ public static class ProjectBuilder
             warnings.Add($"The build needs {needs} installed with it (its files are not copied).");
         }
         var b = new MgsvBuilder { Name = p.Name, Version = p.Version, Author = p.Author, Website = p.Website, Description = description };
-        foreach (var item in p.Items) foreach (var (path, data) in item.Files) b.AddArchiveFile(path, data);
+        // A head option with infinite ammo shows the infinity mark of the vanilla Infinity Bandana on its icon, in the same spot.
+        var mark = game != null && p.Items.OfType<HeadOptionItem>().Any(h => h.Spec.InfiniteAmmo) ? Rendering.HeadIcon.InfinityMark(game) : null;
+        foreach (var item in p.Items)
+        {
+            var files = item.Files;
+            if (mark != null && GetsInfinityMark(p, item)) files = Rendering.HeadIcon.WithInfinityMark(files, ((HeadOptionItem)item).Spec.IconFtexPath!, mark);
+            // The Avatar package of a bandana that waits for development is made from the game files (GatedBandanas).
+            if (item is HeadOptionItem gh && GatedBandanas.IsGated(gh) && gh.Spec.Branches.ContainsKey(PlayerBranch.Avatar))
+            {
+                if (game != null) foreach (var (path, data) in GatedBandanas.AvatarFiles(game, gh, warnings)) b.AddArchiveFile(path, data);
+                else if (!gh.Files.ContainsKey(gh.Spec.Branches[PlayerBranch.Avatar].Fpk ?? ""))
+                    warnings.Add($"\"{gh.Title}\": no game files, so the Avatar's bandana package is not built.");
+            }
+            foreach (var (path, data) in files.Where(f => !IsCommonPart(f.Key))) b.AddArchiveFile(path, data);
+        }
+        // Partial col_common_tpp packages (thrown items' models): one package with the new entries of every item.
+        foreach (var g in p.Items.SelectMany(i => i.Files).Where(f => IsCommonPart(f.Key)).GroupBy(f => f.Key))
+        {
+            var merged = Formats.FoxPackage.Read(g.First().Value);
+            foreach (var f in g.Skip(1).SelectMany(f => Formats.FoxPackage.Read(f.Value).Files))
+                if (merged.Find(f.Path) == null) merged.Files.Add(f);
+                else if (!merged.Find(f.Path)!.Data.AsSpan().SequenceEqual(f.Data)) errors.Add($"{f.Path} is in two items' {g.Key} with different contents.");
+            b.AddArchiveFile(g.Key, merged.Write());
+        }
         foreach (var o in p.Items.OfType<OutfitItem>()) foreach (var (path, data) in o.BonusFiles()) b.AddArchiveFile(path, data);
         foreach (var o in p.Items.OfType<OutfitItem>()) errors.AddRange(SprintSpark.Pack(b, $"\"{o.Id}\"", o.Spec.Branches.Values, game));
         if (text.Texts.Count > 0) foreach (var (path, data) in text.BuildPackages()) b.AddArchiveFile(path, data);

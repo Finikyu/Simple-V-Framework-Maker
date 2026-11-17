@@ -4,8 +4,7 @@
     <DockPanel>
       <ContentControl DockPanel.Dock="Right" Name="ActionsHost" VerticalAlignment="Center" />
       <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-        <Path Stroke="{StaticResource AmberBrush}" StrokeThickness="1.8" Width="22" Height="22" Stretch="Uniform"
-              Data="M12 2L20.5 7V17L12 22L3.5 17V7Z M12 7V17 M7.5 9.5L16.5 14.5 M16.5 9.5L7.5 14.5" />
+        <Image Source="/Assets/logo.png" Width="26" Height="26" RenderOptions.BitmapInterpolationMode="HighQuality" />
         <TextBlock Text="Simple V Framework Maker" FontWeight="SemiBold" VerticalAlignment="Center" />
         <TextBlock Name="Slash" Text="/" Foreground="#4A515A" VerticalAlignment="Center" IsVisible="False" />
         <TextBlock Name="CrumbText" FontWeight="Medium" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="640" />

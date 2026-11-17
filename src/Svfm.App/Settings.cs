@@ -40,12 +40,9 @@ public sealed class Settings
     /// at half resolution and without supersampling is roughly eight times less work and is what this switch does.
     /// </summary>
     public bool FastPreview { get; set; }
-    /// <summary>
-    /// True (the default): a bandana listed on an outfit is only wearable once the vanilla one is developed, by adding it
-    /// as a custom head whose R&amp;D row follows the vanilla row. False: it is listed as the game's own head, which
-    /// V Framework 1.7 lets the player wear straight away.
-    /// </summary>
-    public bool GateBandanas { get; set; } = true;
+    /// <summary>Developer mode (the switch on the Developer screen): the throw-script editor shows the Announce step and its
+    /// diagnostics. Off for normal users (issue #97).</summary>
+    public bool DeveloperMode { get; set; }
     /// <summary>Developer tab: a new port with a long name gets a coded ID (see <c>Intake.UniqueIds</c>). Off by default.</summary>
     public bool UniqueModIds { get; set; }
     /// <summary>Projects saved or opened lately, newest first (at most 6).</summary>

@@ -508,9 +508,12 @@ public sealed class ProjectEdits
         }
     }
 
+    /// <summary>The project file format this build writes. 2: slot icons (#88). 3: the values of #95 and #96.</summary>
+    public const int LatestFormat = 3;
+
     public sealed class SavedProject
     {
-        public int Format { get; set; } = 2; // 2: slot icons (#88)
+        public int Format { get; set; } = LatestFormat;
         public string SourceMod { get; set; } = "";
         public string? SourceInner { get; set; }
         public List<ExtraMod> Extras { get; set; } = [];
@@ -556,7 +559,7 @@ public sealed class ProjectEdits
         // An outfit needs one wearer at least; the editor shows its first branch.
         if (sp.Items.Any(i => i.Branches is { Count: 0 })) throw new InvalidDataException("The project file has an outfit with no wearers.");
         // A newer format can hold edits this build doesn't know; opening and saving it again would drop them.
-        if (sp.Format > 2) throw new InvalidDataException("This project was made by a newer Simple V Framework Maker. Update the app to open it.");
+        if (sp.Format > LatestFormat) throw new InvalidDataException("This project was made by a newer Simple V Framework Maker. Update the app to open it.");
         // Before Nov 14 2026, Duplicate of a head option made no copy: it put the same item in the list a second time and
         // gave it the name of the copy. A file saved after that has the item two times, each as a copy of itself. It is
         // one item and not a copy, and it gets back the name it had.
@@ -623,7 +626,8 @@ public sealed class ProjectEdits
                     {
                         FieldType.Text => t,
                         FieldType.Number => double.TryParse(t, NumberStyles.Float, CultureInfo.InvariantCulture, out var d) && double.IsFinite(d) ? d : null,
-                        _ => bool.TryParse(t, out var bo) ? bo : (object?)null,
+                        // A switch can hold a dash attack's attack name (issue #96).
+                        _ => bool.TryParse(t, out var bo) ? bo : Abilities.IsDashAttackId(t) ? t : (object?)null,
                     }).ToList() is var vals && vals.All(v => v != null))
                     for (int k = 0; k < vals.Count; k++) ex.Fields[k].Value = vals[k]!;
                 else if (it is ExistingItem && si.FieldValues is { Count: > 0 }) notApplied.Add(si.Title + " (its settings)");

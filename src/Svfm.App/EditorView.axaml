@@ -354,10 +354,6 @@
             </StackPanel>
           </StackPanel>
         </Border>
-        <Border Classes="card" IsVisible="{Binding IsThrown}" Background="#2A1A0C" BorderBrush="#7A4A1A"><StackPanel Spacing="6">
-          <TextBlock Classes="lbl" Foreground="#F08A3A" Text="THE MOD'S MODEL CAN'T COME ALONG" />
-          <TextBlock TextWrapping="Wrap" Text="V Framework 1.7 can't give a custom support weapon a model of its own. A new thrown item has to use a vanilla item's look, so this one looks like the item it is thrown as. Its icon is drawn from that model. The mod's own scripts and values are what carry over." />
-        </StackPanel></Border>
         </StackPanel></StackPanel>
         <StackPanel IsVisible="{Binding TabTexts}"><StackPanel Spacing="14" DataContext="{Binding Selected}" x:DataType="app:ItemVm">
           <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Other texts this mod's script uses. A language left empty uses the English text." />
@@ -479,6 +475,7 @@
                             <TextBlock Grid.Column="1" Text="{Binding Label}" VerticalAlignment="Center" />
                             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
                               <CheckBox IsVisible="{Binding IsBool}" IsChecked="{Binding BoolValue}" IsEnabled="{Binding Editable}" />
+                              <ComboBox IsVisible="{Binding IsDash}" ItemsSource="{Binding DashAttacks}" SelectedItem="{Binding DashValue}" MinWidth="220" IsEnabled="{Binding Editable}" />
                               <NumericUpDown IsVisible="{Binding IsNumber}" Value="{Binding NumberValue}" Minimum="0" Maximum="9999999" FormatString="0.###" Width="150" IsEnabled="{Binding Editable}" />
                               <TextBox IsVisible="{Binding IsText}" Text="{Binding TextValue}" Width="200" IsEnabled="{Binding Editable}" />
                               <TextBlock Text="{Binding Note}" Classes="muted" FontSize="12" VerticalAlignment="Center" />
@@ -507,6 +504,12 @@
             <TextBlock Classes="lbl" Text="PROSTHETIC ARM" />
             <CheckBox Name="EnableProstheticBox" Content="Enable prosthetic" IsChecked="{Binding EnableProsthetic}" ToolTip.Tip="Off: Snake and the Avatar have no prosthetic arm in the slot that ABILITIES FOR shows (enableArm = false). The outfit is every slot. V Framework has no setting that turns off only its functions." />
           </StackPanel></Border>
+          <Border Classes="card" Name="VoiceCard" IsVisible="{Binding HasVoice}"><StackPanel Spacing="8">
+            <TextBlock Classes="lbl" Text="VOICE" />
+            <RadioButton Name="VoiceOneRadio" GroupName="voice" Content="One voice package for all types" IsChecked="{Binding VoiceOne}" ToolTip.Tip="voiceFpk is one package: the wearer uses it for every voice type." />
+            <RadioButton Name="VoiceEachRadio" GroupName="voice" Content="A package for each voice type" IsChecked="{Binding VoiceEach}" ToolTip.Tip="voiceFpk is a table: one package for each voice type. V Framework uses the package of the wearer's voice type first." />
+            <TextBlock Classes="muted" FontSize="12" FontFamily="fonts:Plex#IBM Plex Mono" Text="{Binding VoiceLine}" TextWrapping="Wrap" />
+          </StackPanel></Border>
           <StackPanel Spacing="14" IsEnabled="{Binding AbilitiesEditable}">
           <Border Classes="card"><StackPanel Spacing="10">
             <TextBlock Classes="lbl" Text="BEHAVES LIKE" />
@@ -523,7 +526,7 @@
               <TextBlock Classes="muted" FontSize="11" Margin="26,0,0,0" Text="{Binding RaidenNote}" TextWrapping="Wrap" IsVisible="{Binding RaidenNote.Length}" />
             </StackPanel>
             <CheckBox Content="Sprint sound" Name="SprintSoundTick" ToolTip.Tip="{x:Static app:OutfitVm.SprintSoundTip}" IsChecked="{Binding SprintSound}" />
-            <CheckBox Content="Dash attack" IsChecked="{Binding DashAttack}" />
+            <StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Classes="lbl" Text="DASH ATTACK" VerticalAlignment="Center" Width="190" /><ComboBox Name="DashAttackPick" ItemsSource="{Binding DashAttacks}" SelectedItem="{Binding SelectedDash}" MinWidth="220" /></StackPanel>
             <CheckBox Content="Own sprint speed" IsChecked="{Binding SprintOn}" />
             <StackPanel Orientation="Horizontal" Spacing="10" Margin="26,0,0,0"><TextBlock Classes="lbl" Text="SPRINT SPEED (0.1 - 10)" VerticalAlignment="Center" /><NumericUpDown Value="{Binding SprintSpeed}" Minimum="0.1" Maximum="10" Increment="0.1" FormatString="0.0" Width="140" IsEnabled="{Binding SprintOn}" /></StackPanel>
           </StackPanel></Border>
@@ -538,6 +541,19 @@
         </StackPanel></StackPanel>
 
         <StackPanel IsVisible="{Binding TabRd}" Spacing="14"><TextBlock Name="RdSyncedNote" Classes="muted" FontSize="12" Text="{Binding Selected.SyncedNote}" IsVisible="{Binding Selected.TwinSync}" /><StackPanel Spacing="14" DataContext="{Binding Selected.Develop}" x:DataType="app:DevelopVm">
+          <!-- Issue #98: the item unlocks with a game development; its own R&D values are then not used. -->
+          <Border Classes="card"><StackPanel Spacing="10" IsEnabled="{Binding FollowEditable}">
+            <TextBlock Classes="lbl" Text="FOLLOWS A VANILLA DEVELOPMENT" />
+            <CheckBox Name="FollowVanilla" Content="Unlocks when a game development is developed (not shown in R&amp;D)" IsChecked="{Binding FollowOn}" />
+            <StackPanel Spacing="6" Margin="26,0,0,0" IsVisible="{Binding FollowOn}">
+              <TextBox Name="FollowSearch" Text="{Binding FollowSearch}" PlaceholderText="Search the game developments…" MaxWidth="520" HorizontalAlignment="Left" MinWidth="380" />
+              <ListBox Name="FollowList" ItemsSource="{Binding FollowList}" SelectedItem="{Binding FollowChoice}" MaxHeight="220" MaxWidth="520" HorizontalAlignment="Left" MinWidth="380">
+                <ListBox.ItemTemplate><DataTemplate x:DataType="app:VanillaRowChoice"><StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Classes="muted" FontSize="12" Text="{Binding KindLabel}" Width="90" VerticalAlignment="Center" /><TextBlock Text="{Binding Label}" /></StackPanel></DataTemplate></ListBox.ItemTemplate>
+              </ListBox>
+            </StackPanel>
+            <TextBlock Name="FollowNote" Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding FollowNote}" />
+          </StackPanel></Border>
+          <StackPanel Name="RdValues" Spacing="14" IsEnabled="{Binding !FollowOn}">
           <Border Classes="card"><StackPanel Spacing="6">
             <TextBlock Classes="lbl" Text="ALREADY DEVELOPED" />
             <CheckBox Content="Already developed (available from the start)" IsChecked="{Binding AlreadyDeveloped}" />
@@ -588,6 +604,7 @@
             <StackPanel Orientation="Horizontal" Spacing="6"><CheckBox Content="Needs a specialist on staff" IsChecked="{Binding SkillOn}" /><Border Classes="info" ToolTip.Tip="{x:Static app:DevelopVm.SkillInfo}" AutomationProperties.Name="{x:Static app:DevelopVm.SkillInfo}" VerticalAlignment="Center"><TextBlock Text="!" /></Border></StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="10" Margin="26,0,0,0"><TextBlock Classes="lbl" Text="SPECIALIST SKILL" VerticalAlignment="Center" Width="164" /><ComboBox ItemsSource="{Binding SkillList}" SelectedItem="{Binding SkillChoice}" MinWidth="300" IsEnabled="{Binding SkillOn}" PlaceholderText="None" /></StackPanel>
           </StackPanel></Border>
+          </StackPanel>
         </StackPanel></StackPanel>
 
         <StackPanel IsVisible="{Binding TabDeploy}"><StackPanel Spacing="14" DataContext="{Binding Selected.Develop}" x:DataType="app:DevelopVm">
@@ -613,9 +630,9 @@
           <!-- Issue #22: the grounds show for a preset too, with its value per ground; a changed value makes the choice Custom. -->
           <Border Classes="card"><StackPanel Spacing="8">
             <TextBlock Classes="lbl" Text="GROUNDS IT HIDES ON" />
-            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Tick a ground to hide on it. The game's own camos give a ground 50 and leave the rest at 0, so that is what a tick does. A change to a preset makes the choice Custom." />
+            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Tick a ground to hide on it. The game's own camos give a ground 50 (+5 % camo index) and leave the rest at 0, so that is what a tick does. A change to a preset makes the choice Custom." />
             <ItemsControl ItemsSource="{Binding Grounds}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:GroundPreset">
-              <Grid ColumnDefinitions="26,190,60,*,Auto" Margin="0,3">
+              <Grid ColumnDefinitions="26,190,60,80,*,Auto" Margin="0,3">
                 <CheckBox IsChecked="{Binding On}" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                   <TextBlock Text="{Binding Title}" FontWeight="Medium" VerticalAlignment="Center" />
@@ -623,16 +640,17 @@
                   <TextBlock Text="!" FontWeight="Bold" Foreground="#5AA9F0" VerticalAlignment="Center" IsVisible="{Binding HasFits}" ToolTip.Tip="{Binding Fits}" Background="Transparent" />
                 </StackPanel>
                 <TextBlock Grid.Column="2" Text="{Binding Value}" FontFamily="fonts:Plex#IBM Plex Mono" VerticalAlignment="Center" ToolTip.Tip="Concealment value of this ground" />
-                <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,12,0">
+                <TextBlock Grid.Column="3" Text="{Binding Bonus}" Classes="muted" FontSize="12" VerticalAlignment="Center" ToolTip.Tip="Bonus on the camo index in game (10 = 1 %)" />
+                <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="0,0,12,0">
                   <TextBlock Text="{Binding Note}" Classes="muted" FontSize="12" TextWrapping="Wrap" />
                   <TextBlock Text="{Binding AutoNote}" FontSize="11" Foreground="#5AA9F0" TextWrapping="Wrap" IsVisible="{Binding HasAutoNote}" />
                 </StackPanel>
-                <TextBlock Grid.Column="4" Text="{Binding Count}" Classes="muted" FontSize="11" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="5" Text="{Binding Count}" Classes="muted" FontSize="11" VerticalAlignment="Center" />
               </Grid>
             </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
             <Expander Header="Set each surface by hand">
               <StackPanel Spacing="6">
-                <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="The game's own table: a bonus per ground surface the player lies on (vanilla uses 0 or 50). Set a whole group, or open it to set each surface." />
+                <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="The game's own table: a bonus per ground surface the player lies on (vanilla uses 0 or 50; 10 = +1 %, 100 = +10 %). Set a whole group, or open it to set each surface." />
                 <ItemsControl ItemsSource="{Binding MaterialGroups}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="app:MaterialGroup">
                   <StackPanel Margin="0,0,0,4">
                     <Grid ColumnDefinitions="*,80,*,Auto" Margin="0,6">
@@ -644,7 +662,7 @@
                     <ItemsControl ItemsSource="{Binding Rows}" IsVisible="{Binding Open}" Margin="14,0,0,8">
                       <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                       <ItemsControl.ItemTemplate><DataTemplate x:DataType="app:MaterialRow">
-                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,2,16,2" Width="270"><TextBlock Text="{Binding Label}" Width="150" VerticalAlignment="Center" FontSize="12" /><NumericUpDown Value="{Binding Value}" Minimum="0" Maximum="100" Increment="50" FormatString="0" Width="110" /></StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,2,16,2" Width="330"><TextBlock Text="{Binding Label}" Width="150" VerticalAlignment="Center" FontSize="12" /><NumericUpDown Value="{Binding Value}" Minimum="0" Maximum="100" Increment="50" FormatString="0" Width="110" /><TextBlock Text="{Binding Bonus}" Classes="muted" FontSize="11" VerticalAlignment="Center" /></StackPanel>
                       </DataTemplate></ItemsControl.ItemTemplate>
                     </ItemsControl>
                   </StackPanel>
@@ -791,7 +809,7 @@
                   <TextBlock Grid.Column="0" Text="⠿" Classes="muted" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0" Cursor="SizeAll"
                              PointerPressed="LookRow_PointerPressed" ToolTip.Tip="Drag onto another row to move this slot" />
                   <RadioButton Grid.Column="1" GroupName="deflook" Content="Worn first" IsVisible="{Binding CanBeDefault}" IsChecked="{Binding IsDefault, Mode=OneWay}" Command="{Binding MakeDefault}" Margin="0,0,10,0" />
-                  <TextBox Grid.Column="2" Text="{Binding Label}" PlaceholderText="Label" Margin="0,0,10,0" />
+                  <TextBox Grid.Column="2" Text="{Binding Label}" PlaceholderText="Label" Margin="0,0,10,0" IsEnabled="{Binding CanLabel}" ToolTip.Tip="{Binding LabelTip}" ToolTip.ShowOnDisabled="True" />
                   <TextBlock Grid.Column="3" Text="{Binding Where}" Classes="muted" FontSize="11" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Where}" />
                   <WrapPanel Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Margin="0,6,0,0">
                     <!-- Issue #79: hidden until the app supports two arms (the bionic arm work is parked). The preview ARM switch stays. -->
@@ -856,10 +874,9 @@
             </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
           </StackPanel></Border>
           <Border Classes="card" IsVisible="{Binding CanListBandana}"><StackPanel Spacing="6">
-            <TextBlock Classes="lbl" Text="SNAKE: BANDANA AND DEVELOPMENT" />
+            <TextBlock Classes="lbl" Text="SNAKE: BANDANA" />
             <CheckBox Name="ListBandana" Content="Selectable bandana" IsChecked="{Binding ListBandana}" />
-            <CheckBox Name="GateBandanas" Content="A bandana is only wearable once the vanilla one is developed" IsChecked="{Binding GateBandanas}" IsEnabled="{Binding GateEnabled}" />
-            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding BandanaNote}" />
+            <TextBlock Name="BandanaNote" Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{x:Static app:OutfitVm.BandanaNote}" />
           </StackPanel></Border>
           <Border Classes="card" IsVisible="{Binding CanListBandanaAvatar}"><StackPanel Spacing="6">
             <TextBlock Classes="lbl" Text="AVATAR: BANDANA" />
