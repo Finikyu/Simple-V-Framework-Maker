@@ -101,6 +101,9 @@ public sealed class DeveloperVm : Observable
     public Command ShowLog { get; }
     public Command ShowBuildReport { get; }
     public Command ShowDump { get; }
+    /// <summary>Issue #122 (N3): the Close button of the developer screen; F12 does the same.</summary>
+    public Command Close => _close ??= new Command(() => _main.ShowDev = false);
+    private Command? _close;
     /// <summary>The whole log as text, for the clipboard.</summary>
     public string AllText => string.Join('\n', DevLog.Lines);
 
@@ -142,7 +145,8 @@ public sealed class DeveloperVm : Observable
         {
             bool a = Avalonia.Media.FontManager.Current.TryGetGlyphTypeface(new Avalonia.Media.Typeface(new Avalonia.Media.FontFamily("fonts:Plex#IBM Plex Sans")), out var g1);
             bool b = Avalonia.Media.FontManager.Current.TryGetGlyphTypeface(new Avalonia.Media.Typeface(new Avalonia.Media.FontFamily("fonts:Plex#IBM Plex Mono")), out var g2);
-            return (a && b, $"{(a ? g1?.FamilyName ?? "loaded" : "missing")}, {(b ? g2?.FamilyName ?? "loaded" : "missing")}");
+            bool c = Avalonia.Media.FontManager.Current.TryGetGlyphTypeface(new Avalonia.Media.Typeface(new Avalonia.Media.FontFamily("fonts:Plex#Rajdhani")), out var g3);
+            return (a && b && c, $"{(a ? g1?.FamilyName ?? "loaded" : "missing")}, {(b ? g2?.FamilyName ?? "loaded" : "missing")}, {(c ? g3?.FamilyName ?? "loaded" : "missing")}");
         });
         C("path dictionary", () => (PathDictionary.Bundled.Count > 100000, PathDictionary.Bundled.Count.ToString("N0") + " paths"));
         C("picture codec (PNG)", () => { var img = new RgbaImage(8, 4); img.Pixels[0] = 200; var back = Png.Decode(Png.Encode(img)); return (back.Width == 8 && back.Pixels[0] == 200, "8x4 round trip"); });

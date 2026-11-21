@@ -549,7 +549,7 @@ public sealed class OutfitVm : Observable
         Raise(nameof(SelectedPreset)); Raise(nameof(PresetNote)); Raise(nameof(PresetTicks));
         if (_abLook > First.Variants.Count) _abLook = 0;
         Raise(nameof(AbilityLooks)); Raise(nameof(AbilityLook)); Raise(nameof(HasAbilityLooks)); Raise(nameof(LookChosen)); Raise(nameof(LookAbilityMode)); Raise(nameof(AbilitiesEditable)); Raise(nameof(EnableProsthetic));
-        Raise(nameof(GradeOn)); Raise(nameof(Grade)); Raise(nameof(DevelopCost)); Raise(nameof(UsageCost)); Raise(nameof(AlreadyDeveloped)); Raise(nameof(Unlocked)); Raise(nameof(DevelopNote));
+        Raise(nameof(GradeOn)); Raise(nameof(Grade)); Raise(nameof(GradeHigh)); Raise(nameof(GradeMax)); Raise(nameof(DevelopCost)); Raise(nameof(UsageCost)); Raise(nameof(AlreadyDeveloped)); Raise(nameof(Unlocked)); Raise(nameof(DevelopNote));
         RaiseVoice(); ReloadCamo(); ReloadLooks(); ReloadHeads(); BuildWearers();
         _ = a;
     }
@@ -613,7 +613,11 @@ public sealed class OutfitVm : Observable
     private DevelopRow Dev => _o.Spec.Develop;
     private void MutateDev(string field, Func<DevelopRow, DevelopRow> f) { _s.Checkpoint($"{_o.Id}:{field}"); _o.Spec.Develop = f(Dev); _s.NotifyChanged(); }
     public bool GradeOn { get => Dev.Grade != null; set { if (value != GradeOn) { MutateDev("d:grade", d => d with { Grade = value ? 1 : null }); Raise(); Raise(nameof(Grade)); } } }
-    public decimal Grade { get => Dev.Grade ?? 1; set => MutateDev("d:g", d => d with { Grade = (int)Math.Clamp(value, 1, 15) }); }
+    // #124: the game supports grades 1 to 12. A new value is limited to that; an old value above 12 stays until the user changes it.
+    public decimal Grade { get => Dev.Grade ?? 1; set { if (value == Grade) return; MutateDev("d:g", d => d with { Grade = (int)Math.Clamp(value, 1, CopyFamily.MaxGrade) }); Raise(nameof(GradeHigh)); Raise(nameof(GradeMax)); } }
+    public bool GradeHigh => Dev.Grade > CopyFamily.MaxGrade;
+    /// <summary>The Grade box maximum: 12, or the old value above 12, so that the box does not change it when the item opens.</summary>
+    public decimal GradeMax => Math.Max(CopyFamily.MaxGrade, Grade);
     public decimal DevelopCost { get => Dev.GmpCost; set => MutateDev("d:c", d => d with { GmpCost = (int)Math.Max(0, value) }); }
     public decimal UsageCost { get => Dev.UsageGmpCost; set => MutateDev("d:u", d => d with { UsageGmpCost = (int)Math.Max(0, value) }); }
     /// <summary>Already developed: the item is available from the start, so costs and unlock conditions don't apply.</summary>

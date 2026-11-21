@@ -345,7 +345,7 @@ public sealed record OutfitColor(string Fv2, string? Fpk, string? Icon);
 /// <summary>The R&amp;D row (AddToEquipDevelopTable).</summary>
 public sealed record DevelopRow
 {
-    /// <summary>Grade 1–15, or null to leave it out (V Framework picks one; costumes without a grade, camo outfits).</summary>
+    /// <summary>Grade 1–12 (an old value above 12 is kept), or null to leave it out (V Framework picks one; costumes without a grade, camo outfits).</summary>
     public int? Grade { get; init; } = 1;
     public int GmpCost { get; init; }
     /// <summary>GMP paid each time it is deployed (usageGmpCost); 0 = free. The vanilla Bandana costs 3400.</summary>
@@ -410,6 +410,19 @@ public sealed record DevelopRow
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? OwnBluePrint { get; init; }
     /// <summary>
+    /// Issue #123: the upgrade lines in R&amp;D (langPowerUpInfo0..7), as lang IDs joined by '\n', in order; null = none.
+    /// A vanilla line is a game ID (ability_0300); the item's own line is a key of its text. One string, not a list,
+    /// so that the record keeps value equality (undo, Compare) and old .svfm files stay as they are.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? UpgradeLineIds { get; init; }
+    /// <summary>The game shows at most 8 upgrade lines (p10 to p17).</summary>
+    public const int MaxUpgradeLines = 8;
+    [System.Text.Json.Serialization.JsonIgnore]
+    public IReadOnlyList<string> UpgradeLines => UpgradeLineIds is { Length: > 0 } s ? s.Split('\n') : [];
+    public DevelopRow WithUpgradeLines(IEnumerable<string> ids) =>
+        this with { UpgradeLineIds = ids.Where(i => i.Length > 0).Take(MaxUpgradeLines).ToList() is { Count: > 0 } l ? string.Join('\n', l) : null };
+    /// <summary>
     /// "Hidden until obtained" needs something to obtain: a blueprint or a specialist. Without one the row stays hidden
     /// for ever.
     /// </summary>
@@ -440,6 +453,24 @@ public sealed record DevelopRow
     ];
     /// <summary>Parent R&amp;D row (baseEquipDevelopId): a vanilla develop id this row upgrades.</summary>
     public int? UpgradeOfDevelopId { get; init; }
+    /// <summary>
+    /// "Grade before" (issue #121): the registration key of the project item that must be developed first. It is written
+    /// as baseEquipDevelopId through V_TppMotherBaseManagement.GetDevelopId, so it wins over <see cref="UpgradeOfDevelopId"/>.
+    /// </summary>
+    // Left out of the project file when none, so a file without a link stays as format 3 wrote it.
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? GradeBefore { get; init; }
+    /// <summary>The Lua that gives the develop ID of a project item's row.</summary>
+    public static string GradeBeforeLua(string key) => "V_TppMotherBaseManagement.GetDevelopId(" + LuaWriter.Str(key) + ")";
+    /// <summary>The key in a value that <see cref="GradeBeforeLua"/> wrote (as the sandbox names it), or null.</summary>
+    public static string? GradeBeforeOf(string lua) =>
+        System.Text.RegularExpressions.Regex.Match(lua, """^V_TppMotherBaseManagement\.GetDevelopId\("([^"\\]+)"\)$""") is { Success: true } m ? m.Groups[1].Value : null;
+    /// <summary>
+    /// True when the game never shows the row in R&amp;D: an upgrade that is not developed and costs 0 GMP to develop
+    /// (V Framework develops 0-cost rows on its own only when their parent row can show; an upgrade row stays hidden).
+    /// Seen in game, 18 Nov 2026 (Smoke Pellet grades). 1 GMP or more shows the row.
+    /// </summary>
+    public bool IsHiddenUpgrade() => (UpgradeOfDevelopId != null || GradeBefore != null) && !InitiallyAvailable && GmpCost == 0 && FollowsVanillaDevelopId == null;
     /// <summary>Using the item caps the mission rank (isResultRankLimited).</summary>
     public bool RankLimited { get; init; }
     /// <summary>
@@ -539,6 +570,8 @@ public sealed class HeadOptionSpec
     public bool SnakeFaceOnly { get; init; }
     /// <summary>Avatar would wear Snake's face: the head is built on it and has no Avatar branch of its own.</summary>
     public bool AvatarWouldWearSnakeFace => SnakeFaceOnly && !Branches.ContainsKey(PlayerBranch.Avatar);
+    /// <summary>Why the Avatar can't wear this head (an orange warning in the app); null when the Avatar can.</summary>
+    public string? NoAvatarReason { get; init; }
     /// <summary>R&amp;D row: name lang ID and icon. Without a name no row is written.</summary>
     public string? NameLang { get; init; }
     /// <summary>R&amp;D row: real name and description lang IDs (shown when the head is picked).</summary>

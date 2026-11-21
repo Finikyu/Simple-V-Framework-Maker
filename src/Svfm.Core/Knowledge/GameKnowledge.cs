@@ -310,6 +310,26 @@ public static class GameKnowledge
         ["/Assets/tpp/ui/texture/EquipIcon/mecha/ui_eqp_vhcl_wav01_alp"] = "STOUT IFV-SC – Vehicle",
     };
 
+    /// <summary>
+    /// Issue #123: the upgrade lines of the game (p10..p17 of the R&amp;D rows) as (text ID, English text): one entry per
+    /// text, with the lowest ID of that text, sorted A–Z by text. Empty without the game.
+    /// </summary>
+    public static IReadOnlyList<(string Id, string Text)> VanillaUpgradeLines(GameData? game)
+    {
+        if (_upgradeLines != null) return _upgradeLines;
+        if (game?.TryRead(DevelopConstPath) is not { } lua) return [];
+        var ids = LuaLiteral.CallArguments(System.Text.Encoding.UTF8.GetString(lua), "RegCstDev")
+            .SelectMany(row => Enumerable.Range(10, 8).Select(p => row[$"p{p}"] is LuaValue.Text t ? t.Value : null))
+            .OfType<string>().Where(id => id.StartsWith("ability_", StringComparison.Ordinal)).Distinct();
+        static int Num(string id) => int.TryParse(id["ability_".Length..], out var n) ? n : int.MaxValue;
+        return _upgradeLines = ids.Select(id => (Id: id, Text: EnglishName(game, id)))
+            .Where(x => !string.IsNullOrWhiteSpace(x.Text))
+            .GroupBy(x => x.Text!, StringComparer.Ordinal)
+            .Select(g => (g.MinBy(x => Num(x.Id)).Id, g.Key))
+            .OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+    private static List<(string Id, string Text)>? _upgradeLines;
+
     /// <summary>The game's R&amp;D table: one RegCstDev row per R&amp;D entry (p02 type, p06 name, p08 icon).</summary>
     public const string DevelopConstPath = "/Assets/tpp/motherbase/script/EquipDevelopConstSetting.lua";
 

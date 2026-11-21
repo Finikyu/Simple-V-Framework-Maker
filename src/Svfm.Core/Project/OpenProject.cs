@@ -110,16 +110,53 @@ public sealed class OpenProject
         await Work.WaitAsync();
         ProjectItem copy;
         try { copy = await Task.Run(() => Intake.Duplicate(item)); } finally { Work.Release(); }
-        Edits.AddCopy(item, copy);
+        int? grade = CopyFamily.NextGrade(Project, item);
+        Edits.TakeOver(item, copy);
+        // One grade per Copy family (#113): the copy takes the next free grade above its source.
+        if (grade != null && copy.RdRow is { } row) copy.RdRow = row with { Grade = grade };
         Edits.SyncTwins();
         return copy;
     }
 
-    /// <summary>Removes an item as one undo step.</summary>
+    /// <summary>
+    /// "Make grades…" (issue #121): one undo step. Each grade gets a copy of the item before it in the series, with the
+    /// source's name, the ID &lt;source id&gt;_g&lt;grade&gt;, and that item as its "Grade before".
+    /// </summary>
+    /// <returns>The copies, in series order.</returns>
+    public async Task<List<ProjectItem>> MakeGradesAsync(ProjectItem item, IReadOnlyList<int> grades)
+    {
+        if (GradeSeries.Problem(Project, item, grades) is { } why) throw new InvalidOperationException(why);
+        Checkpoint();
+        var made = new List<ProjectItem>();
+        var prev = item;
+        foreach (var g in grades)
+        {
+            string id = $"{item.Id}_g{g}";
+            for (int n = 2; Project.Items.Any(i => i.Id == id); n++) id = $"{item.Id}_g{g}_{n}";
+            await Work.WaitAsync();
+            ProjectItem copy;
+            var from = prev;
+            try { copy = await Task.Run(() => Intake.Duplicate(from, id)); } finally { Work.Release(); }
+            Edits.TakeOver(prev, copy);
+            copy.Title = item.Title;
+            if (copy.NameLangId is { } nl && item.NameLangId is { } sl && item.Text.TryGetValue(sl, out var names))
+                foreach (var (lang, t) in names) copy.SetText(nl, lang, t);
+            if (copy.RdRow is { } row) copy.RdRow = row with { Grade = g, GradeBefore = prev.Key };
+            made.Add(copy);
+            prev = copy;
+        }
+        Edits.SyncTwins();
+        return made;
+    }
+
+    /// <summary>Removes an item as one undo step. A "Grade before" link to it goes back to none.</summary>
     public void Remove(ProjectItem item)
     {
         Checkpoint();
         Project.Items.Remove(item);
+        if (item.Key != null)
+            foreach (var i in Project.Items)
+                if (i.RdRow is { } r && r.GradeBefore == item.Key) i.RdRow = r with { GradeBefore = null };
         Edits.SyncTwins();
     }
 

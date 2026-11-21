@@ -24,6 +24,8 @@ public sealed record SuitRenderInput
     public TexturePack? HeadPack { get; init; }
     /// <summary>The head mesh groups to draw (others hidden), or null to show the hidden groups by the head rule.</summary>
     public int[]? HeadGroups { get; init; }
+    /// <summary>A head option's .fv2 in the head package: the models it attaches are drawn (issue #129); null draws the head model only.</summary>
+    public string? HeadFv2 { get; init; }
     /// <summary>
     /// Arm package to draw with the body (Snake's bionic arm), or null for none. The owner asked for this: "Snake 3d
     /// preview should have the arm visible, and switch between them unless otherwise overridden by a mod."
@@ -143,8 +145,10 @@ public static class SuitRender
             // look's .fv2 shows them; the preview has no look, and both renderers skip a hidden group, so the vanilla DD
             // soldier face came out as a pair of eyes with no head around it (the owner's report). Bodies keep their
             // hidden groups: a body hides parts for a reason.
-            if (headFpk != null && HeadModel(headFpk) is { } head)
-                models.Add(input.HeadGroups is { } g ? head.WithGroupsShown(i => g.Contains(i)) : head.WithHeadGroupsShown());
+            // Issue #129: an extra that the .fv2 attaches keeps its own hidden groups, as in game.
+            if (headFpk != null && HeadModels(headFpk, input.HeadFv2) is var (heads, faceFirst))
+                for (int k = 0; k < heads.Count; k++)
+                    models.Add(input.HeadGroups is { } g ? heads[k].WithGroupsShown(i => g.Contains(i)) : faceFirst && k == 0 ? heads[k].WithHeadGroupsShown() : heads[k]);
         }
 
         // The arm, when one is asked for: Snake's bionic arm is its own package, so it is drawn as a second model.
@@ -206,6 +210,28 @@ public static class SuitRender
         var f = files.FirstOrDefault(x => x.Path.EndsWith("_cov.fmdl", StringComparison.OrdinalIgnoreCase))
             ?? files.OrderByDescending(x => x.Data.Length).FirstOrDefault();
         return f == null ? null : FmdlModel.Read(f.Data);
+    }
+
+    /// <summary>
+    /// The models a head option's .fv2 attaches from its package (issue #129: a Snake head add-on attaches a copy of the
+    /// face plus the extras, the Avatar branch only the extras). The face (<see cref="HeadModel"/>'s pick) comes first
+    /// when it is attached. Without such a .fv2 it is <see cref="HeadModel"/> alone.
+    /// Cloth tails hang down (<see cref="Rendering.TailPose"/>, issue #128).
+    /// </summary>
+    /// <param name="fpk">The head package.</param>
+    /// <param name="fv2">The branch's .fv2 path in the package, or null.</param>
+    /// <returns>The models, and whether the first is the face.</returns>
+    public static (List<FmdlModel> Models, bool FaceFirst) HeadModels(FoxPackage fpk, string? fv2)
+    {
+        var faceFile = fpk.Files.Where(x => x.Extension == "fmdl").ToList() is var all
+            ? all.FirstOrDefault(x => x.Path.EndsWith("_cov.fmdl", StringComparison.OrdinalIgnoreCase)) ?? all.OrderByDescending(x => x.Data.Length).FirstOrDefault() : null;
+        if (fv2 != null && fpk.Find(fv2) is { } f && new Fv2File(f.Data).Attachments() is { Count: > 0 } attach)
+        {
+            var codes = attach.Select(a => a.Model).ToHashSet();
+            var files = all.Where(x => codes.Contains(Hashing.FoxHash.PathCode64(x.Path))).OrderBy(x => x == faceFile ? 0 : 1).ToList();
+            if (files.Count > 0) return (files.Select(x => Rendering.TailPose.Hang(FmdlModel.Read(x.Data))).ToList(), files[0] == faceFile);
+        }
+        return faceFile == null ? ([], false) : ([Rendering.TailPose.Hang(FmdlModel.Read(faceFile.Data))], true);
     }
 
     /// <summary>The .fv2 files inside a package (a camo package holds one).</summary>

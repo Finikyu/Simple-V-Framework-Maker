@@ -1,5 +1,5 @@
 <Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Svfm.App.App" RequestedThemeVariant="Dark">
+             xmlns:app="using:Svfm.App" x:Class="Svfm.App.App" RequestedThemeVariant="Dark">
   <Application.Resources>
     <Color x:Key="SystemAccentColor">#F0A73A</Color>
     <Color x:Key="SystemAccentColorLight1">#F5B85A</Color>
@@ -30,30 +30,63 @@
     <SolidColorBrush x:Key="FixLineBrush" Color="#2C4A66" />
     <SolidColorBrush x:Key="BadTextBrush" Color="#F8C9C5" />
     <SolidColorBrush x:Key="BadFillBrush" Color="#2A1210" />
+    <SolidColorBrush x:Key="BadLineBrush" Color="#7A2A26" />
     <SolidColorBrush x:Key="DashBrush" Color="#4A515A" />
     <SolidColorBrush x:Key="DeepBrush" Color="#0E1012" />
+    <!--
+      Issue #122 (owner's choice, option A with font B): one set of fonts, sizes, radii and spacing for all screens.
+      Headings, tabs, field labels, options and button labels use Rajdhani SemiBold in capitals; notes and body text use
+      IBM Plex Sans; logs and number fields use IBM Plex Mono.
+    -->
+    <FontFamily x:Key="HeadFont">fonts:Plex#Rajdhani, Bahnschrift, Segoe UI, sans-serif</FontFamily>
+    <FontFamily x:Key="BodyFont">fonts:Plex#IBM Plex Sans, Inter, Segoe UI, sans-serif</FontFamily>
+    <FontFamily x:Key="MonoFont">fonts:Plex#IBM Plex Mono, Cascadia Mono, Consolas, monospace</FontFamily>
+    <x:Double x:Key="SizeLabel">11</x:Double>
+    <x:Double x:Key="SizeBody">12</x:Double>
+    <x:Double x:Key="SizeTitle">15</x:Double>
+    <x:Double x:Key="SizeScreen">20</x:Double>
+    <!-- #122 N4: one label column width for all field rows. -->
+    <x:Double x:Key="LabelWidth">180</x:Double>
+    <x:Double x:Key="LabelWidthIndented">160</x:Double>
+    <x:Double x:Key="HeadSpacing">0.7</x:Double>
+    <CornerRadius x:Key="RadiusControl">4</CornerRadius>
+    <CornerRadius x:Key="RadiusCard">8</CornerRadius>
+    <SolidColorBrush x:Key="SoftTextBrush" Color="#C9CDD2" />
+    <SolidColorBrush x:Key="InputBrush" Color="#101214" />
+    <SolidColorBrush x:Key="ControlLineBrush" Color="#363C44" />
+    <SolidColorBrush x:Key="DimLineBrush" Color="#23272C" />
+    <SolidColorBrush x:Key="FaintTextBrush" Color="#5A6068" />
+    <SolidColorBrush x:Key="BlueBrush" Color="#3E63A0" />
+    <SolidColorBrush x:Key="InfoTextBrush" Color="#5AA9F0" />
+    <SolidColorBrush x:Key="NoteFillBrush" Color="#1B2230" />
+    <SolidColorBrush x:Key="NoticeFillBrush" Color="#3A1E1C" />
+    <!-- Button and tab labels: shown in capitals in Rajdhani. A button whose content is a control keeps that control. -->
+    <app:CapsLabel x:Key="CapsLabel" />
   </Application.Resources>
   <Application.Styles>
     <FluentTheme />
     <Style Selector="Window">
       <Setter Property="Background" Value="{StaticResource BgBrush}" />
       <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-      <Setter Property="FontFamily" Value="fonts:Plex#IBM Plex Sans, Inter, Segoe UI, sans-serif" />
-      <Setter Property="FontSize" Value="14" />
+      <Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+      <Setter Property="FontSize" Value="{StaticResource SizeBody}" />
     </Style>
     <Style Selector="TextBlock.lbl">
-      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontFamily" Value="{StaticResource HeadFont}" />
+      <Setter Property="FontSize" Value="{StaticResource SizeLabel}" />
       <Setter Property="FontWeight" Value="SemiBold" />
       <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
       <Setter Property="LetterSpacing" Value="0.8" />
     </Style>
     <Style Selector="TextBlock.muted"><Setter Property="Foreground" Value="{StaticResource MutedBrush}" /></Style>
+    <!-- #122 N5: the note under a check box. One form: on the line below, indented to the check box text (20 px box + 8 px gap). -->
+    <Style Selector="TextBlock.ticknote"><Setter Property="Foreground" Value="{StaticResource MutedBrush}" /><Setter Property="FontSize" Value="{StaticResource SizeBody}" /><Setter Property="TextWrapping" Value="Wrap" /><Setter Property="Margin" Value="28,0,0,0" /></Style>
     <Style Selector="Button">
-      <Setter Property="Background" Value="#22262B" />
-      <Setter Property="BorderBrush" Value="#363C44" />
+      <Setter Property="Background" Value="{StaticResource CardBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ControlLineBrush}" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="0" />
-      <Setter Property="Padding" Value="10,3" />
+      <Setter Property="CornerRadius" Value="{StaticResource RadiusControl}" />
+      <Setter Property="Padding" Value="8,4" />
       <Setter Property="MinHeight" Value="28" />
     </Style>
     <!-- iDroid hover: the border lights amber and the fill barely moves, like a menu line being highlighted. -->
@@ -84,26 +117,31 @@
       <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" />
       <Setter Property="BorderThickness" Value="0,2,0,1" />
     </Style>
+    <!-- Issue #122 (N1): a done step in the step bar that the app can go back to. Text only, underlined on hover. -->
+    <Style Selector="Button.step"><Setter Property="Background" Value="Transparent" /><Setter Property="BorderThickness" Value="0" /><Setter Property="Padding" Value="0" /><Setter Property="Foreground" Value="{StaticResource MutedBrush}" /><Setter Property="Cursor" Value="Hand" /></Style>
+    <Style Selector="Button.step:pointerover /template/ ContentPresenter"><Setter Property="Background" Value="Transparent" /><Setter Property="TextElement.Foreground" Value="{StaticResource AmberBrush}" /></Style>
     <Style Selector="Button.on"><Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" /><Setter Property="Foreground" Value="{StaticResource AmberBrush}" /></Style>
     <Style Selector="ListBoxItem:selected /template/ ContentPresenter, ListBoxItem:selected:pointerover /template/ ContentPresenter, ListBoxItem:selected:focus /template/ ContentPresenter">
       <Setter Property="Background" Value="#241C0E" />
       <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="CornerRadius" Value="{StaticResource RadiusControl}" />
     </Style>
-    <Style Selector="ListBoxItem /template/ ContentPresenter"><Setter Property="CornerRadius" Value="0" /></Style>
+    <Style Selector="ListBoxItem /template/ ContentPresenter"><Setter Property="CornerRadius" Value="{StaticResource RadiusControl}" /></Style>
+    <!-- Options in a drop-down list show in capitals in Rajdhani, like the button labels (issue #122). -->
+    <Style Selector="ComboBox"><Setter Property="ItemTemplate" Value="{StaticResource CapsLabel}" /><Setter Property="CornerRadius" Value="{StaticResource RadiusControl}" /></Style>
     <!-- Tabs (mock-up .t). Every tab keeps a visible border: the open one has an amber border and wash, one with unsaved
          changes an amber border, one with nothing to save a plain grey one, and one that doesn't apply to this item is
          greyed out and disabled. -->
     <Style Selector="Button.tab">
-      <Setter Property="Background" Value="#1A1D21" />
-      <Setter Property="BorderBrush" Value="#3A4149" />
+      <Setter Property="Background" Value="{StaticResource CardBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="Padding" Value="12,5" />
-      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Padding" Value="8,4" />
+      <Setter Property="FontSize" Value="{StaticResource SizeBody}" />
     </Style>
     <Style Selector="Button.tab /template/ ContentPresenter">
-      <Setter Property="BorderBrush" Value="#3A4149" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
       <Setter Property="BorderThickness" Value="1" />
     </Style>
     <Style Selector="Button.tab.on">
@@ -123,10 +161,10 @@
     </Style>
     <Style Selector="Button.tab.off">
       <Setter Property="Opacity" Value="0.38" />
-      <Setter Property="BorderBrush" Value="#23272C" />
+      <Setter Property="BorderBrush" Value="{StaticResource DimLineBrush}" />
     </Style>
     <Style Selector="Button.tab.off /template/ ContentPresenter">
-      <Setter Property="BorderBrush" Value="#23272C" />
+      <Setter Property="BorderBrush" Value="{StaticResource DimLineBrush}" />
     </Style>
     <!--
       A button for something the mod has nothing in. Same treatment as a tab that does not apply: dimmed and a dark border, so it reads as unavailable rather
@@ -135,8 +173,8 @@
     -->
     <Style Selector="Button.off">
       <Setter Property="Opacity" Value="0.38" />
-      <Setter Property="BorderBrush" Value="#23272C" />
-      <Setter Property="Background" Value="#1A1D21" />
+      <Setter Property="BorderBrush" Value="{StaticResource DimLineBrush}" />
+      <Setter Property="Background" Value="{StaticResource CardBrush}" />
     </Style>
     <!--
       A small round blue "i". It is a plain Border, not a Button: the owner wants it to explain itself on hover, not on
@@ -145,9 +183,8 @@
     -->
     <Style Selector="Border.info">
       <Setter Property="Background" Value="#2D4A7A" />
-      <Setter Property="BorderBrush" Value="#3E63A0" />
+      <Setter Property="BorderBrush" Value="{StaticResource BlueBrush}" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="0" />
       <Setter Property="Width" Value="18" />
       <Setter Property="Height" Value="18" />
       <Setter Property="VerticalAlignment" Value="Center" />
@@ -156,7 +193,8 @@
       <Setter Property="ToolTip.ShowDelay" Value="150" />
     </Style>
     <Style Selector="Border.info > TextBlock">
-      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontFamily" Value="{StaticResource HeadFont}" />
+      <Setter Property="FontSize" Value="{StaticResource SizeLabel}" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="Foreground" Value="#DCE8FA" />
       <Setter Property="HorizontalAlignment" Value="Center" />
@@ -165,6 +203,31 @@
     <Style Selector="Border.info:pointerover">
       <Setter Property="Background" Value="#3A5C93" />
     </Style>
+    <!-- Issue #120: the colour of a "!" shows its note level. Blue is information, orange a warning, red a critical failure. -->
+    <Style Selector="Border.info.warn">
+      <Setter Property="Background" Value="#3A2210" />
+      <Setter Property="BorderBrush" Value="{StaticResource OrangeBrush}" />
+    </Style>
+    <Style Selector="Border.info.warn > TextBlock">
+      <Setter Property="Foreground" Value="#FFD9BF" />
+    </Style>
+    <Style Selector="Border.info.warn:pointerover">
+      <Setter Property="Background" Value="#4E2E16" />
+    </Style>
+    <Style Selector="Border.info.bad">
+      <Setter Property="Background" Value="#3A1513" />
+      <Setter Property="BorderBrush" Value="{StaticResource RedBrush}" />
+    </Style>
+    <Style Selector="Border.info.bad > TextBlock">
+      <Setter Property="Foreground" Value="#FAD4D5" />
+    </Style>
+    <Style Selector="Border.info.bad:pointerover">
+      <Setter Property="Background" Value="#4E1D1A" />
+    </Style>
+    <!-- Issue #108: the "!" button next to Help is greyed out when the selected item has no note. -->
+    <Style Selector="Button:disabled Border.info">
+      <Setter Property="Opacity" Value="0.35" />
+    </Style>
     <!--
       Tooltips: the default Avalonia tooltip is a thin grey box that appears after a long delay and wraps badly, which
       is why the "i" badges felt dead. These make every tooltip in the app readable and quick, so hovering an "i"
@@ -172,10 +235,10 @@
     -->
     <Style Selector="ToolTip">
       <Setter Property="Background" Value="#12161B" />
-      <Setter Property="BorderBrush" Value="#3E63A0" />
+      <Setter Property="BorderBrush" Value="{StaticResource BlueBrush}" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="0" />
-      <Setter Property="Padding" Value="10,7" />
+      <Setter Property="CornerRadius" Value="{StaticResource RadiusControl}" />
+      <Setter Property="Padding" Value="8" />
       <Setter Property="MaxWidth" Value="420" />
       <Setter Property="FontSize" Value="12" />
       <Setter Property="Foreground" Value="#DCE3EC" />
@@ -186,13 +249,13 @@
       <Setter Property="Background" Value="#121D28" />
       <Setter Property="BorderBrush" Value="#2C4A66" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="0" />
-      <Setter Property="Padding" Value="10,8" />
+      <Setter Property="CornerRadius" Value="{StaticResource RadiusControl}" />
+      <Setter Property="Padding" Value="8" />
     </Style>
-    <Style Selector="Button.card2"><Setter Property="Background" Value="#1A1D21" /><Setter Property="Padding" Value="14,12" /></Style>
+    <Style Selector="Button.card2"><Setter Property="Background" Value="{StaticResource CardBrush}" /><Setter Property="Padding" Value="12" /><Setter Property="CornerRadius" Value="{StaticResource RadiusCard}" /></Style>
     <Style Selector="Button.card2.on /template/ ContentPresenter"><Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" /></Style>
     <Style Selector="Expander"><Setter Property="Background" Value="Transparent" /><Setter Property="BorderThickness" Value="0" /><Setter Property="HorizontalAlignment" Value="Stretch" /></Style>
-    <Style Selector="Expander /template/ ToggleButton#ExpanderHeader"><Setter Property="Background" Value="#16191C" /><Setter Property="BorderBrush" Value="#2E333A" /><Setter Property="BorderThickness" Value="1" /></Style>
+    <Style Selector="Expander /template/ ToggleButton#ExpanderHeader"><Setter Property="Background" Value="{StaticResource PanelBrush}" /><Setter Property="BorderBrush" Value="{StaticResource LineBrush}" /><Setter Property="CornerRadius" Value="{StaticResource RadiusControl}" /><Setter Property="BorderThickness" Value="1" /></Style>
     <Style Selector="Expander /template/ Border#ExpanderContent"><Setter Property="Background" Value="Transparent" /><Setter Property="BorderThickness" Value="0" /></Style>
     <Style Selector="Button.primary">
       <Setter Property="Background" Value="#F0A73A" />
@@ -214,28 +277,28 @@
       <Setter Property="BorderThickness" Value="2" />
     </Style>
     <Style Selector="TextBox">
-      <Setter Property="Background" Value="#101214" />
-      <Setter Property="BorderBrush" Value="#363C44" />
-      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Background" Value="{StaticResource InputBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ControlLineBrush}" />
+      <Setter Property="CornerRadius" Value="{StaticResource RadiusControl}" />
     </Style>
     <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
       <Setter Property="BorderBrush" Value="#F0A73A" />
     </Style>
     <Style Selector="Border.chip">
-      <Setter Property="BorderBrush" Value="#363C44" />
+      <Setter Property="BorderBrush" Value="{StaticResource ControlLineBrush}" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="999" />
-      <Setter Property="Padding" Value="8,5" />
+      <Setter Property="CornerRadius" Value="{StaticResource RadiusControl}" />
+      <Setter Property="Padding" Value="8,4" />
     </Style>
-    <Style Selector="Border.chip > TextBlock"><Setter Property="FontSize" Value="12" /><Setter Property="Foreground" Value="#C9CDD2" /></Style>
+    <Style Selector="Border.chip > TextBlock"><Setter Property="FontFamily" Value="{StaticResource HeadFont}" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="LetterSpacing" Value="{StaticResource HeadSpacing}" /><Setter Property="FontSize" Value="{StaticResource SizeLabel}" /><Setter Property="Foreground" Value="{StaticResource SoftTextBrush}" /></Style>
     <Style Selector="Border.chip.ok"><Setter Property="Background" Value="{StaticResource OkFillBrush}" /><Setter Property="BorderBrush" Value="{StaticResource OkLineBrush}" /></Style>
     <Style Selector="Border.chip.ok > TextBlock"><Setter Property="Foreground" Value="{StaticResource OkTextBrush}" /></Style>
     <Style Selector="Border.chip.warn"><Setter Property="Background" Value="{StaticResource WarnFillBrush}" /><Setter Property="BorderBrush" Value="{StaticResource WarnLineBrush}" /></Style>
     <Style Selector="Border.chip.warn > TextBlock"><Setter Property="Foreground" Value="{StaticResource WarnTextBrush}" /></Style>
     <!-- "Can't wear it": greyed out, not red. Red reads as an error in the mod; this is just a character the suit
          does not exist for, which is normal. The owner asked for exactly this: "grey out who cannot". -->
-    <Style Selector="Border.chip.no"><Setter Property="Background" Value="#1A1C1F" /><Setter Property="BorderBrush" Value="#2E3237" /></Style>
-    <Style Selector="Border.chip.no > TextBlock"><Setter Property="Foreground" Value="#5A6068" /></Style>
+    <Style Selector="Border.chip.no"><Setter Property="Background" Value="{StaticResource CardBrush}" /><Setter Property="BorderBrush" Value="{StaticResource LineBrush}" /></Style>
+    <Style Selector="Border.chip.no > TextBlock"><Setter Property="Foreground" Value="{StaticResource FaintTextBrush}" /></Style>
     <!-- "Can wear it, but worth knowing": amber, quieter than a warning. -->
     <Style Selector="Border.chip.note"><Setter Property="Background" Value="{StaticResource WarnFillBrush}" /><Setter Property="BorderBrush" Value="{StaticResource WarnLineBrush}" /></Style>
     <Style Selector="Border.chip.note > TextBlock"><Setter Property="Foreground" Value="{StaticResource WarnTextBrush}" /></Style>
@@ -243,17 +306,14 @@
     <Style Selector="Border.chip.fix > TextBlock"><Setter Property="Foreground" Value="{StaticResource FixTextBrush}" /></Style>
     <Style Selector="Border.chip.bad"><Setter Property="Background" Value="{StaticResource BadFillBrush}" /><Setter Property="BorderBrush" Value="{StaticResource RedBrush}" /></Style>
     <Style Selector="Border.chip.bad > TextBlock"><Setter Property="Foreground" Value="{StaticResource BadTextBrush}" /></Style>
-    <Style Selector="TextBlock.mono"><Setter Property="FontFamily" Value="fonts:Plex#IBM Plex Mono, Cascadia Mono, Consolas, monospace" /><Setter Property="FontSize" Value="12" /></Style>
-    <!-- MGSV styling (item 38). The iDroid has no rounded corners: panels are square, separated by thin rules, with the
-         amber accent used as a marker rather than as a fill. Cards therefore lose their radius and gain a 2px amber rule
-         down the left edge, which is the iDroid's own way of marking a panel. -->
+    <Style Selector="TextBlock.mono"><Setter Property="FontFamily" Value="{StaticResource MonoFont}" /><Setter Property="FontSize" Value="{StaticResource SizeBody}" /></Style>
+    <!-- Issue #122, option A: a card is a box with an 8 px radius and a thin line. The amber left edge of item 38 is gone. -->
     <Style Selector="Border.card">
       <Setter Property="Background" Value="{StaticResource CardBrush}" />
       <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="0" />
-      <Setter Property="Padding" Value="14" />
-      <Setter Property="BoxShadow" Value="inset 2 0 0 0 #F0A73A" />
+      <Setter Property="CornerRadius" Value="{StaticResource RadiusCard}" />
+      <Setter Property="Padding" Value="12" />
     </Style>
     <Style Selector="Border.chip.sel"><Setter Property="Background" Value="{StaticResource AmberBrush}" /></Style>
   <Style Selector="Border.chip.sel TextBlock"><Setter Property="Foreground" Value="#1A1205" /></Style>
@@ -289,7 +349,7 @@
       button have a blue border".
     -->
     <Style Selector="Button.build">
-      <Setter Property="BorderBrush" Value="#3E63A0" />
+      <Setter Property="BorderBrush" Value="{StaticResource BlueBrush}" />
       <Setter Property="BorderThickness" Value="2" />
       <Setter Property="FontWeight" Value="SemiBold" />
     </Style>

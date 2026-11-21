@@ -272,6 +272,8 @@ public sealed class ModProject
     public string Website { get; set; } = "";
     public string Description { get; set; } = "";
     public List<ProjectItem> Items { get; } = [];
+    /// <summary>Copy ID → the ID of the first source of its Copy family (Duplicate). <see cref="ProjectEdits"/> keeps it; <see cref="CopyFamily"/> reads it.</summary>
+    public Dictionary<string, string> CopyOf { get; } = new(StringComparer.Ordinal);
     /// <summary>
     /// The order of the bonus slots under each vanilla camo (camo name to <see cref="BonusSlots.Key"/>s), set by Move in
     /// the Sortie mockup. Slots not listed follow, in project order. Replaced whole on each change (undo keeps a reference).
@@ -315,6 +317,20 @@ public static class Naming
 
     public static string Pascal(string id) =>
         string.Concat(id.Split('_', StringSplitOptions.RemoveEmptyEntries).Select(s => char.ToUpperInvariant(s[0]) + s[1..]));
+
+    /// <summary>
+    /// The path of a new model in Snake's Scenes folder. Issue #126: the game crashes when it sets up a head part whose
+    /// model path is long (84 characters crashed in game, 58 loaded). A longer path gets a short hashed name.
+    /// </summary>
+    public static string SnaModel(string prefix, string suffix)
+    {
+        const string dir = "/Assets/tpp/chara/sna/Scenes/";
+        string path = $"{dir}{prefix}_{suffix}.fmdl";
+        return path.Length <= MaxModelPath ? path : $"{dir}svfm_{Hashing.FoxHash.StrCode32(prefix):x8}_{suffix}.fmdl";
+    }
+
+    /// <summary>The longest model path proven to load in game (#126).</summary>
+    public const int MaxModelPath = 58;
 }
 
 /// <summary>Limits shared by every V Framework mod installed together.</summary>
@@ -365,6 +381,7 @@ public static class ProjectBuilder
         foreach (var g in p.Items.GroupBy(i => i.Id).Where(g => g.Count() > 1)) errors.Add($"Two items have the ID \"{g.Key}\".");
         foreach (var g in p.Items.Where(i => i.Key != null).GroupBy(i => i.Key).Where(g => g.Count() > 1)) errors.Add($"Two items have the key \"{g.Key}\".");
         foreach (var g in p.Items.GroupBy(i => i.Prefix).Where(g => g.Count() > 1)) errors.Add($"Two items have the file prefix \"{g.Key}\".");
+        errors.AddRange(CopyFamily.Errors(p));
         var owner = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var item in p.Items)
             foreach (var path in item.Files.Keys.Where(k => !IsCommonPart(k)))

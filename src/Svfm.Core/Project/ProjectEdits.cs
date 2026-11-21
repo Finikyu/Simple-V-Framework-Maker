@@ -30,7 +30,7 @@ public sealed class ProjectEdits
     private int _savedAt;
     private DateTimeOffset _lastEditAt;
     private readonly Dictionary<ProjectItem, ItemState> _orig = [];
-    private readonly Dictionary<string, string> _copyOf = [];
+    private Dictionary<string, string> _copyOf => Project.CopyOf;
     private readonly List<(ExtraMod Mod, List<ProjectItem> Items)> _merged = [];
 
     /// <summary>Starts the edits of a project that was just opened: every item as it is now is its original.</summary>
@@ -66,7 +66,7 @@ public sealed class ProjectEdits
     // ---- Undo ----
 
     public sealed record SpecState(DevelopRow Develop, Dictionary<PlayerBranch, OutfitBranch> Branches, Dictionary<PlayerBranch, HeadBranch>? Heads = null, IReadOnlyList<AlsoUnder>? Also = null);
-    public sealed record BehaviourState(int Ammo = 1, double Fuse = 0, double Active = 0, bool Bruise = false, DogGearBehaviour? Dog = null, HorseTackBehaviour? Horse = null, bool InfiniteAmmo = false, Dictionary<string, string>? Weapon = null, SupportSnapshot? Support = null, string? Script = null);
+    public sealed record BehaviourState(int Ammo = 1, double Fuse = 0, double Active = 0, bool Bruise = false, DogGearBehaviour? Dog = null, HorseTackBehaviour? Horse = null, bool InfiniteAmmo = false, Dictionary<string, string>? Weapon = null, SupportSnapshot? Support = null, string? Script = null, string? Preset = null, bool LockLifted = false);
     public sealed record ItemState(ProjectItem Item, string Title, Dictionary<string, Dictionary<string, string>> Text, IconSettings? Icon, SpecState? Spec, object[]? Fields = null, BehaviourState? Behaviour = null, IntakeResult.IconSnap? IconSnap = null, bool Synced = false);
     private sealed record Snapshot(string Name, string Version, string Author, string Website, string Description, List<ItemState> Items, Dictionary<string, List<string>> BonusOrder);
 
@@ -92,21 +92,23 @@ public sealed class ProjectEdits
         var p = Project;
         p.Name = s.Name; p.Version = s.Version; p.Author = s.Author; p.Website = s.Website; p.Description = s.Description; p.BonusOrder = s.BonusOrder;
         p.Items.Clear();
-        foreach (var st in s.Items)
-        {
-            st.Item.Title = st.Title;
-            st.Item.Synced = st.Synced;
-            st.Item.Text.Clear();
-            foreach (var (k, v) in st.Text) st.Item.Text[k] = new Dictionary<string, string>(v);
-            p.Items.Add(st.Item);
-            RestoreSpec(st.Item, st.Spec);
-            RestoreFields(st.Item, st.Fields);
-            RestoreBehaviour(st.Item, st.Behaviour);
-            if (st.IconSnap != null) _intake.RestoreIcon(st.Item, st.IconSnap);
-            _intake.SyncSlotIcons(st.Item);
-        }
+        foreach (var st in s.Items) { p.Items.Add(st.Item); Restore(st, true); }
         LastField = "";
         return true;
+    }
+
+    /// <summary>Puts an item back as it was in <paramref name="st"/>; <paramref name="icon"/> false leaves its icon as it is.</summary>
+    private void Restore(ItemState st, bool icon)
+    {
+        st.Item.Title = st.Title;
+        st.Item.Synced = st.Synced;
+        st.Item.Text.Clear();
+        foreach (var (k, v) in st.Text) st.Item.Text[k] = new Dictionary<string, string>(v);
+        RestoreSpec(st.Item, st.Spec);
+        RestoreFields(st.Item, st.Fields);
+        RestoreBehaviour(st.Item, st.Behaviour);
+        if (icon && st.IconSnap != null) _intake.RestoreIcon(st.Item, st.IconSnap);
+        _intake.SyncSlotIcons(st.Item);
     }
 
     /// <summary>The number of undo steps now; the next change starts a step of its own.</summary>
@@ -173,7 +175,71 @@ public sealed class ProjectEdits
     }
 
     /// <summary>The ID of the item an item is a copy of, or null.</summary>
+    /// <summary>
+    /// Issue #106: records a new copy (<see cref="AddCopy"/>) and gives it the source's current state, under the copy's own
+    /// IDs. The copy's original is the source's original: the maker made the copy from the unedited mod.
+    /// </summary>
+    public void TakeOver(ProjectItem source, ProjectItem copy)
+    {
+        AddCopy(source, copy);
+        if (OriginalOf(source) is not { } orig) return;
+        var fresh = JsonSerializer.SerializeToNode(SaveItem(copy), Json)!.AsObject();
+        var now = Snap(source);
+        Restore(orig, false);
+        var was = JsonSerializer.SerializeToNode(SaveItem(source), Json)!.AsObject();
+        Restore(now, false);
+        var cur = JsonSerializer.SerializeToNode(SaveItem(source), Json)!.AsObject();
+        string[] own = [nameof(SavedItem.Id), nameof(SavedItem.CopyOf), nameof(SavedItem.Title), nameof(SavedItem.Text), nameof(SavedItem.Icon), nameof(SavedItem.CustomIcon), nameof(SavedItem.SlotIcons)];
+        // The IDs: the strings where the source's original and the fresh copy differ, side by side.
+        // shortcut: a string found only in the current state (a new path the user picked) keeps the source's ID; upgrade when a copy needs it.
+        var map = new Dictionary<string, string>(StringComparer.Ordinal);
+        void Walk(System.Text.Json.Nodes.JsonNode? a, System.Text.Json.Nodes.JsonNode? b)
+        {
+            if (a is System.Text.Json.Nodes.JsonObject oa && b is System.Text.Json.Nodes.JsonObject ob) { foreach (var (k, v) in oa) if (ob.TryGetPropertyValue(k, out var w)) Walk(v, w); }
+            else if (a is System.Text.Json.Nodes.JsonArray aa && b is System.Text.Json.Nodes.JsonArray ab && aa.Count == ab.Count) { for (int n = 0; n < aa.Count; n++) Walk(aa[n], ab[n]); }
+            else if (a is System.Text.Json.Nodes.JsonValue va && b is System.Text.Json.Nodes.JsonValue vb && va.TryGetValue(out string? sa) && vb.TryGetValue(out string? sb) && sa != sb) map.TryAdd(sa, sb);
+        }
+        foreach (var (k, v) in was) if (!own.Contains(k)) Walk(v, fresh[k]);
+        void Rekey(System.Text.Json.Nodes.JsonNode? n)
+        {
+            System.Text.Json.Nodes.JsonNode? To(System.Text.Json.Nodes.JsonNode? v) =>
+                v is System.Text.Json.Nodes.JsonValue jv && jv.TryGetValue(out string? s) && map.TryGetValue(s, out var t) ? t : v?.DeepClone();
+            if (n is System.Text.Json.Nodes.JsonObject o) foreach (var k in o.Select(p => p.Key).ToList()) { var r = To(o[k]); o[k] = r; Rekey(r); }
+            else if (n is System.Text.Json.Nodes.JsonArray a) for (int i = 0; i < a.Count; i++) { var r = To(a[i]); a[i] = r; Rekey(r); }
+        }
+        foreach (var k in own) cur.Remove(k);
+        Rekey(cur);
+        var si = cur.Deserialize<SavedItem>(Json)!;
+        si.Id = copy.Id; si.CopyOf = _copyOf[copy.Id]; si.Title = source.Title + " (copy)";
+        // The text IDs: the name and the description, else the copy's own prefix (or the copy's ID of an imported item).
+        var freshText = copy.Text.Keys.ToList();
+        si.Text = copy.Text.ToDictionary(kv => kv.Key, kv => new Dictionary<string, string>(kv.Value));
+        var lines = source.RdRow?.UpgradeLines ?? [];
+        foreach (var (key, per) in source.Text)
+        {
+            if (lines.Contains(key)) continue;
+            string? to = key == source.NameLangId ? copy.NameLangId : key == source.InfoLangId ? copy.InfoLangId
+                : key.Replace(source.Prefix, copy.Prefix, StringComparison.Ordinal) is var byPrefix && byPrefix != key && (source is not ExistingItem || freshText.Contains(byPrefix)) ? byPrefix
+                : freshText.FirstOrDefault(f => f.StartsWith(key + "_" + copy.Id, StringComparison.Ordinal));
+            if (to == null) continue;
+            si.Text[to] = per.ToDictionary(kv => kv.Key, kv => kv.Key == "eng" && key == source.NameLangId ? kv.Value + " (copy)" : kv.Value);
+        }
+        // Issue #123: each own upgrade line gets a new text ID of the copy, so that the two items' lines are independent.
+        if (si.Develop is { } sd && lines.Count > 0)
+            si.Develop = sd.WithUpgradeLines(lines.Select(l => source.Text.TryGetValue(l, out var per) ? NewLineText(si.Text, copy.Prefix, per) : l));
+        ApplyItem(copy, si, []);
+    }
+
     public string? CopySourceOf(ProjectItem i) => _copyOf.GetValueOrDefault(i.Id);
+
+    /// <summary>Issue #123: puts the text of an own upgrade line under the first free ID "&lt;prefix&gt;_up_N" and returns that ID.</summary>
+    public static string NewLineText(Dictionary<string, Dictionary<string, string>> text, string prefix, IReadOnlyDictionary<string, string> per)
+    {
+        int n = 0;
+        while (text.ContainsKey($"{prefix}_up_{n}")) n++;
+        text[$"{prefix}_up_{n}"] = new Dictionary<string, string>(per, StringComparer.Ordinal);
+        return $"{prefix}_up_{n}";
+    }
 
     /// <summary>The items of a merged mod that are in the project now.</summary>
     public IReadOnlyList<ProjectItem> ItemsMergedFrom(ExtraMod mod) =>
@@ -195,14 +261,14 @@ public sealed class ProjectEdits
 
     // ---- Twins and Sync (GLOSSARY.md): while Sync is on, the name, the description, the R&D row and the icon of two twins stay equal ----
 
-    private sealed record TwinState(string Title, string Name, string Info, DevelopRow? Develop, RgbaImage? Icon);
+    private sealed record TwinState(string Title, string Name, string Info, DevelopRow? Develop, RgbaImage? Icon, string Lines = "");
     /// <summary>Each twin as the last pass of <see cref="SyncTwins"/> left it: the twin that differs from it now is the one the user changed.</summary>
     private readonly Dictionary<ProjectItem, TwinState> _twinSeen = [];
 
     private TwinState TwinStateOf(ProjectItem i)
     {
         string T(string? id) => id != null && i.Text.TryGetValue(id, out var per) ? string.Join("\n", per.OrderBy(k => k.Key, StringComparer.Ordinal).Select(k => k.Key + "=" + k.Value)) : "";
-        return new(i.Title, T(i.NameLangId), T(i.InfoLangId), i.RdRow, _intake.Icons.GetValueOrDefault(i.Id));
+        return new(i.Title, T(i.NameLangId), T(i.InfoLangId), i.RdRow, _intake.Icons.GetValueOrDefault(i.Id), string.Join("\n\n", (i.RdRow?.UpgradeLines ?? []).Select(T)));
     }
 
     /// <summary>The twin of an item that is in the project; null when it has none.</summary>
@@ -285,21 +351,35 @@ public sealed class ProjectEdits
                     if (part == EditPart.Name && TwinOf(i) is { } tw) i.Synced = tw.Synced = o.Synced;
                     foreach (var (k, v) in o.Text) i.Text[k] = new Dictionary<string, string>(v);
                     if (part == EditPart.Name && o.IconSnap != null) _intake.RestoreIcon(i, o.IconSnap);
+                    // Issue #123: the upgrade lines are on the Name tab, with the texts of the item's own lines.
+                    if (part == EditPart.Name && o.Spec?.Develop is { } od && DevelopOf(i) is { } cd) SetDevelop(i, cd with { UpgradeLineIds = od.UpgradeLineIds });
                     // The slot icons are icons too: each look gets back the icon path the original had.
                     if (part == EditPart.Name && i is OutfitItem ni && o.Spec != null)
                         foreach (var (k, b) in ni.Spec.Branches.ToList())
                             if (o.Spec.Branches.TryGetValue(k, out var ob)) ni.Spec.Branches[k] = b with { Base = b.Base with { IconFtexPath = ob.Base.IconFtexPath }, Variants = b.Variants.Select((v, n) => v with { IconFtexPath = n < ob.Variants.Count ? ob.Variants[n].IconFtexPath : null }).ToList() };
                     break;
-                case EditPart.Rd: if (o.Spec != null) SetDevelop(i, o.Spec.Develop); break;
-                case EditPart.Stats when i is SupportWeaponItem st && o.Behaviour != null: st.Spec.Ammo = o.Behaviour.Ammo; st.Spec.FuseTime = o.Behaviour.Fuse; st.Spec.ActiveTime = o.Behaviour.Active; break;
-                case EditPart.Stats when i is ExistingItem: RestoreFields(i, o.Fields, parts: true); break;
+                case EditPart.Rd: if (o.Spec != null) SetDevelop(i, o.Spec.Develop with { UpgradeLineIds = DevelopOf(i)?.UpgradeLineIds }); break;
+                case EditPart.Stats when i is SupportWeaponItem st && o.Behaviour != null:
+                    st.Spec.Ammo = o.Behaviour.Ammo; st.Spec.FuseTime = o.Behaviour.Fuse; st.Spec.ActiveTime = o.Behaviour.Active;
+                    if (o.Behaviour.Support is { ThrowAs: { } ta } os0) st.Spec.SetThrowAs(ta, os0.ThrowAsAttack, os0.ThrowAsBlast);
+                    if (o.Behaviour.Support is { } os1) { st.Spec.Preset = os1.Preset; if (os1.Grade is { } g1) st.Spec.Grade = g1; }
+                    break;
+                case EditPart.Stats when i is ExistingItem ex:
+                {
+                    // What it is thrown as goes back, and a default script with it (issue #112).
+                    string? thrown = ex.ThrowAs;
+                    RestoreFields(i, o.Fields, parts: true);
+                    if (thrown != null && ex.ThrowAs is { } back && ex.Script != null && ex.ScriptLock == null) ex.Script.SwapDefaultEffect(thrown, back);
+                    ex.Preset = o.Behaviour?.Preset;
+                    break;
+                }
                 case EditPart.Stats: RestoreBehaviour(i, o.Behaviour); break;
-                case EditPart.Script when i is ExistingItem { Script: { } rs, ScriptOriginal: { } ro }: rs.CopyFrom(ThrowScript.FromJson(ro)); break;
+                case EditPart.Script when i is ExistingItem { Script: { } rs, ScriptOriginal: { } ro } rx: rs.CopyFrom(ThrowScript.FromJson(ro)); rx.LockLifted = o.Behaviour?.LockLifted ?? false; break;
                 case EditPart.Sortie or EditPart.Attack or EditPart.Script when i is SupportWeaponItem sw && o.Behaviour?.Support is { } os:
                 {
                     var now = SupportSnapshot.Take(sw.Spec);
                     if (part == EditPart.Sortie) { now.DamageType = os.DamageType; now.BarDamage = os.BarDamage; now.BarDurability = os.BarDurability; now.BarEffectTime = os.BarEffectTime; now.HideBarDamage = os.HideBarDamage; now.HideBarDurability = os.HideBarDurability; now.HideBarEffectTime = os.HideBarEffectTime; now.DurabilityMax = os.DurabilityMax; now.EffectTimeMax = os.EffectTimeMax; }
-                    else if (part == EditPart.Attack) { now.AttackId = os.AttackId; now.BlastId = os.BlastId; now.OwnAttack = os.OwnAttack; now.OwnBlast = os.OwnBlast; }
+                    else if (part == EditPart.Attack) { now.AttackId = os.AttackId; now.BlastId = os.BlastId; now.OwnAttack = os.OwnAttack; now.OwnAttackRow = os.OwnAttackRow; now.OwnBlast = os.OwnBlast; now.OwnAttackFrom = os.OwnAttackFrom; now.OwnBlastFrom = os.OwnBlastFrom; }
                     else now.Script = os.Script;
                     now.Restore(sw.Spec);
                     break;
@@ -345,17 +425,18 @@ public sealed class ProjectEdits
         var o = OriginalOf(item);
         if (o == null) return rows;
         string? nameId = NameIdOf(item), infoId = InfoIdOf(item);
+        var lineIds = (o.Spec?.Develop?.UpgradeLines ?? []).Concat(DevelopOf(item)?.UpgradeLines ?? []).ToHashSet();
         void Text(bool main)
         {
             foreach (var id in o.Text.Keys.Union(item.Text.Keys).Distinct())
             {
-                bool isMain = id == nameId || id == infoId;
+                bool isMain = id == nameId || id == infoId || lineIds.Contains(id);
                 if (isMain != main) continue;
                 var was = o.Text.GetValueOrDefault(id) ?? []; var now = item.Text.GetValueOrDefault(id) ?? [];
                 foreach (var lang in was.Keys.Union(now.Keys).Distinct())
                 {
                     string a = was.GetValueOrDefault(lang) ?? "", b = now.GetValueOrDefault(lang) ?? "";
-                    if (a != b) rows.Add(new DiffRow($"{(id == nameId ? "Name" : id == infoId ? "Description" : "Text")} · {lang}", a, b));
+                    if (a != b) rows.Add(new DiffRow($"{(id == nameId ? "Name" : id == infoId ? "Description" : lineIds.Contains(id) ? "Upgrade line" : "Text")} · {lang}", a, b));
                 }
             }
         }
@@ -363,6 +444,8 @@ public sealed class ProjectEdits
         {
             case EditSection.Name:
                 Text(true);
+                if (o.Spec?.Develop is { } ld0 && DevelopOf(item) is { } ld1 && ld0.UpgradeLineIds != ld1.UpgradeLineIds)
+                    rows.Add(new DiffRow("Upgrade lines", $"{ld0.UpgradeLines.Count} lines", $"{ld1.UpgradeLines.Count} lines, changed"));
                 // An item with no lang ID (a head option with no R&D row) keeps its name on Title alone, so the text
                 // comparison above has nothing to look at. Compare the Title directly or a rename shows no change.
                 if (nameId == null && o.Title != item.Title) rows.Add(new DiffRow("Name · eng", o.Title, item.Title));
@@ -388,7 +471,7 @@ public sealed class ProjectEdits
                     if (rd && d0.GmpCost != d1.GmpCost) rows.Add(new DiffRow("Development cost", d0.GmpCost.ToString(), d1.GmpCost.ToString()));
                     if (!rd && d0.UsageGmpCost != d1.UsageGmpCost) rows.Add(new DiffRow("Deployment cost", d0.UsageGmpCost.ToString(), d1.UsageGmpCost.ToString()));
                     if (rd && d0.InitiallyAvailable != d1.InitiallyAvailable) rows.Add(new DiffRow("Already developed", d0.InitiallyAvailable ? "yes" : "no", d1.InitiallyAvailable ? "yes" : "no"));
-                    if (rd && d0 with { Grade = d1.Grade, GmpCost = d1.GmpCost, UsageGmpCost = d1.UsageGmpCost, InitiallyAvailable = d1.InitiallyAvailable } != d1)
+                    if (rd && d0 with { Grade = d1.Grade, GmpCost = d1.GmpCost, UsageGmpCost = d1.UsageGmpCost, InitiallyAvailable = d1.InitiallyAvailable, UpgradeLineIds = d1.UpgradeLineIds } != d1)
                         rows.Add(new DiffRow("Staff, materials and unlock rules", "as installed", "changed"));
                     if (!rd && (d0.Usage1, d0.Usage1Count, d0.Usage2, d0.Usage2Count) != (d1.Usage1, d1.Usage1Count, d1.Usage2, d1.Usage2Count))
                         rows.Add(new DiffRow("Deployment resources", "as installed", "changed"));
@@ -416,11 +499,17 @@ public sealed class ProjectEdits
                         }
                 }
                 else if (o.Behaviour is { } b0 && BehaviourOf(item) is { } b1)
-                    foreach (var pr in typeof(BehaviourState).GetProperties().Where(x => x.Name is not ("Support" or "Script")))
+                    foreach (var pr in typeof(BehaviourState).GetProperties().Where(x => x.Name is not ("Support" or "Script" or "LockLifted")))
                     {
                         var x = pr.GetValue(b0); var y = pr.GetValue(b1);
                         if (!Equals(x, y)) rows.Add(new DiffRow(pr.Name, x?.ToString() ?? "default", y?.ToString() ?? "default"));
                     }
+                if (o.Behaviour?.Support?.ThrowAs is { } t0 && item is SupportWeaponItem { Spec.ThrowAs: var t1 } && t0 != t1) rows.Add(new DiffRow("Thrown as", t0, t1));
+                if (o.Behaviour?.Support is { } p0 && item is SupportWeaponItem { Spec: var p1 })
+                {
+                    if (p0.Preset != p1.Preset) rows.Add(new DiffRow("Preset", p0.Preset ?? "Custom", p1.Preset ?? "Custom"));
+                    if (p0.Grade is { } g0 && g0 != p1.Grade) rows.Add(new DiffRow("Grade", g0.ToString(), p1.Grade.ToString()));
+                }
                 break;
             case EditSection.Wear:
                 if (OutfitOf(item) is { } wo && o.Spec != null && (WearersLabel(o.Spec.Branches.Keys), WearersLabel(wo.Spec.Branches.Keys)) is var (l0, l1) && l0 != l1)
@@ -541,10 +630,12 @@ public sealed class ProjectEdits
         var p = Project;
         var sp = new SavedProject { Removed = _orig.Keys.Where(k => !_copyOf.ContainsKey(k.Id) && p.Items.All(x => x.Id != k.Id)).Select(k => k.Id).Distinct().ToList(), SourceMod = sourceMod, SourceInner = sourceInner, Extras = [.. extras], Merged = [.. Merged], Name = p.Name, Version = p.Version, Author = p.Author, Website = p.Website, Description = p.Description };
         foreach (var i in p.Items)
-            sp.Items.Add(new SavedItem { Id = i.Id, CopyOf = _copyOf.GetValueOrDefault(i.Id), Title = i.Title, Text = i.Text.ToDictionary(kv => kv.Key, kv => new Dictionary<string, string>(kv.Value)), Icon = _intake.IconOf(i), Develop = DevelopOf(i), Branches = OutfitOf(i)?.Spec.Branches.ToDictionary(k => k.Key, k => k.Value), Also = OutfitOf(i)?.Spec.AlsoUnder.ToList(), HeadOff = HeadOf(i) is { } hi && OriginalOf(i)?.Spec?.Heads is { } oh ? oh.Keys.Where(k => !hi.Spec.Branches.ContainsKey(k)).ToList() : null, Behaviour = BehaviourOf(i), CustomIcon = _intake.IconOf(i) is { Style: IconStyle.Custom } ci ? Png.Encode(_intake.CustomIconImage(i, ci.Custom)!) : null, FieldValues = (i as ExistingItem)?.Fields.Select(f => Convert.ToString(f.Value, CultureInfo.InvariantCulture) ?? "").ToList(), SlotIcons = SlotIconsOf(i), Sync = i.TwinId != null ? i.Synced : null });
+            sp.Items.Add(SaveItem(i));
         if (p.BonusOrder.Count > 0) sp.BonusOrder = p.BonusOrder.ToDictionary(kv => kv.Key, kv => kv.Value.ToList());
         return JsonSerializer.Serialize(sp, Json);
     }
+
+    private SavedItem SaveItem(ProjectItem i) => new SavedItem { Id = i.Id, CopyOf = _copyOf.GetValueOrDefault(i.Id), Title = i.Title, Text = i.Text.ToDictionary(kv => kv.Key, kv => new Dictionary<string, string>(kv.Value)), Icon = _intake.IconOf(i), Develop = DevelopOf(i), Branches = OutfitOf(i)?.Spec.Branches.ToDictionary(k => k.Key, k => k.Value), Also = OutfitOf(i)?.Spec.AlsoUnder.ToList(), HeadOff = HeadOf(i) is { } hi && OriginalOf(i)?.Spec?.Heads is { } oh ? oh.Keys.Where(k => !hi.Spec.Branches.ContainsKey(k)).ToList() : null, Behaviour = BehaviourOf(i), CustomIcon = _intake.IconOf(i) is { Style: IconStyle.Custom } ci ? Png.Encode(_intake.CustomIconImage(i, ci.Custom)!) : null, FieldValues = (i as ExistingItem)?.Fields.Select(f => Convert.ToString(f.Value, CultureInfo.InvariantCulture) ?? "").ToList(), SlotIcons = SlotIconsOf(i), Sync = i.TwinId != null ? i.Synced : null };
 
     /// <summary>Reads a project file. The caller opens the mods it names, then calls <see cref="Apply"/>.</summary>
     public static SavedProject Read(string json)
@@ -603,55 +694,16 @@ public sealed class ProjectEdits
                 catch (Exception e) when (e is FileNotFoundException or InvalidDataException or InvalidOperationException or ArgumentException) { notApplied.Add(si.Title); }
             }
             else notApplied.Add(si.Title);
+        // The "+ Bandana" heads (#126) are added by the Worn with card, not by the port: add them again.
+        foreach (var si in sp.Items.Where(i => i.CopyOf == null && i.Id.EndsWith("_bandana", StringComparison.Ordinal) && !originals.ContainsKey(i.Id)))
+            if (originals.GetValueOrDefault(si.Id[..^"_bandana".Length]) is HeadOptionItem h && _intake.Game is { } game)
+                try { var c = BandanaCombo.Add(game, p, h); RememberOriginal(c); originals[c.Id] = c; }
+                catch (Exception e) when (e is InvalidOperationException or InvalidDataException or FileNotFoundException) { }
         var keep = sp.Items.Select(i => i.Id).ToHashSet();
         var removed = sp.Removed?.ToHashSet();
         foreach (var gone in p.Items.Where(i => removed != null ? removed.Contains(i.Id) : !keep.Contains(i.Id)).ToList()) p.Items.Remove(gone);
         foreach (var si in sp.Items)
-            if (originals.TryGetValue(si.Id, out var it))
-            {
-                it.Title = si.Title; it.Text.Clear();
-                if (si.Sync is { } sync && it.TwinId != null) it.Synced = sync;
-                foreach (var (k, v) in si.Text) it.Text[k] = new Dictionary<string, string>(v);
-                bool badIcon = false;
-                if (si.Icon is { Style: IconStyle.Custom } && si.CustomIcon != null)
-                {
-                    // A damaged picture loses the icon only, not the whole project.
-                    try { _intake.LoadCustomIcon(it, si.Icon.Custom, Png.Decode(si.CustomIcon)); }
-                    catch (InvalidDataException) { badIcon = true; notApplied.Add(si.Title + " (its icon)"); }
-                }
-                if (si.Icon != null && !badIcon && _intake.IconOf(it) != si.Icon) _intake.ApplyIcon(it, si.Icon);
-                // A hand-edited file can hold bad text (or NaN, which the Lua can't hold): then none of the settings are put back.
-                if (it is ExistingItem ex && si.FieldValues is { } fv && fv.Count == ex.Fields.Count
-                    && fv.Select((t, k) => ex.Fields[k].Type switch
-                    {
-                        FieldType.Text => t,
-                        FieldType.Number => double.TryParse(t, NumberStyles.Float, CultureInfo.InvariantCulture, out var d) && double.IsFinite(d) ? d : null,
-                        // A switch can hold a dash attack's attack name (issue #96).
-                        _ => bool.TryParse(t, out var bo) ? bo : Abilities.IsDashAttackId(t) ? t : (object?)null,
-                    }).ToList() is var vals && vals.All(v => v != null))
-                    for (int k = 0; k < vals.Count; k++) ex.Fields[k].Value = vals[k]!;
-                else if (it is ExistingItem && si.FieldValues is { Count: > 0 }) notApplied.Add(si.Title + " (its settings)");
-                // Restore checks the hand-editable Lua and script text before it changes a value.
-                try { RestoreBehaviour(it, si.Behaviour); }
-                catch (Exception e) when (e is InvalidDataException or JsonException)
-                {
-                    if (!notApplied.Contains(si.Title + " (its settings)")) notApplied.Add(si.Title + " (its settings)");
-                }
-                if (HeadOf(it) is { } hio && si.HeadOff != null) foreach (var k in si.HeadOff) hio.Spec.Branches.Remove(k);
-                if (si.Develop != null && (it is not OutfitItem || si.Branches != null)) RestoreSpec(it, new SpecState(si.Develop, si.Branches ?? [], null, si.Also));
-                else if (it is ExistingItem && si.Branches != null) RestoreSpec(it, new SpecState(new DevelopRow(), si.Branches, null, si.Also));
-                if (si.SlotIcons != null)
-                {
-                    // A damaged picture or a bad path loses the slot icons only: the slots then use the outfit icon.
-                    bool ok = true;
-                    foreach (var (path, png) in si.SlotIcons)
-                        try { ok &= _intake.LoadSlotIcon(path, Png.Decode(png)); }
-                        catch (InvalidDataException) { ok = false; }
-                    if (!ok) notApplied.Add(si.Title + " (its slot icons)");
-                }
-                if (it is OutfitItem so) ClearMissingSlotIcons(so);
-                _intake.SyncSlotIcons(it);
-            }
+            if (originals.TryGetValue(si.Id, out var it)) ApplyItem(it, si, notApplied);
             else if (si.CopyOf == null) notApplied.Add(si.Title);
         var order = sp.Items.Select(i => i.Id).ToList();
         var sorted = p.Items.OrderBy(i => order.IndexOf(i.Id) is var ix && ix < 0 ? int.MaxValue : ix).ToList();
@@ -659,5 +711,52 @@ public sealed class ProjectEdits
         SyncTwins();
         _undo.Clear(); _savedAt = 0; LastField = "";
         return notApplied;
+    }
+
+    /// <summary>Puts the saved edits of one item on it (a project file, or a copy that takes over its source: issue #106).</summary>
+    private void ApplyItem(ProjectItem it, SavedItem si, List<string> notApplied)
+    {
+        it.Title = si.Title; it.Text.Clear();
+        if (si.Sync is { } sync && it.TwinId != null) it.Synced = sync;
+        foreach (var (k, v) in si.Text) it.Text[k] = new Dictionary<string, string>(v);
+        bool badIcon = false;
+        if (si.Icon is { Style: IconStyle.Custom } && si.CustomIcon != null)
+        {
+            // A damaged picture loses the icon only, not the whole project.
+            try { _intake.LoadCustomIcon(it, si.Icon.Custom, Png.Decode(si.CustomIcon)); }
+            catch (InvalidDataException) { badIcon = true; notApplied.Add(si.Title + " (its icon)"); }
+        }
+        if (si.Icon != null && !badIcon && _intake.IconOf(it) != si.Icon) _intake.ApplyIcon(it, si.Icon);
+        // A hand-edited file can hold bad text (or NaN, which the Lua can't hold): then none of the settings are put back.
+        if (it is ExistingItem ex && si.FieldValues is { } fv && fv.Count == ex.Fields.Count
+            && fv.Select((t, k) => ex.Fields[k].Type switch
+            {
+                FieldType.Text => t,
+                FieldType.Number => double.TryParse(t, NumberStyles.Float, CultureInfo.InvariantCulture, out var d) && double.IsFinite(d) ? d : null,
+                // A switch can hold a dash attack's attack name (issue #96).
+                _ => bool.TryParse(t, out var bo) ? bo : Abilities.IsDashAttackId(t) ? t : (object?)null,
+            }).ToList() is var vals && vals.All(v => v != null))
+            for (int k = 0; k < vals.Count; k++) ex.Fields[k].Value = vals[k]!;
+        else if (it is ExistingItem && si.FieldValues is { Count: > 0 }) notApplied.Add(si.Title + " (its settings)");
+        // Restore checks the hand-editable Lua and script text before it changes a value.
+        try { RestoreBehaviour(it, si.Behaviour); }
+        catch (Exception e) when (e is InvalidDataException or JsonException)
+        {
+            if (!notApplied.Contains(si.Title + " (its settings)")) notApplied.Add(si.Title + " (its settings)");
+        }
+        if (HeadOf(it) is { } hio && si.HeadOff != null) foreach (var k in si.HeadOff) hio.Spec.Branches.Remove(k);
+        if (si.Develop != null && (it is not OutfitItem || si.Branches != null)) RestoreSpec(it, new SpecState(si.Develop, si.Branches ?? [], null, si.Also));
+        else if (it is ExistingItem && si.Branches != null) RestoreSpec(it, new SpecState(new DevelopRow(), si.Branches, null, si.Also));
+        if (si.SlotIcons != null)
+        {
+            // A damaged picture or a bad path loses the slot icons only: the slots then use the outfit icon.
+            bool ok = true;
+            foreach (var (path, png) in si.SlotIcons)
+                try { ok &= _intake.LoadSlotIcon(path, Png.Decode(png)); }
+                catch (InvalidDataException) { ok = false; }
+            if (!ok) notApplied.Add(si.Title + " (its slot icons)");
+        }
+        if (it is OutfitItem so) ClearMissingSlotIcons(so);
+        _intake.SyncSlotIcons(it);
     }
 }

@@ -18,8 +18,18 @@ public static class ThrowScriptReader
     /// <summary>The check that a handler runs a block for the item: <c>equipId == &lt;constant&gt;</c> (not <c>info.equipId</c>).</summary>
     public static Regex Guard(string constant) => new($@"(?<![\w.])equipId\s*==\s*{Regex.Escape(constant)}(?![\w.])");
 
-    /// <summary>Makes every block of the script that runs for the item never run: each check becomes <c>false</c>.</summary>
-    public static string SwitchOff(string src, string constant) => Guard(constant).Replace(src, "false");
+    /// <summary>
+    /// Makes every block of the script that runs for the item never run: each check becomes <c>false</c>. This includes the
+    /// per-frame check of an SVFM module (<c>info.equipId == &lt;constant&gt;</c>, issue #114) and the testing
+    /// announcements that name the item outside a check (<c>AnnounceLogView(... tostring(&lt;constant&gt;))</c>).
+    /// </summary>
+    public static string SwitchOff(string src, string constant)
+    {
+        string k = Regex.Escape(constant);
+        src = Guard(constant).Replace(src, "false");
+        src = Regex.Replace(src, $@"\binfo\.equipId\s*==\s*{k}(?![\w.])", "false");
+        return Regex.Replace(src, $@"(?<![\w.]|false and )TppUiCommand\.AnnounceLogView\((?=[^\n]*tostring\({k}\)\))", "local _ = false and $0");
+    }
 
     private static readonly string Messages = string.Join("|", ThrowEvents.All.Select(ThrowEvents.Message));
     private static readonly Regex Named = new($@"\bmsg\s*=\s*""({Messages})""\s*,\s*func\s*=(?!\s*function\b)");
@@ -147,12 +157,16 @@ public static class ThrowScriptReader
                 if (Known(Local.Replace(l, ""), c, throwAs) is { } a) { Flush(); steps.Add(a); continue; }
             }
             own.Add(raw.TrimEnd());
-            // shortcut: keywords inside strings count too; a quoted "end" in own Lua would cut the block short.
-            depth = Math.Max(0, depth + Regex.Matches(l, @"\b(function|if|do|repeat)\b").Count - Regex.Matches(l, @"\b(end|until)\b").Count);
+            // shortcut: long brackets ([[ ... ]], --[[ ... ]]) are not skipped; a keyword in one still counts.
+            string code = Quoted.Replace(l, "");
+            depth = Math.Max(0, depth + Regex.Matches(code, @"\b(function|if|do|repeat)\b").Count - Regex.Matches(code, @"\b(end|until)\b").Count);
         }
         Flush();
         return steps;
     }
+
+    /// <summary>Quoted text (with escapes) and a -- comment: they hold no keywords of the block.</summary>
+    private static readonly Regex Quoted = new(@"""(?:\\.|[^""\\])*""|'(?:\\.|[^'\\])*'|--.*");
 
     private static string Norm(string s) => Regex.Replace(s.Trim(), @"\s+", " ");
 

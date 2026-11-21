@@ -1,30 +1,30 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:app="using:Svfm.App" x:Class="Svfm.App.BuildView" x:DataType="app:BuildVm">
-  <Grid ColumnDefinitions="*,380" RowDefinitions="Auto,*">
-    <!-- Issue #81: the header stays fixed; Escape does the same as the button. -->
-    <Border Name="BuildHeader" Grid.ColumnSpan="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="20,8">
-      <Button Name="BackToEditButton" Content="Back to editing (Esc)" Command="{Binding BackToEdit}" HorizontalAlignment="Left" />
-    </Border>
-    <ScrollViewer Grid.Row="1">
-      <StackPanel Margin="30,24" Spacing="18" MaxWidth="940" HorizontalAlignment="Stretch">
+  <Grid ColumnDefinitions="*,380">
+    <!-- Issue #81: Back to editing stays fixed; issue #122 (N2) moved it to the left of the main header. Escape does the same. -->
+    <ScrollViewer>
+      <StackPanel Margin="20,20" Spacing="20" MaxWidth="940" HorizontalAlignment="Stretch">
+        <!-- Issue #122: no text stands on the dotted ground; each section is one card with its label inside. -->
+        <Border Classes="card">
         <StackPanel Spacing="4">
-          <TextBlock Text="Review and build" FontSize="26" FontWeight="Bold" />
+          <TextBlock Text="Review and build" FontSize="{StaticResource SizeScreen}" FontWeight="Bold" />
           <TextBlock Classes="muted" Text="{Binding Headline}" />
         </StackPanel>
+        </Border>
 
-        <StackPanel Spacing="6">
+        <Border Classes="card"><StackPanel Spacing="8">
           <TextBlock Classes="lbl" Text="WHAT THIS BUILD CONTAINS" />
-          <Border Classes="card" Padding="0">
+          <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusControl}" ClipToBounds="True">
             <StackPanel>
-              <Grid ColumnDefinitions="*,Auto" Margin="14,10"><TextBlock Classes="lbl" Text="ITEM" /><TextBlock Grid.Column="1" Classes="lbl" Text="FILES" /></Grid>
+              <Grid ColumnDefinitions="*,Auto" Margin="12,8"><TextBlock Classes="lbl" Text="ITEM" /><TextBlock Grid.Column="1" Classes="lbl" Text="FILES" /></Grid>
               <ScrollViewer MaxHeight="240" AutomationProperties.Name="Items in this build">
               <ItemsControl ItemsSource="{Binding ContentRows}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="app:ContentRow">
-                    <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Padding="14,10">
+                    <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                       <Grid ColumnDefinitions="*,Auto">
                         <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Text="{Binding Title}" FontWeight="SemiBold" /><TextBlock Text="{Binding Kind}" Classes="muted" /></StackPanel>
-                        <TextBlock Grid.Column="1" Text="{Binding Detail}" Classes="muted" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="12" />
+                        <TextBlock Grid.Column="1" Text="{Binding Detail}" Classes="muted" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="{StaticResource SizeBody}" />
                       </Grid>
                     </Border>
                   </DataTemplate>
@@ -33,31 +33,31 @@
               </ScrollViewer>
             </StackPanel>
           </Border>
-          <TextBlock Classes="muted" FontSize="12" Text="{Binding Summary}" />
-        </StackPanel>
+          <TextBlock Classes="muted" FontSize="{StaticResource SizeBody}" Text="{Binding Summary}" />
+        </StackPanel></Border>
 
-        <StackPanel Spacing="6">
+        <Border Classes="card"><StackPanel Spacing="8">
           <TextBlock Classes="lbl" Text="FILES THE MOD WILL ADD" />
-          <Border Classes="card" Padding="14,10">
+          <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusControl}" Padding="12,8">
             <ScrollViewer MaxHeight="260" HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Files the mod will add">
-            <ItemsControl ItemsSource="{Binding Files}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="12" Foreground="#C9CDD2" Margin="0,3" /></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+            <ItemsControl ItemsSource="{Binding Files}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="{StaticResource SizeBody}" Foreground="{StaticResource SoftTextBrush}" Margin="0,4" /></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
             </ScrollViewer>
           </Border>
-        </StackPanel>
+        </StackPanel></Border>
 
-        <StackPanel Spacing="6">
+        <Border Classes="card"><StackPanel Spacing="8">
           <TextBlock Classes="lbl" Text="CHECKS" />
-          <Border Classes="card" Padding="0">
+          <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusControl}" ClipToBounds="True">
             <ScrollViewer MaxHeight="360" AutomationProperties.Name="Checks">
             <ItemsControl ItemsSource="{Binding Checks}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="app:CheckRow">
-                  <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="14,12">
+                  <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="12,12">
                     <Grid ColumnDefinitions="Auto,*">
-                      <Ellipse Width="8" Height="8" Margin="0,6,12,0" VerticalAlignment="Top" Fill="{Binding Brush}" />
-                      <StackPanel Grid.Column="1" Spacing="2">
+                      <Ellipse Width="8" Height="8" Margin="0,8,12,0" VerticalAlignment="Top" Fill="{Binding Brush}" />
+                      <StackPanel Grid.Column="1" Spacing="4">
                         <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding Detail}" Classes="muted" FontSize="13" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Detail}" Classes="muted" FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" />
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -66,29 +66,29 @@
             </ItemsControl>
             </ScrollViewer>
           </Border>
-        </StackPanel>
+        </StackPanel></Border>
 
-        <StackPanel Orientation="Horizontal" Spacing="12">
+        <Border Classes="card"><StackPanel Orientation="Horizontal" Spacing="12">
           <TextBlock Classes="lbl" Text="DRY RUN" VerticalAlignment="Center" />
           <Button Content="Run a dry run" Command="{Binding DryRunNow}" />
           <CheckBox Content="Also check for clashes with my installed mods" IsChecked="{Binding CheckClashes}" />
-        </StackPanel>
+        </StackPanel></Border>
 
-        <StackPanel Spacing="6">
+        <Border Classes="card"><StackPanel Spacing="8">
           <TextBlock Classes="lbl" Text="RUN LOG" />
-          <Border Classes="card" Padding="14,10">
+          <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusControl}" Padding="12,8">
             <ScrollViewer MaxHeight="240" HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Run log">
-            <ItemsControl ItemsSource="{Binding Log}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="12" Foreground="#C9CDD2" TextWrapping="Wrap" /></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+            <ItemsControl ItemsSource="{Binding Log}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="{StaticResource SizeBody}" Foreground="{StaticResource SoftTextBrush}" TextWrapping="Wrap" /></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
             </ScrollViewer>
           </Border>
-        </StackPanel>
+        </StackPanel></Border>
       </StackPanel>
     </ScrollViewer>
 
-    <ScrollViewer Grid.Row="1" Grid.Column="1">
-      <StackPanel Margin="0,24,24,24" Spacing="14">
-        <Border Classes="card" Padding="18">
-          <StackPanel Spacing="10">
+    <ScrollViewer Grid.Column="1">
+      <StackPanel Margin="0,20,20,20" Spacing="12">
+        <Border Classes="card" Padding="20">
+          <StackPanel Spacing="8">
             <TextBlock Classes="lbl" Text="OUTPUT" />
             <TextBlock Text="Mod name" FontWeight="SemiBold" />
             <TextBox Text="{Binding ModName}" />
@@ -101,25 +101,25 @@
             <TextBlock Text="Version" FontWeight="SemiBold" />
             <TextBox Text="{Binding ModVersion}" />
             <TextBlock Text="File" FontWeight="SemiBold" />
-            <TextBlock Text="{Binding FileName}" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="12" Classes="muted" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding FileName}" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="{StaticResource SizeBody}" Classes="muted" TextWrapping="Wrap" />
             <TextBlock Text="Slots used" FontWeight="SemiBold" Margin="0,8,0,0" />
             <TextBlock Text="{Binding Summary}" Classes="muted" TextWrapping="Wrap" />
-            <Border IsVisible="{Binding HasErrors}" Background="#2A1210" BorderBrush="#7A2A26" BorderThickness="1" CornerRadius="8" Padding="14">
+            <Border IsVisible="{Binding HasErrors}" Background="{StaticResource BadFillBrush}" BorderBrush="{StaticResource BadLineBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusCard}" Padding="12">
               <StackPanel Spacing="8">
-                <TextBlock Text="{Binding AttentionTitle}" FontWeight="SemiBold" Foreground="#F8C9C5" />
-                <ScrollViewer MaxHeight="160"><ItemsControl ItemsSource="{Binding Errors}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="#F8C9C5" Margin="0,2" /></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></ScrollViewer>
-                <CheckBox IsChecked="{Binding BuildAnyway}"><TextBlock TextWrapping="Wrap" Foreground="#F8C9C5" Text="Build anyway (not recommended): the mod may fail to install or crash in game." /></CheckBox>
+                <TextBlock Text="{Binding AttentionTitle}" FontWeight="SemiBold" Foreground="{StaticResource BadTextBrush}" />
+                <ScrollViewer MaxHeight="160"><ItemsControl ItemsSource="{Binding Errors}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="{StaticResource BadTextBrush}" Margin="0,4" /></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></ScrollViewer>
+                <CheckBox IsChecked="{Binding BuildAnyway}"><TextBlock TextWrapping="Wrap" Foreground="{StaticResource BadTextBrush}" Text="Build anyway (not recommended): the mod may fail to install or crash in game." /></CheckBox>
               </StackPanel>
             </Border>
             <Button Classes="primary" Content="{Binding BuildLabel}" Command="{Binding BuildNow}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" MinHeight="40" />
             <TextBlock Text="{Binding Status}" Foreground="{StaticResource GreenBrush}" TextWrapping="Wrap" />
           </StackPanel>
         </Border>
-        <Border Classes="card" Padding="18">
-          <StackPanel Spacing="6">
+        <Border Classes="card" Padding="20">
+          <StackPanel Spacing="8">
             <TextBlock Classes="lbl" Text="REQUIRES" />
             <TextBlock Text="V Framework 1.7 · Infinite Heaven · IHHook" />
-            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="The mod needs these installed to run." />
+            <TextBlock Classes="muted" FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" Text="The mod needs these installed to run." />
           </StackPanel>
         </Border>
       </StackPanel>

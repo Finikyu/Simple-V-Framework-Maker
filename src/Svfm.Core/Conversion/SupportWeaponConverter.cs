@@ -10,14 +10,14 @@ using Svfm.Core.VFramework;
 namespace Svfm.Core.Conversion;
 
 /// <summary>
-/// A support weapon model a mod replaces in the resident common package, with the vanilla items that use it (a model
-/// can be shared: the smoke and sleeping gas grenades use tr00). A <see cref="Thrown"/> item becomes a new item thrown like
+/// A support weapon model a mod replaces in the resident common package, with the first vanilla item that uses it (a
+/// model can be shared: the smoke and sleeping gas grenades use tr00). A <see cref="Thrown"/> item becomes a new item thrown like
 /// the vanilla one, with the mod's model (new entries in col_common_tpp, <see cref="SupportWeaponConverter.AddTo"/>) and a
 /// script of its own; placed items can't (SetSupportWeapon takes only a vanilla thrown item as throwAs). <see cref="Reason"/>
 /// says why (empty for a thrown item).
 /// </summary>
 public sealed record SupportWeaponReplacement(string ModelPath, string Family, string VanillaEquip, VanillaSupportWeapon Vanilla,
-    IReadOnlyList<string> SharedWith, bool Thrown, string Reason);
+    bool Thrown, string Reason);
 
 public sealed class SupportWeaponConversionOptions
 {
@@ -31,6 +31,10 @@ public sealed class SupportWeaponConversionOptions
     /// <summary>What the item does when thrown; default: the vanilla item's effect (<see cref="ThrowScript.VanillaEffect"/>).
     /// The item's <see cref="SupportWeaponSpec.Script"/> can be changed afterwards too.</summary>
     public ThrowScript? Script { get; init; }
+    /// <summary>Issue #106: a copy (Duplicate) uses this item's model: its .parts and model files, not new ones.</summary>
+    public SupportWeaponItem? ModelFrom { get; init; }
+    /// <summary>The key and file prefix the maker gives (Duplicate); default: the project's next names for <see cref="Id"/>.</summary>
+    public (string Key, string Prefix)? Names { get; init; }
 }
 
 /// <summary>
@@ -75,14 +79,13 @@ public static class SupportWeaponConverter
                     .OrderBy(kv => kv.Value.EquipType == "Throwing" ? 0 : 1).ThenBy(kv => kv.Value.Grade ?? 99).ThenBy(kv => kv.Key.Length).ToList();
             if (rows.Count == 0) continue;
             var (equip, row) = (rows[0].Key, rows[0].Value);
-            var shared = rows.Select(r => Family(r.Key)).Distinct().Where(x => x != Family(equip)).ToList();
             bool thrown = row.EquipType == "Throwing";
             string reason = thrown ? "" :
                 // Short on purpose (the owner: "our tests on the PT Decoy should not be included like a user would know that").
                 // Why: SetSupportWeapon takes a vanilla thrown item as throwAs, so a new placed item has no behaviour; the
                 // P.T. Decoy, thrown and scripted as a decoy, did nothing in game.
                 $"{Family(equip)} is a placed item. V Framework 1.7 can only add thrown items, so this item can't be ported.";
-            list.Add(new SupportWeaponReplacement(f.Path, fam, equip, row, shared, thrown, reason));
+            list.Add(new SupportWeaponReplacement(f.Path, fam, equip, row, thrown, reason));
         }
         return list;
     }
@@ -108,7 +111,7 @@ public static class SupportWeaponConverter
     public static SupportWeaponItem AddTo(ModProject p, GameData game, MgsvMod mod, SupportWeaponReplacement r, SupportWeaponConversionOptions o)
     {
         if (!r.Thrown) throw new InvalidOperationException(r.Reason);
-        var (key, prefix) = p.NewItemNames(o.Id);
+        var (key, prefix) = o.Names ?? p.NewItemNames(o.Id);
         var notes = new List<string>();
         var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
 
@@ -120,7 +123,13 @@ public static class SupportWeaponConverter
         var vanFpkd = game.TryRead(CommonPackage + ".fpkd") is { } vfd ? FoxPackage.Read(vfd) : null;
         byte[]? modModel = FoxPackage.Read(mod.ArchiveFiles[CommonPackage + ".fpk"]).Find(r.ModelPath)?.Data;
         string partsPath = r.Vanilla.Parts;
-        if (modModel != null && vanFpkd?.Find(r.Vanilla.Parts) is { } vanParts)
+        if (o.ModelFrom is { } from)
+        {
+            // The same entries as the source's: the build holds them once, and keeps them when the source is removed.
+            partsPath = from.Spec.PartsPath;
+            foreach (var (path, d) in from.Files.Where(f => !f.Key.StartsWith(from.Spec.IconFtexPath + ".", StringComparison.Ordinal))) files[path] = d;
+        }
+        else if (modModel != null && vanFpkd?.Find(r.Vanilla.Parts) is { } vanParts)
         {
             string fam = r.Family;
             string modelPath = $"/Assets/tpp/weapon/thr/Scenes/{fam}_{prefix}.fmdl";
@@ -181,8 +190,6 @@ public static class SupportWeaponConverter
         AttackAndBlast(game, mod, spec, swp, vanTables, modTables, notes);
         spec.Header.Add($"{o.Name ?? mod.Metadata.Name}: a new item thrown like {r.VanillaEquip}, .parts {partsPath}; " +
                         $"made from \"{mod.Metadata.Name}\" by {mod.Metadata.Author}.");
-        if (r.SharedWith.Count > 0)
-            notes.Add($"The model is shared with {string.Join(", ", r.SharedWith)}; the port makes one item, like {Family(r.VanillaEquip)}. Another can be made from the same model.");
         string name = o.Name ?? Regex.Replace(mod.Metadata.Name, @"\s*\(.*?\)\s*", " ").Trim().ToUpperInvariant();
         var item = new SupportWeaponItem { Id = o.Id, Key = key, Prefix = prefix, Spec = spec, Title = name };
 
@@ -212,19 +219,16 @@ public static class SupportWeaponConverter
     /// </summary>
     private static void AttackAndBlast(GameData game, MgsvMod mod, SupportWeaponSpec spec, string swp, SupportTables? vanTables, SupportTables? modTables, List<string> notes)
     {
-        string kind = Family(swp).Replace("SWP_", "");
-        var grade = Regex.Match(swp, "_G0([0-9])$");
         var vanDamage = EquipTables.Load(game.TryRead);
         var modDamage = EquipTables.Load(path => mod.ArchiveFiles.GetValueOrDefault(path));
-        string? atk = new[] { grade.Success ? $"ATK_{kind}_G{grade.Groups[1].Value}" : null, $"ATK_{kind}" }
-            .FirstOrDefault(a => a != null && vanDamage?.Part(WeaponPartKind.Damage, a) != null);
+        string? atk = ThrowAsRows(swp, vanDamage, vanTables).Attack;
         spec.ThrowAsAttack = atk;
         if (atk != null && modDamage?.Part(WeaponPartKind.Damage, atk) is { } md && md.Differences(vanDamage!.Part(WeaponPartKind.Damage, atk)!) is { Count: > 0 } changed)
         {
             spec.OwnAttack = md;
             notes.Add($"The mod changes {atk} ({string.Join(", ", changed)}); the new item gets its own copy with the mod's values (the game picks a thrown item's attack in code: {atk} is the one named for {swp}).");
         }
-        string bla = $"BLA_{kind}";
+        string bla = $"BLA_{Family(swp).Replace("SWP_", "")}";
         if (vanTables?.Blasts.GetValueOrDefault(bla) is { } vb)
         {
             spec.ThrowAsBlast = bla;
@@ -234,6 +238,41 @@ public static class SupportWeaponConverter
                 notes.Add($"The mod changes {bla} ({Changes(("noise", vb.BlastFlag, mb.BlastFlag), ("radius", vb.EffectRange, mb.EffectRange), ("others' radius", vb.OptimalRange, mb.OptimalRange))}); the new item gets its own copy with the mod's values.");
             }
         }
+    }
+
+    /// <summary>Issue #119: gives the item its own copy of the thrown-as item's attack row, to edit. False when it has one,
+    /// or the game has no such row.</summary>
+    public static bool CopyAttack(GameData game, SupportWeaponSpec s)
+    {
+        if (s.OwnAttack != null || s.ThrowAsAttack is not { } a || EquipTables.Load(game.TryRead)?.Part(WeaponPartKind.Damage, a) is not { } row) return false;
+        s.OwnAttack = row.Copy(); s.OwnAttackFrom = s.ThrowAs;
+        return true;
+    }
+
+    /// <summary>Issue #119: the same for the blast row.</summary>
+    public static bool CopyBlast(GameData game, SupportWeaponSpec s)
+    {
+        if (s.OwnBlast != null || s.ThrowAsBlast is not { } b || SupportTables.Load(game.TryRead)?.Blasts.GetValueOrDefault(b) is not { } row) return false;
+        s.OwnBlast = row; s.OwnBlastFrom = s.ThrowAs;
+        return true;
+    }
+
+    /// <summary>
+    /// The vanilla attack and blast named for a thrown-as item (EQP_SWP_Grenade or SWP_Grenade_G02): what an item with
+    /// none of its own uses. Null where the game has no such row.
+    /// </summary>
+    public static (string? Attack, string? Blast) ThrowAsRows(GameData game, string throwAs) =>
+        ThrowAsRows(GameKnowledge.SupportWeapons.TryGetValue(throwAs, out var v) ? v.Swp.Replace("TppEquip.", "") : throwAs.Replace("EQP_", ""),
+            EquipTables.Load(game.TryRead), SupportTables.Load(game.TryRead));
+
+    private static (string? Attack, string? Blast) ThrowAsRows(string swp, EquipTables? vanDamage, SupportTables? vanTables)
+    {
+        string kind = Family(swp).Replace("SWP_", "");
+        var grade = Regex.Match(swp, "_G0([0-9])$");
+        string? atk = new[] { grade.Success ? $"ATK_{kind}_G{grade.Groups[1].Value}" : null, $"ATK_{kind}" }
+            .FirstOrDefault(a => a != null && vanDamage?.Part(WeaponPartKind.Damage, a) != null);
+        string bla = $"BLA_{kind}";
+        return (atk, vanTables?.Blasts.ContainsKey(bla) == true ? bla : null);
     }
 
 

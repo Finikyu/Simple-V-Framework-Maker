@@ -75,6 +75,8 @@ public sealed class FmdlMesh
     public required int MaterialIndex { get; init; }
     public required int MeshGroup { get; init; }
     public required Vector3[] Positions { get; init; }
+    /// <summary>Where the mesh's index list starts in the model file (bytes).</summary>
+    public int? IndexOffset { get; init; }
     public Vector3[]? Normals { get; init; }
     /// <summary>Tangents (xyz) with the handedness in w, when the mesh has them.</summary>
     public Vector4[]? Tangents { get; init; }
@@ -82,6 +84,12 @@ public sealed class FmdlMesh
     /// <summary>The second UV set (vertex usage 9), when the mesh has one (D-Dog's fur: the coat colour map's layout).</summary>
     public Vector2[]? Uv1 { get; init; }
     public required ushort[] Indices { get; init; }
+    /// <summary>Four model bone indices per vertex (the mesh's bone group already applied), when the mesh is skinned.</summary>
+    public int[]? BoneIndices { get; init; }
+    /// <summary>Four bone weights per vertex (0 to 1), in the order of <see cref="BoneIndices"/>.</summary>
+    public float[]? BoneWeights { get; init; }
+    /// <summary>Per vertex: true for the vertices a hung tail chain moves (set by <see cref="Rendering.TailPose.Hang"/>).</summary>
+    public bool[]? Tail { get; set; }
 }
 
 /// <summary>
@@ -113,6 +121,13 @@ public sealed class FmdlModel
     {
         Bones = Bones, Materials = Materials, MeshGroups = MeshGroups,
         Meshes = Meshes.Where(keep).ToList(),
+    };
+
+    /// <summary>A copy of the model with <paramref name="extra"/> meshes added after its own. Bones, materials and mesh groups are shared.</summary>
+    public FmdlModel WithMeshesAdded(IEnumerable<FmdlMesh> extra) => new()
+    {
+        Bones = Bones, Materials = Materials, MeshGroups = MeshGroups,
+        Meshes = Meshes.Concat(extra).ToList(),
     };
 
     /// <summary>
@@ -386,6 +401,24 @@ public sealed class FmdlModel
         throw new InvalidDataException("The model has no mesh groups.");
     }
 
+    /// <summary>
+    /// A copy of a model in which only the meshes in <paramref name="keep"/> draw (issue #126: the knot band and tails of
+    /// Snake's bandana face, which share mesh group 1 with the face). Every index of each other mesh is set to 0, so all
+    /// its triangles are degenerate and draw nothing. The layout, bones, groups and vertices do not change.
+    /// </summary>
+    public static byte[] KeepMeshes(byte[] data, IReadOnlySet<int> keep)
+    {
+        var d = (byte[])data.Clone();
+        var m = Read(d);
+        foreach (var x in m.Meshes)
+        {
+            if (keep.Contains(x.Index)) continue;
+            if (x.IndexOffset is not int ib) throw new InvalidDataException("The model has no index offsets.");
+            d.AsSpan(ib, x.Indices.Length * 2).Clear();
+        }
+        return d;
+    }
+
     public static FmdlModel Read(byte[] d)
     {
         try { return ReadChecked(d); } catch (Exception e) when (Damaged.Is(e)) { throw Damaged.Error("model", e); }
@@ -529,7 +562,7 @@ public sealed class FmdlModel
         for (int i = 0; i < meshCount; i++)
         {
             int o = meshOff + i * 0x30;
-            int mat = U16(o + 4), vcount = U16(o + 0x0A);
+            int mat = U16(o + 4), boneGroup = U16(o + 6), vcount = U16(o + 0x0A);
             if (mat >= mats.Count) throw new InvalidDataException($"The model file is damaged: mesh {i} uses material {mat} of {mats.Count}.");
             int firstIndex = (int)U32(o + 0x10), indexCount = (int)U32(o + 0x14);
             int fi = fiOff + i * 8;
@@ -545,6 +578,8 @@ public sealed class FmdlModel
             Vector3[]? normals = null;
             Vector4[]? tangents = null;
             Vector2[]? uv = null, uv1 = null;
+            int[]? boneIdx = null;
+            float[]? boneW = null;
             for (int e = 0; e < elemCount; e++)
             {
                 int eo = veOff + (firstElem + e) * 4;
@@ -564,6 +599,18 @@ public sealed class FmdlModel
                     uv = new Vector2[vcount];
                     for (int v = 0; v < vcount; v++) { int q = addBase + v * stride + eoff; uv[v] = new Vector2((float)H(q), (float)H(q + 2)); }
                 }
+                // Skin (FMDL Studio): usage 1 BONE_WEIGHT0 as 4 UNORM8, usage 7 BONE_INDEX0 as 4 UINT8 into the mesh's bone group.
+                else if (usage == 1 && type == 8)
+                {
+                    boneW = new float[vcount * 4];
+                    for (int v = 0; v < vcount; v++) for (int k = 0; k < 4; k++) boneW[v * 4 + k] = d[addBase + v * stride + eoff + k] / 255f;
+                }
+                else if (usage == 7 && type == 9 && B(5) is var (bgCount, bgOff) && boneGroup < bgCount)
+                {
+                    int g = bgOff + boneGroup * 0x44, gc = U16(g + 2);
+                    boneIdx = new int[vcount * 4];
+                    for (int v = 0; v < vcount; v++) for (int k = 0; k < 4; k++) { int li = d[addBase + v * stride + eoff + k]; boneIdx[v * 4 + k] = li < gc ? U16(g + 4 + li * 2) : -1; }
+                }
                 else if (usage == 9 && type == 7)
                 {
                     uv1 = new Vector2[vcount];
@@ -579,7 +626,8 @@ public sealed class FmdlModel
             meshes.Add(new FmdlMesh
             {
                 Index = i, MaterialIndex = mat, MeshGroup = meshGroupOf.GetValueOrDefault(i, -1),
-                Positions = pos, Normals = normals, Tangents = tangents, Uv = uv, Uv1 = uv1, Indices = idx,
+                Positions = pos, Normals = normals, Tangents = tangents, Uv = uv, Uv1 = uv1, Indices = idx, IndexOffset = ib,
+                BoneIndices = boneIdx, BoneWeights = boneW,
             });
         }
         m.Meshes = meshes;

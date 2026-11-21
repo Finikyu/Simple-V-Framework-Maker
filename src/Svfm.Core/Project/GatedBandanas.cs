@@ -58,7 +58,7 @@ public static class GatedBandanas
         if (!IsGated(h) || !h.Spec.Branches.TryGetValue(PlayerBranch.Avatar, out var av) || av is not { Fpk: { } avFpk, Fv2: { } avFv2 }
             || h.Files.ContainsKey(avFpk)) return files;
         string pkg = avFpk[..^".fpk".Length];
-        string model = $"/Assets/tpp/chara/sna/Scenes/{h.Prefix}_avbandana.fmdl";
+        string model = Naming.SnaModel(h.Prefix, "avbandana");
         var fpk = new Formats.FoxPackage();
         var fpkd = new Formats.FoxPackage { IsFpkd = true };
         var pack = new Formats.TexturePack();

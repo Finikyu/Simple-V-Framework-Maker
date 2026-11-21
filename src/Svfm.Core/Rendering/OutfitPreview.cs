@@ -40,14 +40,23 @@ public sealed class OutfitPreview
     private readonly float _width;
     private List<PreviewMesh>? _meshes;
 
-    /// <summary>True when the body model has its own left forearm and hand (the first model is the body).</summary>
-    public bool HasOwnLeftArm => _models.Count > 0 && BodyConverter.HasOwnLeftArm(_models[0]);
+    /// <summary>
+    /// True when the body model has its own left forearm and hand (the first model is the body). Read before the preview
+    /// mirrors the right arm (<see cref="MirrorRightArm"/>), so it says what the game shows.
+    /// </summary>
+    public bool HasOwnLeftArm { get; }
 
-    private OutfitPreview(List<FmdlModel> models, TextureSource source, List<Fv2File.TextureSwap> swaps)
+    /// <summary>The first model whose gear a head option's view icon shows (1 when model 0 is a face the option only carries).</summary>
+    public int GearFrom { get; private init; }
+
+    private OutfitPreview(List<FmdlModel> models, TextureSource source, List<Fv2File.TextureSwap> swaps, bool? ownLeftArm = null)
     {
         _models = models; _source = source; _swaps = swaps;
+        HasOwnLeftArm = ownLeftArm ?? (models.Count > 0 && BodyConverter.HasOwnLeftArm(models[0]));
         float lo = float.MaxValue, hi = float.MinValue, wide = 0;
-        foreach (var m in models) foreach (var mesh in m.Meshes) foreach (var v in mesh.Positions) { lo = Math.Min(lo, v.Y); hi = Math.Max(hi, v.Y); wide = Math.Max(wide, Math.Max(Math.Abs(v.X), Math.Abs(v.Z))); }
+        // The frame fits the drawn meshes only: hidden groups are not drawn (issue #129, an extra that is a whole body).
+        foreach (var m in models) foreach (var mesh in m.Meshes.Where(x => !(x.MeshGroup >= 0 && x.MeshGroup < m.MeshGroups.Count && m.MeshGroups[x.MeshGroup].hidden)))
+            foreach (var v in mesh.Positions) { lo = Math.Min(lo, v.Y); hi = Math.Max(hi, v.Y); wide = Math.Max(wide, Math.Max(Math.Abs(v.X), Math.Abs(v.Z))); }
         _span = lo > hi ? (0f, 2f) : (lo, hi);
         _width = Math.Max(0.5f, wide * 2);
     }
@@ -141,11 +150,55 @@ public sealed class OutfitPreview
                 HeadFpk = head.Files.TryGetValue(hp + ".fpk", out var hf) ? FoxPackage.Read(hf) : null,
                 HeadPack = head.Files.TryGetValue(hp + ".pftxs", out var hpk) ? TexturePack.Read(hpk) : null,
                 HeadGroups = null,
+                HeadFv2 = hb.Fv2,
             };
         }
         if (vanillaHeadPackage != null) input = input with { HeadPackage = vanillaHeadPackage, HeadFpk = null, HeadPack = null, HeadGroups = vanillaHeadGroups };
         var (models, src, swaps) = SuitRender.Scene(game, dict, input);
-        return new OutfitPreview(models, src, swaps);
+        bool ownLeftArm = models.Count > 0 && BodyConverter.HasOwnLeftArm(models[0]);
+        // Issue #44: with no arm package drawn, a body with no left arm shows its right arm mirrored. Preview only.
+        if (input.ArmPackage == null && !ownLeftArm && models.Count > 0) models[0] = MirrorRightArm(models[0]);
+        return new OutfitPreview(models, src, swaps, ownLeftArm);
+    }
+
+    /// <summary>
+    /// Issue #44, preview only: the body with its right forearm and hand mirrored to the left (X negated, winding reversed,
+    /// UVs kept). A body with no left arm (vanilla Snake, a mod that hides the bionic arm) then shows two arms in the
+    /// preview. The game does not: V Framework 1.7 has only <c>enableArm</c>, and the game has no plain arm for Snake.
+    /// The mirrored part is every triangle beyond the left stump's reach (less 3 cm, so no gap shows).
+    /// </summary>
+    /// <param name="m">The body model.</param>
+    /// <returns>A copy with the mirrored meshes added, or <paramref name="m"/> when there is nothing to mirror.</returns>
+    public static FmdlModel MirrorRightArm(FmdlModel m)
+    {
+        bool Shown(FmdlMesh x) => x.MeshGroup < 0 || x.MeshGroup >= m.MeshGroups.Count || !m.MeshGroups[x.MeshGroup].hidden;
+        float reach = 0;
+        foreach (var x in m.Meshes) if (Shown(x)) foreach (var p in x.Positions) reach = MathF.Max(reach, p.X);
+        float cut = reach - 0.03f;
+        static Vector3 Flip(Vector3 v) => new(-v.X, v.Y, v.Z);
+        var added = new List<FmdlMesh>();
+        foreach (var x in m.Meshes)
+        {
+            if (!Shown(x)) continue;
+            var tris = new List<ushort>();
+            for (int i = 0; i + 2 < x.Indices.Length; i += 3)
+            {
+                ushort a = x.Indices[i], b = x.Indices[i + 1], c = x.Indices[i + 2];
+                if (-x.Positions[a].X < cut || -x.Positions[b].X < cut || -x.Positions[c].X < cut) continue;
+                tris.Add(a); tris.Add(c); tris.Add(b);
+            }
+            if (tris.Count == 0) continue;
+            added.Add(new FmdlMesh
+            {
+                Index = x.Index, MaterialIndex = x.MaterialIndex, MeshGroup = x.MeshGroup,
+                Positions = x.Positions.Select(Flip).ToArray(),
+                Normals = x.Normals?.Select(Flip).ToArray(),
+                Tangents = x.Tangents?.Select(t => new Vector4(-t.X, t.Y, t.Z, -t.W)).ToArray(),
+                Uv = x.Uv, Uv1 = x.Uv1, BoneIndices = x.BoneIndices, BoneWeights = x.BoneWeights,
+                Indices = [.. tris],
+            });
+        }
+        return added.Count == 0 ? m : m.WithMeshesAdded(added);
     }
 
     /// <summary>
@@ -169,8 +222,8 @@ public sealed class OutfitPreview
         if (branch?.Fpk is not { Length: > 0 } fpk) return null;
         string hp = fpk.EndsWith(".fpk", StringComparison.Ordinal) ? fpk[..^4] : fpk;
         if (!item.Files.TryGetValue(hp + ".fpk", out var fpkData)) return null;
-        var model = SuitRender.HeadModel(FoxPackage.Read(fpkData));
-        if (model == null) return null;
+        var (models, faceFirst) = SuitRender.HeadModels(FoxPackage.Read(fpkData), branch.Fv2);
+        if (models.Count == 0) return null;
 
         var src = new TextureSource(game, dict);
         if (item.Files.TryGetValue(hp + ".pftxs", out var packData)) src.AddModPack(TexturePack.Read(packData));
@@ -178,7 +231,10 @@ public sealed class OutfitPreview
             src.AddModFile(path, data);
         // Hidden groups shown, except copies of a shown group: a head package hides most of its groups because in game a
         // look's .fv2 shows them, and some (the PW helmet) hide a second visor that would draw twice.
-        return new OutfitPreview([model.WithHeadGroupsShown()], src, []);
+        // The icon shows only the extras (issue #129), so a face copy that the .fv2 attaches with them is left out of it.
+        // Only the face gets its hidden groups shown: an attached extra can be a whole body with one group shown (the scarf
+        // and goggles mod), and in game it stays that way.
+        return new OutfitPreview(models.Select((m, i) => faceFirst && i == 0 ? m.WithHeadGroupsShown() : m).ToList(), src, []) { GearFrom = faceFirst && models.Count > 1 ? 1 : 0 };
     }
 
     /// <summary>
@@ -225,6 +281,9 @@ public sealed class OutfitPreview
     public static OutfitPreview? ForWeapon(GameData game, PathDictionary? dict, ProjectItem item)
     {
         string? pkg = item switch { WeaponItem w => w.Spec.FpkPath, SupportWeaponItem t => t.Spec.FpkPath, _ => null };
+        // A ported thrown item has no package of its own; its model is a new entry of the common package (SupportWeaponConverter.AddTo).
+        if (item is SupportWeaponItem && string.IsNullOrEmpty(pkg) && item.Files.ContainsKey(SupportWeaponConverter.CommonPackage + ".fpk"))
+            pkg = SupportWeaponConverter.CommonPackage;
         if (pkg == null) return null;
         if (pkg.EndsWith(".fpk", StringComparison.Ordinal)) pkg = pkg[..^4];
         // A weapon port: the files as a build makes them (a swapped sight merged in, the camo painted), so the preview
@@ -395,7 +454,7 @@ public sealed class OutfitPreview
         var turn = f.View!.Value;
         // The preview moves its centre by the pan (IconRenderer: OffsetX x 2 and OffsetY times the world height), so the gear moves the other way.
         var shift = new Vector3(-f.OffsetX * 2 * f.WorldHeight, -f.OffsetY * f.WorldHeight, 0);
-        var gear = HeadIcon.GearMeshes(_models[0]);
+        var gear = _models.Skip(GearFrom).SelectMany(HeadIcon.GearMeshes).ToList();
         List<FmdlMesh> Turned(Vector3 by) => gear.Select(x => new FmdlMesh
         {
             Index = x.Index, MaterialIndex = x.MaterialIndex, MeshGroup = x.MeshGroup, Indices = x.Indices,

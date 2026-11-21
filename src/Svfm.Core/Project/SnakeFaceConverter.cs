@@ -28,8 +28,9 @@ public sealed record SnakeFaceOptions
 /// vanilla face package with the mod's files merged over it, the face model moved to a new path, and a new attach .fv2
 /// that names it (keeping the vanilla attachments, e.g. the bandana cloth .sim). The mod's hair physics (.sim it puts in
 /// the body packages) is packed with the plain faces and attached by their .fv2, since a head option can't change the
-/// body packages; the bandana faces already use that slot for the bandana cloth. Loose textures at new paths are copied
-/// as they are; story packages and UI pictures are left out.
+/// body packages; the bandana faces already use that slot for the bandana cloth. Loose textures the faces use are copied
+/// under the port's own names (also those at new paths: other head mods ship different textures there); story packages
+/// and UI pictures are left out.
 /// </summary>
 public static class SnakeFaceConverter
 {
@@ -50,25 +51,28 @@ public static class SnakeFaceConverter
         var notes = new List<string>();
         var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
 
-        // Loose textures at new paths come along; anything at a vanilla path is refused (never change vanilla files).
-        foreach (var (path, data) in mod.ArchiveFiles)
-        {
-            var kind = ModClassifier.KindOf(path, mod);
-            if (!path.Contains(".ftex", StringComparison.Ordinal) || kind is ModFileKind.Ui or ModFileKind.Icon) continue;
-            string ftex = TextureCheck.FtexOf(path); // a stray "tex.ftexs" (one dot) threw here
-            if (InstalledTextures.IsVanillaPath(game, ftex)) continue;   // moved whole under a new name below
-            if (!mod.Ships(path)) continue;   // a separately installed dependency's file
-            files[path] = data;
-        }
-        // Textures the mod installs at vanilla paths: complete copies under new names; the face models point at them.
+        // Every texture the models use: complete copies under this port's own names; the face models point at them. Not
+        // only vanilla paths: head mods reuse generic paths (Absolute Venom and others ship Stage1/sna0_hair0_def_bsm_alp),
+        // so a texture left at the mod's path is overwritten by the next head that ships one there (user report, Nov 19).
         InstalledTextures.Result relocated;
         {
             string firstPkg = string.Format(FacePkg, replaced[0]);
             var moved = new Dictionary<string, byte[]>(StringComparer.Ordinal);
             relocated = InstalledTextures.Collect(game, mod, TextureCheck.Referenced(mod.ArchiveFiles), setPrefix,
                 mod.ArchiveFiles.TryGetValue(firstPkg + ".pftxs", out var fmp) ? TexturePack.Read(fmp) : null,
-                game.TryRead(firstPkg + ".pftxs") is { } fvp ? TexturePack.Read(fvp) : null, moved, notes);
+                game.TryRead(firstPkg + ".pftxs") is { } fvp ? TexturePack.Read(fvp) : null, moved, notes, ownCopies: true);
             foreach (var (path, data) in moved) files.TryAdd(path, data);
+        }
+        // Other loose textures at new paths come along as they are; anything at a vanilla path is refused (never change vanilla files).
+        foreach (var (path, data) in mod.ArchiveFiles)
+        {
+            var kind = ModClassifier.KindOf(path, mod);
+            if (!path.Contains(".ftex", StringComparison.Ordinal) || kind is ModFileKind.Ui or ModFileKind.Icon) continue;
+            string ftex = TextureCheck.FtexOf(path); // a stray "tex.ftexs" (one dot) threw here
+            if (InstalledTextures.IsVanillaPath(game, ftex)) continue;   // moved whole under a new name above
+            if (relocated.Codes.ContainsKey(FoxHash.PathCode64(ftex))) continue;   // copied under an own name above
+            if (!mod.Ships(path)) continue;   // a separately installed dependency's file
+            files.TryAdd(path, data);
         }
         foreach (var path in mod.ArchiveFiles.Keys.Where(k => ModClassifier.KindOf(k, mod) is ModFileKind.MissionOrCutscene or ModFileKind.Ui))
             notes.Add($"{path}: {(ModClassifier.KindOf(path, mod) == ModFileKind.Ui ? "UI picture" : "story/cutscene package")}; not part of a head, left out.");
@@ -87,6 +91,10 @@ public static class SnakeFaceConverter
             }
         }
         string simPath = $"/Assets/tpp/chara/sna/Fox_files/{setPrefix}_hair.sim";
+        var bodySims = new Dictionary<ulong, PackageFile>();
+        // Every body .fpkd: Bandana Dynamics ships whole body packages (Body, not BodyPhysics); only a .sim a face attaches is taken.
+        foreach (var (path, data) in mod.ArchiveFiles.Where(kv => kv.Key.Contains("/pack/player/parts/plparts_", StringComparison.Ordinal) && kv.Key.EndsWith(".fpkd", StringComparison.Ordinal)))
+            foreach (var f in FoxPackage.Read(data).Files.Where(f => f.Extension == "sim")) bodySims.TryAdd(FoxHash.PathCode64(f.Path), f);
 
         // One package per face.
         var pkgOf = new Dictionary<int, (string fpk, string fv2)>();
@@ -107,7 +115,7 @@ public static class SnakeFaceConverter
             string vanFv2 = $"/Assets/tpp/fova/chara/sna/sna0_face{n}_v00.fv2";
             var attach = new Fv2File((fpk.Find(vanFv2) ?? throw new InvalidDataException($"{van}.fpk has no face .fv2.")).Data).Attachments().ToList();
             fpk.Files.RemoveAll(f => f.Path == vanFv2);
-            string vanModel = $"/Assets/tpp/chara/sna/Scenes/sna0_face{n}_cov.fmdl", newModel = $"/Assets/tpp/chara/sna/Scenes/{setPrefix}_f{n}_cov.fmdl";
+            string vanModel = $"/Assets/tpp/chara/sna/Scenes/sna0_face{n}_cov.fmdl", newModel = Naming.SnaModel(setPrefix, $"f{n}_cov");
             int mi = fpk.Files.FindIndex(f => f.Path == vanModel);
             if (mi < 0) throw new InvalidDataException($"{van}.fpk has no face model.");
             var model = fpk.Files[mi].Data;
@@ -119,6 +127,16 @@ public static class SnakeFaceConverter
             {
                 int fi = attach.FindIndex(a => a.Model == newCode && a.Sim == null);
                 if (fi >= 0) { attach[fi] = attach[fi] with { Sim = FoxHash.PathCode64(simPath) }; fpkd.Files.Add(new PackageFile(simPath, hairSim)); }
+            }
+            // Physics a face attaches but only the mod's body packages hold (Bandana Dynamics' hat23 cloth on face4/5): the port
+            // leaves the bodies out, so the face's own package carries a copy under this look's own name (user report, Nov 19).
+            for (int i = 0; i < attach.Count; i++)
+            {
+                if (attach[i].Sim is not { } sc || fpk.Files.Concat(fpkd.Files).Any(f => FoxHash.PathCode64(f.Path) == sc)) continue;
+                if (!bodySims.TryGetValue(sc, out var bs)) continue;
+                string own = $"/Assets/tpp/chara/sna/Fox_files/{setPrefix}_{Path.GetFileName(bs.Path)}";
+                attach[i] = attach[i] with { Sim = FoxHash.PathCode64(own) };
+                if (fpkd.Find(own) == null) fpkd.Files.Add(new PackageFile(own, bs.Data));
             }
             string fv2Path = $"/Assets/tpp/fova/chara/sna/{setPrefix}_f{n}.fv2";
             fpk.Files.Add(new PackageFile(fv2Path, Fv2File.Attach(attach).Write()));
@@ -203,6 +221,7 @@ public static class SnakeFaceConverter
     /// <returns>The icon picture.</returns>
     public static RgbaImage Icon(FmdlModel face)
     {
+        TailPose.Hang(face);
         var gear = face.Meshes.Where(m => HeadIcon.UsesTexture(face, m, "hair", "sna_bdn0")).ToList();
         return HeadIcon.Render(gear.Count > 0 ? gear : face.Meshes.ToList(), gear.Count > 0 ? HeadIcon.HeadSilhouette(face) : []);
     }

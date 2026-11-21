@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Svfm.Core.Conversion;
 using Svfm.Core.Formats;
 using Svfm.Core.Knowledge;
 using Svfm.Core.Project;
@@ -19,22 +20,43 @@ public sealed class StatRowVm : Observable
 
     private StatRowVm(Session s, string id, string label, string note, StatKind kind, double min, double max, double step, IReadOnlyList<Choice>? choices,
         Func<double?>? gn, Action<double?>? sn, Func<bool>? gb, Action<bool>? sb, Func<string>? gc, Action<string>? sc)
-    { _s = s; _id = id; Label = label; Note = note; Kind = kind; Minimum = (decimal)min; Maximum = (decimal)max; Increment = (decimal)step; Choices = choices ?? []; _getN = gn; _setN = sn; _getB = gb; _setB = sb; _getC = gc; _setC = sc; }
+    { _s = s; _id = id; _label = label; _note = note; Kind = kind; Minimum = (decimal)min; Maximum = (decimal)max; Increment = (decimal)step; Choices = choices ?? []; _getN = gn; _setN = sn; _getB = gb; _setB = sb; _getC = gc; _setC = sc; }
 
-    public static StatRowVm Number(Session s, string id, string label, double min, double max, double step, Func<double?> get, Action<double?> set, string note = "") =>
-        new(s, id, label, note, StatKind.Number, min, max, step, null, get, set, null, null, null, null);
+    public static StatRowVm Number(Session s, string id, string label, double min, double max, double step, Func<double?> get, Action<double?> set, string note = "",
+        Func<string>? labelOf = null, Func<string>? noteOf = null, Func<string>? warnOf = null) =>
+        new(s, id, label, note, StatKind.Number, min, max, step, null, get, set, null, null, null, null) { LabelOf = labelOf, NoteOf = noteOf, WarnOf = warnOf };
     public static StatRowVm Check(Session s, string id, string label, Func<bool> get, Action<bool> set, string note = "") =>
         new(s, id, label, note, StatKind.Check, 0, 0, 0, null, null, null, get, set, null, null);
     public static StatRowVm Pick(Session s, string id, string label, IReadOnlyList<Choice> choices, Func<string> get, Action<string> set, string note = "") =>
         new(s, id, label, note, StatKind.Choice, 0, 0, 0, choices, null, null, null, null, get, set);
 
+    /// <summary>The id of the last choice of <see cref="PickNumber"/>: "Type a number…".</summary>
+    public const string TypeNumber = "#";
+    /// <summary>A number with named values (#111): a value that is not in the list shows as "Type a number…" with a number box.</summary>
+    public static StatRowVm PickNumber(Session s, string id, string label, IReadOnlyList<Choice> choices, Func<double> get, Action<double> set, double max, string note = "") =>
+        new(s, id, label, note, StatKind.Choice, 0, max, 1, [.. choices, new(TypeNumber, "Type a number…")], () => get(), x => set(x ?? 0), null, null,
+            () => get().ToString(System.Globalization.CultureInfo.InvariantCulture), c => set(double.Parse(c, System.Globalization.CultureInfo.InvariantCulture)));
+    private bool _typed;
+    /// <summary>The number box shows: a number row, or a <see cref="PickNumber"/> row on "Type a number…".</summary>
+    public bool ShowNumber => IsNumber || (IsChoice && _getN != null && Picked?.Id == TypeNumber);
+
     /// <summary>A value shown but not editable (constants, names).</summary>
-    public static StatRowVm Info(Session s, string id, string label, Func<string> get) =>
-        new(s, id, label, "", StatKind.Info, 0, 0, 0, null, null, null, null, null, get, null);
+    public static StatRowVm Info(Session s, string id, string label, Func<string> get, string note = "") =>
+        new(s, id, label, note, StatKind.Info, 0, 0, 0, null, null, null, null, null, get, null);
     public string InfoText => _getC?.Invoke() ?? "";
     public bool IsInfo => Kind == StatKind.Info;
-    public string Label { get; }
-    public string Note { get; }
+    private readonly string _label, _note;
+    /// <summary>A label and a help text that follow other values (the p1 row follows the thrown-as item); null: the fixed ones.</summary>
+    public Func<string>? LabelOf { get; init; }
+    public Func<string>? NoteOf { get; init; }
+    /// <summary>A warning (note level "warn"); empty: none. The "!" then shows it above the help, in orange.</summary>
+    public Func<string>? WarnOf { get; init; }
+    public string Label => LabelOf?.Invoke() ?? _label;
+    public string Warn => WarnOf?.Invoke() ?? "";
+    /// <summary>The text of the row's "!" (help, and a warning first when there is one).</summary>
+    public string Note => string.Join("\n\n", new[] { Warn, NoteOf?.Invoke() ?? _note }.Where(n => n.Length > 0));
+    public bool HasNote => Note.Length > 0;
+    public bool NoteWarn => Warn.Length > 0;
     public StatKind Kind { get; }
     public bool IsNumber => Kind == StatKind.Number;
     public bool IsCheck => Kind == StatKind.Check;
@@ -52,10 +74,27 @@ public sealed class StatRowVm : Observable
     public bool BoolValue { get => _getB!(); set { if (_getB!() == value) return; _s.Checkpoint($"{_id}"); _setB!(value); _s.NotifyChanged(); Raise(); } }
     public Choice? Picked
     {
-        get { var id = _getC!(); return Choices.FirstOrDefault(c => c.Id == id) ?? Choices.FirstOrDefault(); }
-        set { if (value == null || value.Id == _getC!()) return; _s.Checkpoint($"{_id}"); _setC!(value.Id); _s.NotifyChanged(); Raise(); }
+        get
+        {
+            var id = _typed ? TypeNumber : _getC!();
+            return Choices.FirstOrDefault(c => c.Id == id) ?? (_getN != null && IsChoice ? Choices[^1] : Choices.FirstOrDefault());
+        }
+        set
+        {
+            if (value == null) return;
+            _typed = value.Id == TypeNumber && _getN != null;
+            if (!_typed && value.Id != _getC!()) { _s.Checkpoint($"{_id}"); _setC!(value.Id); _s.NotifyChanged(); }
+            Raise(); Raise(nameof(ShowNumber));
+        }
     }
-    public void Reload() { Raise(nameof(NumberValue)); Raise(nameof(BoolValue)); Raise(nameof(Picked)); Raise(nameof(InfoText)); }
+    /// <summary>A button after the value (#119): its label now ("" hides it), and what a click does (one undo step).</summary>
+    public Func<string>? ActionOf { get; set; }
+    public Action? OnAction { get; set; }
+    public string ActionLabel => ActionOf?.Invoke() ?? "";
+    public bool HasAction => ActionLabel.Length > 0;
+    private Command? _act;
+    public Command ActionCommand => _act ??= new Command(() => { _s.Checkpoint($"{_id}:action"); OnAction!(); _s.NotifyChanged(); Reload(); });
+    public void Reload() { foreach (var n in new[] { nameof(NumberValue), nameof(BoolValue), nameof(Picked), nameof(ShowNumber), nameof(InfoText), nameof(Label), nameof(Note), nameof(HasNote), nameof(NoteWarn), nameof(ActionLabel), nameof(HasAction) }) Raise(n); }
 }
 
 public sealed class StatGroupVm(string title, IEnumerable<StatRowVm> rows)
@@ -76,6 +115,46 @@ public sealed record CamoSwatchVm(string Id, string Label, Avalonia.Media.IImage
 /// <summary>The behaviour tab of a weapon, thrown item, buddy costume or head: what the item does, as the tool knows it.</summary>
 public sealed class StatsVm : Observable
 {
+    /// <summary>Called after the "Thrown as" row changes the item (the script tab then reloads its steps).</summary>
+    public Action? ThrowAsChanged { get; set; }
+    /// <summary>The vanilla throwing items a thrown item can be thrown as, by EQP id.</summary>
+    private static List<Choice> ThrowChoices(Session s) => GameKnowledge.SupportWeapons.Where(w => w.Value.EquipType == "Throwing")
+        .Select(w => new Choice(w.Key, GameKnowledge.EnglishName(s.Game, w.Value.Develop?.Name) is { Length: > 0 } n ? $"{n} ({w.Key})" : w.Key))
+        .OrderBy(c => c.Label, StringComparer.OrdinalIgnoreCase).ToList();
+    private static StatRowVm ThrowAsRow(Session s, StatsVm v, string id, Func<string> get, Action<string> set)
+    {
+        var choices = ThrowChoices(s);
+        const string note = "The game holds and throws the item like this one. A script that is the default effect changes with it.";
+        return choices.Any(c => c.Id == get()) ? StatRowVm.Pick(s, id, "Thrown as", choices, get, x => { set(x); v.ThrowAsChanged?.Invoke(); }, note)
+            : StatRowVm.Info(s, id, "Thrown as", get);
+    }
+    /// <summary>
+    /// Issue #107: the Preset pick copies the values of a vanilla thrown item. A script that the preset would lose (edited,
+    /// or the mod's own) asks first; Replace is one undo step, Cancel changes nothing.
+    /// </summary>
+    private static StatRowVm PresetRow(Session s, StatsVm v, string id, Func<string?> shown, Action<string?> setPick, Func<string, string?> confirm, Action<string> apply)
+    {
+        List<Choice> choices = [new("", "Custom"), .. ThrowChoices(s)];
+        return StatRowVm.Pick(s, id, "Preset", choices, () => shown() ?? "", x =>
+        {
+            if (x == "") { setPick(null); return; }
+            void Do() { apply(x); v.Reload(); v.ThrowAsChanged?.Invoke(); }
+            if (confirm(choices.First(c => c.Id == x).Label) is { } text) v.Ask(text, id, Do); else Do();
+        }, "Copies what it is thrown as, the ammo, fuse, effect time, grade, attack, blast and default script of a vanilla thrown item. The model, name, description, icon and R&D row stay.");
+    }
+    private Action? _pending; private string _askId = "";
+    /// <summary>The question shown before a preset replaces a script; Replace runs the change.</summary>
+    public string ConfirmText { get; private set; } = "";
+    public bool Confirming => _pending != null;
+    private void Ask(string text, string id, Action run) { ConfirmText = text; _pending = run; _askId = id; Raise(nameof(ConfirmText)); Raise(nameof(Confirming)); }
+    private void EndAsk() { _pending = null; Raise(nameof(Confirming)); }
+    public Command ReplaceCommand => _replace ??= new Command(() =>
+    {
+        if (_pending is not { } run || _session is not { } s) return;
+        EndAsk(); s.Checkpoint(_askId + ":replace"); run(); s.NotifyChanged(); Reload();
+    });
+    public Command CancelCommand => _cancel ??= new Command(() => { EndAsk(); Reload(); });
+    private Command? _replace, _cancel;
     /// <summary>A weapon's camo choices (the default paint first); empty for other items.</summary>
     public IReadOnlyList<CamoSwatchVm> Camos { get; private set; } = [];
     public bool HasCamo => Camos.Count > 0;
@@ -126,14 +205,16 @@ public sealed class StatsVm : Observable
     public string TabId { get; init; } = "stats";
     public string TabTitle { get; init; } = "Stats";
     public string Intro { get; init; } = "";
-    public List<StatGroupVm> Groups { get; } = [];
+    public ObservableCollection<StatGroupVm> Groups { get; } = [];
+    /// <summary>Adds or removes groups that come and go with the item's values (the own attack and blast, #119); runs on Reload.</summary>
+    public Action? Sync { get; set; }
     /// <summary>A weapon's sight kind, one read-only line above the groups. Null for other items.</summary>
     public Func<string>? Sight { get; init; }
     public bool HasSight => Sight != null;
     public string SightLine => Sight?.Invoke() ?? "";
     public string SightTip { get; init; } = "";
     public void RefreshSight() => Raise(nameof(SightLine));
-    public void Reload() { foreach (var g in Groups) foreach (var r in g.Rows) r.Reload(); RefreshSight(); Raise(nameof(PickedCamo)); Raise(nameof(CamoLine)); }
+    public void Reload() { Sync?.Invoke(); foreach (var g in Groups) foreach (var r in g.Rows) r.Reload(); RefreshSight(); Raise(nameof(PickedCamo)); Raise(nameof(CamoLine)); }
 
     private static readonly Choice Default = new("", "Default");
     private static readonly IReadOnlyList<Choice> YesNo = [new("", "Default"), new("yes", "Yes"), new("no", "No")];
@@ -164,6 +245,35 @@ public sealed class StatsVm : Observable
     private static readonly IReadOnlyList<Choice> DamageTypes =
         [new("", "Automatic"), new("1", "Damage"), new("2", "Sleep (ZZZ)"), new("3", "Stun"), new("4", "Smoke"), new("6", "None (---)"), new("0", "Hidden")];
 
+    /// <summary>The p1 row of a thrown item: its label and help for what p1 means (issue #118, .docs/Thrown_p1_p2.md).</summary>
+    public static string P1Label(P1Kind k) => k switch { P1Kind.SensorRange => "Sensor range (metres)", P1Kind.DecoyStrength => "Decoy strength", _ => "Fuse time (seconds)" };
+    private static string P1Help(P1Kind k) => k switch
+    {
+        P1Kind.SensorRange => "The distance in metres at which the item finds a target. The vanilla mines use 0.8 to 1.2 metres.",
+        P1Kind.DecoyStrength => "How strongly the decoy pulls the attention of enemies. The vanilla decoys use 300 to 700.",
+        _ => "The time from the throw until the item goes off. An item that goes off when it hits a surface needs a fuse longer than its flight, for example 10 seconds. 0: the item goes off when it leaves the hand.",
+    };
+    public const string ShortFuseNote = "The fuse ends before the item lands, so 'Hits a surface' never runs. Use a fuse longer than the flight, for example 10 seconds.";
+    private const string EffectTimeHelp = "The time in seconds that the effect of the item stays, for example the smoke of a smoke grenade (vanilla 30 to 60 seconds) or the gas of a sleeping gas grenade (vanilla 10 seconds). 0: the effect does not stay. Not yet tested in game on a V Framework item.";
+
+    /// <summary>Help for the rows of a thrown item's own attack, by DamageParameterTables field. A field with no entry gets no "!".</summary>
+    private static readonly Dictionary<string, string> AttackHelp = new()
+    {
+        ["lethalDamage"] = "The health damage of the attack.",
+        ["staminaDamage"] = "The stamina damage of the attack. A target with no stamina falls unconscious.",
+        ["blowPower"] = "How hard the attack pushes the target. 1000 or more makes the target stagger.",
+        ["shieldDamage"] = "The damage that the attack does to a shield.",
+        ["injureMaxDistance"] = "The largest distance in metres at which the attack can injure the target.",
+        ["injureRate"] = "The chance in percent that the attack injures the target.",
+        ["isExplosive"] = "The attack is an explosion.",
+        ["isStun"] = "The attack stuns the target.",
+        ["isTranq"] = "The attack puts the target to sleep.",
+        ["isFire"] = "The attack sets the target on fire.",
+        ["isGas"] = "The attack is a gas.",
+        ["isElectric"] = "The attack is electric.",
+        ["unk25"] = "The use of this value is not known.",
+    };
+
     /// <summary>The extra tabs of a thrown item: how it shows in Sortie Prep, and its attack and blast.</summary>
     public static List<StatsVm> More(Session s, ProjectItem item)
     {
@@ -186,18 +296,50 @@ public sealed class StatsVm : Observable
         prep.Groups.Add(Bar("Effect duration bar", "be", () => sp.BarEffectTime, x => sp.BarEffectTime = x, () => sp.HideBarEffectTime, x => sp.HideBarEffectTime = x));
         prep.Groups.Add(new StatGroupVm("What a full bar stands for",
         [
-            StatRowVm.Number(s, id + ":dmax", "Durability, full bar", 0, 100000, 1, () => sp.DurabilityMax, x => sp.DurabilityMax = x, "Empty: the game's own."),
-            StatRowVm.Number(s, id + ":emax", "Effect duration, full bar (seconds)", 0, 100000, 1, () => sp.EffectTimeMax, x => sp.EffectTimeMax = x, "Empty: the game's own."),
+            StatRowVm.Number(s, id + ":dmax", "Durability, full bar", 0, 100000, 1, () => sp.DurabilityMax, x => sp.DurabilityMax = x,
+                "The durability value that fills the whole Durability bar. Empty: the game's own value."),
+            StatRowVm.Number(s, id + ":emax", "Effect duration, full bar (seconds)", 0, 100000, 1, () => sp.EffectTimeMax, x => sp.EffectTimeMax = x,
+                "The effect time in seconds that fills the whole Effect duration bar. Empty: the game's own value."),
         ]));
         list.Add(prep);
 
         var atk = new StatsVm { TabId = "attack", TabTitle = "Attack and blast", Intro = "The damage and explosion the item uses. Left alone, it uses the ones named for the item it is thrown as; only a mod that changed them gives the item its own copy, and the game's own rows are never changed." };
+        // #119: "Make own copy" copies the thrown-as item's row; the copy is not linked to the thrown-as item after that.
+        const string useAgain = "Use the thrown-as item's again";
+        string ThrownName(string eqp) => GameKnowledge.SupportWeapons.TryGetValue(eqp, out var w) && GameKnowledge.EnglishName(s.Game, w.Develop?.Name) is { Length: > 0 } n ? n : eqp;
+        object? shownAttack = null; bool shownBlast = false; StatGroupVm? attackGroup = null, blastGroup = null;
+        static StatRowVm Act(StatRowVm r, Func<string> label, Action run) { r.ActionOf = label; r.OnAction = run; return r; }
         atk.Groups.Add(new StatGroupVm("Used now",
         [
-            StatRowVm.Info(s, id + ":ua", "Attack", () => sp.Attack ?? (sp.ThrowAsAttack is { } a ? $"the thrown-as item's ({a})" : "the thrown-as item's")),
-            StatRowVm.Info(s, id + ":ub", "Blast", () => sp.Blast ?? (sp.ThrowAsBlast is { } b ? $"the thrown-as item's ({b})" : "none")),
+            Act(StatRowVm.Info(s, id + ":ua", "Attack", () => sp.OwnAttack != null && sp.OwnAttackFrom is { } f ? $"Own (copied from {ThrownName(f)})"
+                    : sp.Attack ?? (sp.ThrowAsAttack is { } a ? $"the thrown-as item's ({a})" : "the thrown-as item's"),
+                "The damage row that the item uses: its own copy, or the row of the item it is thrown as."),
+                () => sp.OwnAttack != null ? useAgain : sp.ThrowAsAttack != null && s.Game != null ? "Make own copy" : "",
+                () => { if (sp.OwnAttack != null) { sp.OwnAttack = null; sp.OwnAttackFrom = null; } else SupportWeaponConverter.CopyAttack(s.Game!, sp); Sync(); }),
+            Act(StatRowVm.Info(s, id + ":ub", "Blast", () => sp.OwnBlast != null && sp.OwnBlastFrom is { } f ? $"Own (copied from {ThrownName(f)})"
+                    : sp.Blast ?? (sp.ThrowAsBlast is { } b ? $"the thrown-as item's ({b})" : "none"),
+                "The explosion row that the item uses: its own copy, the row of the item it is thrown as, or none."),
+                () => sp.OwnBlast != null ? useAgain : sp.ThrowAsBlast != null && s.Game != null ? "Make own copy" : "",
+                () => { if (sp.OwnBlast != null) { sp.OwnBlast = null; sp.OwnBlastFrom = null; } else SupportWeaponConverter.CopyBlast(s.Game!, sp); Sync(); }),
         ]));
-        if (sp.OwnAttack is { } oa)
+        void Sync()
+        {
+            if (!ReferenceEquals(shownAttack, sp.OwnAttack))
+            {
+                if (attackGroup != null) atk.Groups.Remove(attackGroup);
+                attackGroup = sp.OwnAttack is { } oa ? AttackGroup(oa) : null;
+                if (attackGroup != null) atk.Groups.Insert(1, attackGroup);
+                shownAttack = sp.OwnAttack;
+            }
+            if (shownBlast != (sp.OwnBlast != null))
+            {
+                if (blastGroup != null) atk.Groups.Remove(blastGroup);
+                blastGroup = sp.OwnBlast != null ? BlastGroup() : null;
+                if (blastGroup != null) atk.Groups.Add(blastGroup);
+                shownBlast = blastGroup != null;
+            }
+        }
+        StatGroupVm AttackGroup(PartValues oa)
         {
             var rows = new List<StatRowVm>();
             foreach (var f in WeaponPartFields.For(WeaponPartKind.Damage))
@@ -208,8 +350,8 @@ public sealed class StatsVm : Observable
                 // The field's own explanation, where it has one: the owner found the technical ones unhelpful ("There are
                 // also model flags/mesh values and alternative magazine socket I'm unfamiliar with, is that a V-Framework
                 // option?").
-                string note = field.Note ?? "";
-                if (field.Type is PartFieldType.Constant or PartFieldType.Text) rows.Add(StatRowVm.Info(s, rid, field.Label, () => oa.Values.GetValueOrDefault(field.Path)?.ToString() ?? ""));
+                string note = AttackHelp.GetValueOrDefault(field.Path) ?? field.Note ?? "";
+                if (field.Type is PartFieldType.Constant or PartFieldType.Text) rows.Add(StatRowVm.Info(s, rid, field.Label, () => oa.Values.GetValueOrDefault(field.Path)?.ToString() ?? "", note));
                 else if (field.Type == PartFieldType.Number) rows.Add(StatRowVm.Number(s, rid, field.Label, -100000, 1000000, 1, () => oa.Values.GetValueOrDefault(field.Path)?.AsNumber, x => Put(new LuaValue.Number(x ?? 0)), note));
                 else
                 {
@@ -217,15 +359,19 @@ public sealed class StatsVm : Observable
                     rows.Add(StatRowVm.Check(s, rid, field.Label, () => oa.Values.GetValueOrDefault(field.Path) is { } c && (c.AsNumber is > 0 || c.ToString() == "true"), x => Put(asName ? new LuaValue.Name(x ? "true" : "false") : new LuaValue.Number(x ? 1 : 0)), note));
                 }
             }
-            atk.Groups.Add(new StatGroupVm($"The item's own attack ({sp.OwnAttackConstant})", rows) { Open = false });
+            return new StatGroupVm($"The item's own attack ({sp.OwnAttackConstant})", rows) { Open = sp.OwnAttackFrom != null };
         }
-        if (sp.OwnBlast is not null)
-            atk.Groups.Add(new StatGroupVm($"The item's own blast ({sp.OwnBlastConstant})",
+        StatGroupVm BlastGroup() => new($"The item's own blast ({sp.OwnBlastConstant})",
             [
-                StatRowVm.Number(s, id + ":bf", "Noise kind", 0, 255, 1, () => sp.OwnBlast!.BlastFlag, x => sp.OwnBlast = sp.OwnBlast! with { BlastFlag = (int)(x ?? 0) }),
-                StatRowVm.Number(s, id + ":br", "Radius for the player's items (metres)", 0, 1000, 0.5, () => sp.OwnBlast!.EffectRange, x => sp.OwnBlast = sp.OwnBlast! with { EffectRange = x ?? 0 }),
-                StatRowVm.Number(s, id + ":bo", "Radius for others' (metres)", 0, 1000, 0.5, () => sp.OwnBlast!.OptimalRange, x => sp.OwnBlast = sp.OwnBlast! with { OptimalRange = x ?? 0 }),
-            ]) { Open = false });
+                StatRowVm.Number(s, id + ":bf", "Noise kind", 0, 255, 1, () => sp.OwnBlast!.BlastFlag, x => sp.OwnBlast = sp.OwnBlast! with { BlastFlag = (int)(x ?? 0) },
+                    "The kind of noise that the blast makes. Enemies react to this noise. The vanilla rows use 0 to 4."),
+                StatRowVm.Number(s, id + ":br", "Radius for the player's items (metres)", 0, 1000, 0.5, () => sp.OwnBlast!.EffectRange, x => sp.OwnBlast = sp.OwnBlast! with { EffectRange = x ?? 0 },
+                    "The radius of the blast in metres when the player uses the item."),
+                StatRowVm.Number(s, id + ":bo", "Radius for others' (metres)", 0, 1000, 0.5, () => sp.OwnBlast!.OptimalRange, x => sp.OwnBlast = sp.OwnBlast! with { OptimalRange = x ?? 0 },
+                    "The radius of the blast in metres when a person other than the player uses the item."),
+            ]) { Open = sp.OwnBlastFrom != null };
+        Sync();
+        atk.Sync = Sync;
         list.Add(atk);
         return list;
     }
@@ -238,12 +384,20 @@ public sealed class StatsVm : Observable
             case SupportWeaponItem t:
             {
                 var sp = t.Spec; var id = t.Id;
-                var v = new StatsVm { TabTitle = "Stats", Intro = "How the thrown item behaves. It has the mod's model and is held and thrown like the item it is thrown as." };
+                var v = new StatsVm { TabTitle = "Stats", Intro = "How the thrown item behaves. It has the mod's model and is held and thrown like the item it is thrown as.", _session = s };
                 v.Groups.Add(new StatGroupVm("Carried and timing",
                 [
-                    StatRowVm.Number(s, id + ":ammo", "Carried at once", 1, 99, 1, () => sp.Ammo, x => sp.Ammo = (int)(x ?? 1)),
-                    StatRowVm.Number(s, id + ":fuse", "Fuse time (seconds)", 0, 600, 0.5, () => sp.FuseTime, x => sp.FuseTime = x ?? 0),
-                    StatRowVm.Number(s, id + ":active", "Effect time (seconds)", 0, 600, 0.5, () => sp.ActiveTime, x => sp.ActiveTime = x ?? 0),
+                    PresetRow(s, v, id + ":preset", () => ThrownPresets.Shown(sp, s.Game), x => sp.Preset = x,
+                        name => ThrownPresets.Confirm(sp.Script, sp.ThrowAs, false, name), x => ThrownPresets.Apply(sp, s.Game, x)),
+                    ThrowAsRow(s, v, id + ":throwAs", () => sp.ThrowAs, x =>
+                    {
+                        var (atk, bla) = s.Game is { } g ? SupportWeaponConverter.ThrowAsRows(g, x) : (null, null);
+                        sp.SetThrowAs(x, atk, bla);
+                    }),
+                    StatRowVm.Number(s, id + ":ammo", "Carried at once", 1, 99, 1, () => sp.Ammo, x => sp.Ammo = (int)(x ?? 1), "The number of these items that Snake carries."),
+                    StatRowVm.Number(s, id + ":fuse", P1Label(P1Kind.Fuse), 0, 600, 0.5, () => sp.FuseTime, x => sp.FuseTime = x ?? 0,
+                        labelOf: () => P1Label(sp.P1), noteOf: () => P1Help(sp.P1), warnOf: () => sp.ShortFuse ? ShortFuseNote : ""),
+                    StatRowVm.Number(s, id + ":active", "Effect time (seconds)", 0, 600, 0.5, () => sp.ActiveTime, x => sp.ActiveTime = x ?? 0, EffectTimeHelp),
                 ]));
                 return v;
             }
@@ -280,20 +434,28 @@ public sealed class StatsVm : Observable
             {
                 // An existing weapon: the values its gun and part calls set, read from the script and written back by splice.
                 var v = new StatsVm { TabTitle = "Stats", Sight = x.Support ? null : () => x.SightText(s.VanillaEquip), SightTip = "A vanilla sight id reads the game's table. A custom sight id reads the SetSight call of the mod.", Intro = x.Support
-                    ? "The thrown item's stats, Sortie Prep details, attack and blast, as the mod's script sets them. A value the script sets by a name (what it is thrown as, a damage row) or a hidden bar is shown only."
-                    : "The weapon's gun and parts, as the mod's script sets them. A part that several weapons use is changed for each of them. A value the script sets by a name (a part, a damage row, an ammo kind) is shown only." };
+                    ? "The thrown item's stats, Sortie Prep details, attack and blast, as the mod's script sets them. What it is thrown as can be changed. A value the script sets by another name (a damage row) or a hidden bar is shown only."
+                    : "The weapon's gun and parts, as the mod's script sets them. A part that several weapons use is changed for each of them. A value the script sets by a name (a part, a damage row, an ammo kind) is shown only.", _session = s };
                 foreach (var group in x.StatGroups)
                 {
                     string part = group.Split(" · ")[0];
                     var known = PartKinds.TryGetValue(part, out var kind) ? WeaponPartFields.For(kind) : [];
                     var rows = new List<StatRowVm>();
+                    if (x.Support && group == "Thrown item" && x.Script != null && x.ThrowAsField is { Locked: null })
+                        rows.Add(PresetRow(s, v, x.Id + ":preset", () => ThrownPresets.Shown(x, s.Game), p => x.Preset = p,
+                            name => ThrownPresets.Confirm(x.Script, x.ThrowAs, x.ScriptLock != null, name), p => ThrownPresets.Apply(x, s.Game, p)));
                     foreach (var (_, label, value) in x.PartNames.Where(n => n.Group == group))
                         rows.Add(StatRowVm.Info(s, $"{x.Id}:{group}:{label}", label, () => value));
                     foreach (var f in x.Fields.Where(f => f.Group == group))
                     {
                         var field = f; string rid = $"{x.Id}:{f.Group}:{f.Label}";
                         string note = known.FirstOrDefault(k => k.Label == f.Label)?.Note ?? (f.Present ? "" : "Not set in the script.");
-                        if (f.Locked != null || f.Type == FieldType.Text) rows.Add(StatRowVm.Info(s, rid, f.Label, () => field.Value?.ToString() ?? ""));
+                        if (f.EquipName && f.Locked == null) rows.Add(ThrowAsRow(s, v, rid, () => x.ThrowAs ?? "", x.SetThrowAs));
+                        // #111: the damage type icon is the same pick list as on a thrown item the tool makes; -1 is "not set" (ExistingModWeapons.NotSet).
+                        else if (x.Support && f.Path is ["damageType"] && f.Locked == null && f.Type == FieldType.Number)
+                            rows.Add(StatRowVm.PickNumber(s, rid, f.Label, [.. f.Present ? [] : new[] { new Choice("-1", "Not set in the script") }, .. DamageTypes.Skip(1)],
+                                () => (double)field.Value, n => field.Value = Math.Round(n, 3), 255, f.Present ? "" : "The build writes it only when you pick a value."));
+                        else if (f.Locked != null || f.Type == FieldType.Text) rows.Add(StatRowVm.Info(s, rid, f.Label, () => field.Value?.ToString() ?? ""));
                         else if (f.Type == FieldType.Number) rows.Add(StatRowVm.Number(s, rid, f.Label, -100000, 1000000, 1, () => (double)field.Value, n => { field.Value = Math.Round(n ?? 0, 3); v.RefreshSight(); }, note));
                         else rows.Add(StatRowVm.Check(s, rid, f.Label, () => (bool)field.Value, b => { field.Value = b; v.RefreshSight(); }, note));
                     }

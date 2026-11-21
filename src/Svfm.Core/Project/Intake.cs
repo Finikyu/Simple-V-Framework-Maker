@@ -197,7 +197,13 @@ public sealed class IntakeResult
     /// <returns>The 256x128 icon.</returns>
     public static RgbaImage RenderOutline(ProjectItem item, IconSettings s)
     {
-        string? pkg = (item is ExistingItem x ? x.Model : item) switch { WeaponItem w => w.Spec.FpkPath, _ => null };
+        // A ported thrown item has no package of its own; its model is a new entry of the common package (SupportWeaponConverter.AddTo).
+        string? pkg = (item is ExistingItem x ? x.Model : item) switch
+        {
+            WeaponItem w => w.Spec.FpkPath,
+            SupportWeaponItem t => t.Spec.FpkPath is { Length: > 0 } f ? f : SupportWeaponConverter.CommonPackage + ".fpk",
+            _ => null,
+        };
         if (pkg == null || !item.Files.TryGetValue(pkg, out var bytes)) throw new InvalidOperationException("The item has no model to draw an icon from.");
         var off = Rendering.WeaponAttachments.HiddenKeys(s.Parts, s.HiddenModels);
         // Only the receiver model, as in game and in the preview (WeaponAttachments.ReceiverModel).
@@ -238,6 +244,14 @@ public sealed class IntakeResult
             return "This item uses an icon that its mod does not carry, and its script names that icon in a way the tool can't change. The build keeps that icon.";
         return null;
     }
+
+    /// <summary>Why a game icon can't be picked for the item: a game icon is a new path in the script, so every place the
+    /// script names the icon must be plain text (a shipped file can still be written over by an upload).</summary>
+    /// <param name="item">The item.</param>
+    /// <returns>The reason, or null when a game icon can be picked.</returns>
+    public string? GameIconLockOf(ProjectItem item) => IconLockOf(item)
+        ?? (item is ExistingItem x && (x.IconFields.Count == 0 || x.IconFields.Any(f => f.Locked != null))
+            ? "Its script names the icon in a way the tool can't change, so the icon can only be replaced by an upload." : null);
 
     /// <summary>The other items of an existing V Framework mod that use the same icon file (the grades of one weapon, the heads that share a staff picture).</summary>
     /// <param name="item">The item.</param>
@@ -333,7 +347,7 @@ public sealed class IntakeResult
     /// <returns>The picture.</returns>
     public RgbaImage SetGameIcon(ProjectItem item, string path, IconSettings? state = null)
     {
-        if (IconLockOf(item) is { } why) throw new InvalidOperationException(why);
+        if (GameIconLockOf(item) is { } why) throw new InvalidOperationException(why);
         var img = GameIconImage(path) ?? throw new InvalidDataException($"The game has no icon {path}.");
         // An existing item may have no path of its own yet (its script names a game icon): the script is pointed at this one.
         if (IconPathOf(item) is { } now)
@@ -485,7 +499,9 @@ public sealed class IntakeResult
             {
                 if (from.Text.TryGetValue(a, out var per)) to.Text[b] = new Dictionary<string, string>(per); else to.Text.Remove(b);
             }
-        if (from.RdRow is { } d && to.RdRow != null) to.RdRow = d;
+        // Issue #123: the texts of the own upgrade lines go with the row.
+        // shortcut: the twins then share the line IDs; with Sync off later, an edit of one twin's line text clashes in the lang file. Give each twin its own IDs if that comes up.
+        if (from.RdRow is { } d && to.RdRow != null) { to.RdRow = d; foreach (var id in d.UpgradeLines) if (from.Text.TryGetValue(id, out var per)) to.Text[id] = new Dictionary<string, string>(per); }
         if (Icons.GetValueOrDefault(from.Id) is not { } img || (Icons.GetValueOrDefault(to.Id) is { } now && SameImage(now, img))) return;
         int n = CustomIcons.Keys.Count(k => k.StartsWith(to.Id + "#", StringComparison.Ordinal)) + 1;
         CustomIcons[$"{to.Id}#{n}"] = img;
@@ -594,7 +610,8 @@ public sealed class IntakeResult
     }
 
     /// <summary>True when <see cref="Duplicate"/> can copy this item.</summary>
-    public bool CanDuplicate(ProjectItem item) => item is ExistingItem x ? Project?.Existing != null && ExistingMod.DuplicateLockOf(x) == null : Makers.ContainsKey(item.Id) && !IconOnlyMakers.Contains(item.Id);
+    public bool CanDuplicate(ProjectItem item) => (Project == null || CopyFamily.LockOf(Project, item) == null)
+        && (item is ExistingItem x ? Project?.Existing != null && ExistingMod.DuplicateLockOf(x) == null : Makers.ContainsKey(item.Id) && !IconOnlyMakers.Contains(item.Id));
 
     /// <summary>
     /// Makes a copy of an item with its own ID, key, file prefix and files (the converter runs again with the new names),
@@ -638,7 +655,7 @@ public sealed class IntakeResult
         }
         int at = p.Items.IndexOf(item);
         p.Items.Insert(at + 1, copy);
-        if (icon != null) Icons[copy.Id] = icon;
+        if (icon != null) Icons[copy.Id] = icon; else ReadItemIcons();
         Makers[copy.Id] = make;
         if (WomenFramed.Contains(item.Id)) WomenFramed.Add(copy.Id);
         if (Recipes.TryGetValue(item.Id, out var recipe)) Recipes[copy.Id] = recipe;
@@ -736,6 +753,8 @@ public static class Intake
         var c = new PortContext(project, res, game, mod, projectId);
         PortSnakeCamos(c);
         PortSnakeFaces(c);
+        PortAvatarHeads(c);
+        PortChickenHat(c);
         PortBodies(c);
         PortDdHeads(c);
         PortWeaponModels(c);
@@ -869,6 +888,81 @@ public static class Intake
         catch (Exception e) when (IsPortError(e))
         {
             res.Findings.Add(new IntakeFinding("Snake face replacer", false, "Could not be ported: " + e.Message));
+        }
+    }
+
+    private static void PortAvatarHeads(PortContext c)
+    {
+        var (project, res, game, mod, projectId) = (c.Project, c.Res, c.Game, c.Mod, c.ProjectId);
+        // Avatar replacer heads (issue #126): the Avatar hair packages replaced with a whole head, as head options.
+        try
+        {
+            var slots = AvatarHeadConverter.ReplacedSlots(game, mod);
+            if (slots.Count == 0) return;
+            var heads = AvatarHeadConverter.AddTo(project, game, mod, projectId);
+            c.Covers("Avatar head replacer");
+            // A maker each, so "Generate from the model" can redraw the icon (see PortSnakeFaces).
+            foreach (var h in heads)
+            {
+                var made = h;
+                res.IconOnlyMakers.Add(made.Id);
+                res.Makers[made.Id] = (string itemId, string itemKey, string itemPrefix, IconChoice? _) =>
+                    (made, AvatarHeadConverter.Icon(FoxPackage.Read(made.Files[made.Spec.Branches[PlayerBranch.Snake].Fpk!]), made.Spec.Branches[PlayerBranch.Snake].Fv2!));
+                res.IconStates[made.Id] = IconSettings.ChestDefault;
+            }
+            res.Findings.Add(new IntakeFinding($"Avatar head replacer: hair slots {string.Join(", ", slots)} as {heads.Count} head option(s)", true));
+        }
+        catch (Exception e) when (IsPortError(e))
+        {
+            res.Findings.Add(new IntakeFinding("Avatar head replacer", false, "Could not be ported: " + e.Message));
+        }
+    }
+
+    private const string ChickenHatPkg = "/Assets/tpp/pack/player/fova/plfova_sna0_msk0_v00.fpk";
+
+    private static void PortChickenHat(PortContext c)
+    {
+        var (project, res, game, mod) = (c.Project, c.Res, c.Game, c.Mod);
+        // A chicken hat replacer (issue #126, the croc cap of "MGS3 Delta Camo Pack"): the hat's model as a Snake head
+        // option, so it goes on any suit and takes a bandana combo, in place of the vanilla chicken hat.
+        if (!mod.ArchiveFiles.TryGetValue(ChickenHatPkg, out var data)) return;
+        try
+        {
+            var hat = FoxPackage.Read(data);
+            if (hat.Files.FirstOrDefault(f => f.Extension == "fmdl") is not { } model) return;
+            var van = game.TryRead(ChickenHatPkg) is { } vd ? FoxPackage.Read(vd).Find(model.Path)?.Data : null;
+            if (van != null && van.AsSpan().SequenceEqual(model.Data)) return;
+            // The loose textures of the mod that the hat uses (with their .ftexs mips); the others come from the game.
+            var used = TextureCheck.Referenced([new(ChickenHatPkg, data)]);
+            var stems = mod.ArchiveFiles.Keys.Where(k => k.EndsWith(".ftex", StringComparison.Ordinal) && used.Contains(Svfm.Core.Hashing.FoxHash.PathCode64(k))).Select(k => k[..^5]).ToList();
+            var loose = mod.ArchiveFiles.Where(kv => stems.Any(s => kv.Key.StartsWith(s + ".", StringComparison.Ordinal)))
+                .ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.Ordinal);
+            string modName = mod.Metadata.Name.Length > 0 ? mod.Metadata.Name : c.ProjectId;
+            string title = AvatarHeadConverter.ShortName(modName).ToUpperInvariant() + " HAT";
+            HeadAddonModel[] models = [new("hat", model.Data, FmdlModel.Read(model.Data).Meshes.Select(m => m.MeshGroup).ToHashSet())];
+            var option = new HeadAddonOption("hat", title, $"The hat from \"{mod.Metadata.Name}\" by {mod.Metadata.Author}.", ["hat"]);
+            string id = c.NewId("hat");
+            var heads = SnakeHeadAddon.AddTo(project, game, id, models, [option], [], loose);
+            var keys = heads.Select(h => h.Spec.Key!).ToList();
+            SnakeHeadAddon.OfferOnVanillaSuits(project, id, keys);
+            SnakeHeadAddon.OfferOnVanillaSuits(project, id, keys, PlayerBranch.Avatar);
+            // A maker each, so "Generate from the model" can redraw the icon (see PortSnakeFaces).
+            foreach (var h in heads)
+            {
+                var made = h;
+                res.IconOnlyMakers.Add(made.Id);
+                res.Makers[made.Id] = (string itemId, string itemKey, string itemPrefix, IconChoice? _) =>
+                {
+                    var face = FoxPackage.Read(game.Read("/Assets/tpp/pack/player/fova/plfova_sna0_face0_v00.fpk")).Files.First(f => f.Path.EndsWith("_cov.fmdl", StringComparison.Ordinal));
+                    return (made, SnakeHeadAddon.Icon(option, models, FmdlModel.Read(face.Data)));
+                };
+                res.IconStates[made.Id] = IconSettings.ChestDefault;
+            }
+            res.Findings.Add(new IntakeFinding($"Chicken hat replacer: {Path.GetFileName(model.Path)} as the head option {title}", true));
+        }
+        catch (Exception e) when (IsPortError(e))
+        {
+            res.Findings.Add(new IntakeFinding("Chicken hat replacer", false, "Could not be ported: " + e.Message));
         }
     }
 
@@ -1301,16 +1395,60 @@ public static class Intake
                 res.Findings.Add(new IntakeFinding($"Buddy costume: {r.Title ?? id}", true));
             }
             // Placed items are not portable (the classifier's route says so); one must not stop the mod's thrown items (Grenades and Mines).
-            foreach (var r in SupportWeaponConverter.Detect(game, mod).Where(r => r.Thrown))
+            var thrown = SupportWeaponConverter.Detect(game, mod).Where(r => r.Thrown).ToList();
+            // Issue #115: a thrown item of the tool whose declaring module was deleted keeps its script in its _throw module.
+            // The port runs that script, not the vanilla effect.
+            var throwMods = mod.GameFiles.Where(g => System.Text.RegularExpressions.Regex.IsMatch(g.Key, @"^/mod/modules/.*_throw(_\d+)?\.lua$", System.Text.RegularExpressions.RegexOptions.IgnoreCase)).ToList();
+            var throwSrc = throwMods.Select(g => new System.Text.UTF8Encoding(false).GetString(g.Value)).ToList();
+            var throwConst = throwSrc.SelectMany(s => System.Text.RegularExpressions.Regex.Matches(s, @"(?<![\w.])equipId\s*==\s*(TppEquip\.EQP_\w+)").Select(m => m.Groups[1].Value)).Distinct().ToList();
+            foreach (var r in thrown)
             {
                 string id = c.NewId("item");
-                SupportWeaponConverter.AddTo(project, game, mod, r, new SupportWeaponConversionOptions { Id = id });
+                // shortcut: only one thrown model and one scripted item are matched; with several, which script is which model is unknown, so each gets the vanilla effect.
+                ThrowScript? script = null;
+                if (thrown.Count == 1 && throwConst.Count == 1
+                    && ThrowScriptReader.Read(throwSrc, new ThrowContext(throwConst[0], mod.Metadata.Name, null, null), r.VanillaEquip) is { Lock: null } read
+                    && ThrowEvents.All.Any(e => read.Script[e].Count > 0))
+                    script = read.Script;
+                string? scriptJson = script?.ToJson();
+                var made = SupportWeaponConverter.AddTo(project, game, mod, r, new SupportWeaponConversionOptions { Id = id, Script = script });
+                if (script != null) KeepThrowText(mod, throwMods[0].Key, made);
+                // Issue #106: the maker of a copy makes the item again as ported, with the source's model files.
+                res.Makers[made.Id] = (string itemId, string itemKey, string itemPrefix, IconChoice? _) =>
+                    (SupportWeaponConverter.AddTo(new ModProject { Id = project.Id, Name = project.Name }, game, mod, r, new SupportWeaponConversionOptions
+                    { Id = itemId, Names = (itemKey, itemPrefix), ModelFrom = made, Script = scriptJson == null ? null : ThrowScript.FromJson(scriptJson) }), null);
                 res.Findings.Add(new IntakeFinding($"Thrown item: {r.VanillaEquip}", true));
             }
         }
         catch (Exception e) when (IsPortError(e))
         {
             res.Findings.Add(new IntakeFinding("Buddy costume or thrown item", false, "Could not be ported: " + e.Message));
+        }
+    }
+
+    /// <summary>
+    /// Issue #115: the name and description of a thrown item of the tool, from the mod's language files. The tool's text IDs
+    /// are {prefix}_name and {prefix}_info, and the module is SVFM_{project}_{item}_throw.lua, so the prefix is a tail of the
+    /// module's name, with or without svfm_.
+    /// </summary>
+    private static void KeepThrowText(MgsvMod mod, string module, SupportWeaponItem item)
+    {
+        var parts = System.Text.RegularExpressions.Regex.Replace(Path.GetFileName(module), @"_throw(_\d+)?\.lua$", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase).ToLowerInvariant().Split('_');
+        var prefixes = Enumerable.Range(0, parts.Length).Select(i => string.Join('_', parts[i..])).SelectMany(t => new[] { t, "svfm_" + t }).ToList();
+        foreach (var (path, data) in mod.ArchiveFiles)
+        {
+            var lang = System.Text.RegularExpressions.Regex.Match(path, @"lang_default_data_(\w+)\.fpk$");
+            if (!lang.Success) continue;
+            List<LangFile> files;
+            try { files = FoxPackage.Read(data).Files.Where(f => f.Path.EndsWith(".lng2", StringComparison.Ordinal)).Select(f => LangFile.Read(f.Data)).ToList(); }
+            catch (InvalidDataException) { continue; }
+            string? Find(string suffix) => prefixes.SelectMany(p => files.Select(f => f[p + suffix])).FirstOrDefault(t => !string.IsNullOrEmpty(t));
+            if (Find("_name") is { } name)
+            {
+                item.SetText(item.Spec.NameLang, lang.Groups[1].Value, name);
+                if (lang.Groups[1].Value == "eng") item.Title = name;
+            }
+            if (Find("_info") is { } info) item.SetText(item.Spec.InfoLang!, lang.Groups[1].Value, info);
         }
     }
 }

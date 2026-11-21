@@ -43,7 +43,7 @@ public static class HeadIcon
     /// <summary>Draws <paramref name="gear"/> over the head silhouette <paramref name="head"/>, both framed together.</summary>
     public static RgbaImage Render(IReadOnlyList<FmdlMesh> gear, IReadOnlyList<FmdlMesh> head, OutlineIconOptions? gearOptions = null, OutlineIconOptions? ghostOptions = null)
     {
-        var frame = gear.Concat(head).ToList();
+        var frame = Framing(gear.Concat(head));
         var top = OutlineIconRenderer.Render(gear, gearOptions ?? Gear, occluders: head, frame: frame);
         if (head.Count == 0) return top;
         return Over(top, OutlineIconRenderer.Render(head, ghostOptions ?? Ghost, frame: frame));
@@ -55,7 +55,7 @@ public static class HeadIcon
     /// measure; it is not drawn.
     /// </summary>
     public static RgbaImage RenderGear(IReadOnlyList<FmdlMesh> gear, IReadOnlyList<FmdlMesh> head) =>
-        OutlineIconRenderer.Render(gear, head.Count > 0 && !Encloses(gear, head) ? Accessory : Gear);
+        OutlineIconRenderer.Render(gear, head.Count > 0 && !Encloses(gear, head) ? Accessory : Gear, frame: Framing(gear));
 
     /// <summary>
     /// True when the gear closes round the head: the less covered of the crown (top quarter of the head) and the back of
@@ -192,8 +192,18 @@ public static class HeadIcon
     public static List<FmdlMesh> Moved(IEnumerable<FmdlMesh> meshes, Vector3 by) => meshes.Select(x => new FmdlMesh
     {
         Index = x.Index, MaterialIndex = x.MaterialIndex, MeshGroup = x.MeshGroup, Indices = x.Indices, Normals = x.Normals,
-        Positions = x.Positions.Select(p => p + by).ToArray(),
+        Positions = x.Positions.Select(p => p + by).ToArray(), Tail = x.Tail,
     }).ToList();
+
+    /// <summary>
+    /// The meshes to frame an icon on: <paramref name="meshes"/> without their tail vertices (issue #128: cloth tails
+    /// hang free in game, so they do not set the size of the icon). A mesh that is all tail is left out.
+    /// </summary>
+    public static List<FmdlMesh> Framing(IEnumerable<FmdlMesh> meshes) => meshes.Select(x => x.Tail is not { } t ? x : new FmdlMesh
+    {
+        Index = x.Index, MaterialIndex = x.MaterialIndex, MeshGroup = x.MeshGroup, Indices = [],
+        Positions = x.Positions.Where((_, i) => !t[i]).ToArray(),
+    }).Where(x => x.Positions.Length > 0).ToList();
 
     /// <summary>
     /// The offset that brings a model into Snake's face space: face models are rooted at SKL_002_CHEST (at the origin),

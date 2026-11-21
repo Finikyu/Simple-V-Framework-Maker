@@ -41,6 +41,25 @@ public sealed class HeadVm : Observable
     public int WearerCount => _h.Spec.Branches.Count;
     public string SnakeNote => _h.Spec.AvatarWouldWearSnakeFace ? "This head is Snake's own face (bandana faces, accessory heads or a face mod). V Framework 1.7 has Avatar read Snake's branch, so the build gives Avatar a branch without it." : "";
 
+    public string? NoAvatar => _h.Spec.NoAvatarReason;
+
+    /// <summary>Issue #126: a second head option, this head with the game's bandana on top, for Snake (<see cref="BandanaCombo"/>).</summary>
+    public bool CanBandanaCombo => _owner == _h && _s.Game != null && _s.Project?.Items.Contains(_h) == true && _h.Spec.Branches.ContainsKey(PlayerBranch.Snake)
+        && !_h.Id.EndsWith("_bandana", StringComparison.Ordinal) && !GatedBandanas.IsGated(_h);
+    public bool BandanaComboOn
+    {
+        get => _s.Project != null && BandanaCombo.Of(_s.Project, _h) != null;
+        set
+        {
+            if (value == BandanaComboOn || !CanBandanaCombo) return;
+            _s.Checkpoint();
+            try { if (value) BandanaCombo.Add(_s.Game!, _s.Project!, _h); else BandanaCombo.Remove(_s.Project!, _h); }
+            catch (Exception e) when (e is InvalidOperationException or System.IO.InvalidDataException) { DevLog.Info("edit", "bandana combo: " + e.Message); }
+            _s.NotifyChanged();
+            Raise();
+        }
+    }
+
     public bool Wears(PlayerBranch who) => _h.Spec.Branches.ContainsKey(who);
     public void SetWears(PlayerBranch who, bool on)
     {
@@ -53,7 +72,7 @@ public sealed class HeadVm : Observable
         ReloadFaces(); Raise(nameof(OnlyOne));
     }
 
-    public void Reload() { foreach (var w in Wearers) w.Reload(); ReloadFaces(); Raise(nameof(OnlyOne)); }
+    public void Reload() { foreach (var w in Wearers) w.Reload(); ReloadFaces(); Raise(nameof(OnlyOne)); Raise(nameof(BandanaComboOn)); }
 
     private void ReloadFaces()
     {

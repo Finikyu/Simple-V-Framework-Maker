@@ -13,7 +13,11 @@ namespace Svfm.Core.VFramework;
 /// arguments of another call). A call
 /// in a loop or in a function the script calls more than once makes several recorded calls with one site.
 /// </param>
-public sealed record RecordedCall(string Path, int Occurrence, IReadOnlyList<LuaValue> Arguments, int Site = -1);
+public sealed record RecordedCall(string Path, int Occurrence, IReadOnlyList<LuaValue> Arguments, int Site = -1)
+{
+    /// <summary>How many times the run made the written call at <see cref="Site"/> (more than 1 in a loop); set by the reader.</summary>
+    public int SiteRuns { get; init; } = 1;
+}
 
 /// <summary>What running a module recorded.</summary>
 public sealed class SandboxResult
@@ -103,6 +107,8 @@ public static class LuaSandbox
                     int site = making is { } m && m.path == path ? m.site : -1;
                     making = null;
                     lock (result) result.Calls.Add(new RecordedCall(path, n, args, site));
+                    // Issue #121: the "Grade before" link names the key it reads, so the reader can find it.
+                    if (path.EndsWith(".GetDevelopId", StringComparison.Ordinal) && args is [LuaValue.Text key]) return DynValue.NewTable(Proxy($"{path}(\"{key.Value}\")"));
                     return DynValue.NewTable(Proxy(path + "()"));
                 });
                 mt["__tostring"] = DynValue.NewCallback((ctx, a) => DynValue.NewString(path));

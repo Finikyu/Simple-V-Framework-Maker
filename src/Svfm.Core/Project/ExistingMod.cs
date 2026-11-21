@@ -42,6 +42,12 @@ public sealed class ExistingField
     /// gives the value the name stands for, so the field shows it; the name and its other uses are left as they are.
     /// </summary>
     public bool OverName { get; init; }
+    /// <summary>A TppEquip constant the script gives by its name (throwAs, issue #112): the value is the bare name, written back as TppEquip.X.</summary>
+    public bool EquipName { get; init; }
+    /// <summary>Issue #125: how many items the loop that writes this value makes (1: no loop). A change applies to all of them.</summary>
+    public int LoopItems { get; init; } = 1;
+    /// <summary>The note a field written once in a loop shows, or null.</summary>
+    public string? LoopNote => LoopItems > 1 && Locked == null ? $"The script writes this value once in a loop: a change applies to all {LoopItems} items of that loop." : null;
     public bool Changed => !Equals(Value, Original);
 
     /// <summary>The value as Lua source text.</summary>
@@ -49,6 +55,7 @@ public sealed class ExistingField
     {
         // A switch with text is a dash attack by its attack name (Abilities dashAttack key).
         FieldType.Bool when Value is string atk => new LuaSource.Code(LuaWriter.DashAttackLua(atk)),
+        _ when EquipName && Value is string eq => new LuaSource.Code("TppEquip." + eq),
         _ when Value is string => Value,
         FieldType.Flag => WrittenAsBool ? (bool)Value : (object)((bool)Value ? 1 : 0),
         FieldType.Number => (double)Value,
@@ -72,8 +79,12 @@ public sealed class ExistingItem : ProjectItem
     public override DevelopRow? RdRow { get => Develop; set { if (Develop != null) Develop = value; } }
     public override string? NameLangId => NameId;
     public override string? InfoLangId => InfoId;
-    public override ProjectEdits.BehaviourState? TakeBehaviour() => Script is { } sc ? new(Script: sc.ToJson()) : null;
-    public override void PutBehaviour(ProjectEdits.BehaviourState b) { if (Script is { } es && b.Script != null) es.CopyFrom(ThrowScript.FromJson(b.Script)); }
+    public override ProjectEdits.BehaviourState? TakeBehaviour() => Script is { } sc ? new(Script: sc.ToJson(), Preset: Preset, LockLifted: LockLifted) : null;
+    public override void PutBehaviour(ProjectEdits.BehaviourState b)
+    {
+        if (Script is not { } es || b.Script == null) return;
+        es.CopyFrom(ThrowScript.FromJson(b.Script)); Preset = b.Preset; LockLifted = b.LockLifted;
+    }
     // The script's own path is not changed: the build writes this one in its place (null when it is the same).
     public override string? OwnIconPath { get => IconPathWritten ?? IntakeResult.ShippedIconOf(this); set => IconPathWritten = IconPath is { } p && ExistingMod.IconStem(p) == value ? null : value; }
     public override ProjectEdits.SpecState? TakeSpec() => Model switch
@@ -137,9 +148,26 @@ public sealed class ExistingItem : ProjectItem
     /// <summary>The script as the mod has it (<see cref="ThrowScript.ToJson"/>).</summary>
     public string? ScriptOriginal { get; internal set; }
     /// <summary>Why the script can't be changed, or null.</summary>
-    public string? ScriptLock { get; internal set; }
+    public string? ScriptLock { get => LockLifted ? null : _lock; internal set => _lock = value; }
+    private string? _lock;
+    /// <summary>A preset replaced the mod's own script (#107): the lock is gone, and the build switches the mod's blocks off.</summary>
+    public bool LockLifted { get; set; }
+    /// <summary>The vanilla thrown item the user last copied with the Preset pick (#107), or null (Custom).</summary>
+    public string? Preset { get; set; }
     /// <summary>What the item is thrown as (EQP_SWP_...), or null.</summary>
-    public string? ThrowAs { get; internal set; }
+    public string? ThrowAs { get => ThrowAsField?.Value as string ?? _throwAs; internal set => _throwAs = value; }
+    private string? _throwAs;
+    /// <summary>The throwAs value of the SetSupportWeapon call, as a field the build writes back (issue #112), or null.</summary>
+    public ExistingField? ThrowAsField => Fields.FirstOrDefault(f => f.EquipName);
+
+    /// <summary>Throws it as another vanilla thrown item (issue #112). A default script swaps its effect step, unless the
+    /// script is locked; an edited script stays as it is.</summary>
+    public void SetThrowAs(string throwAs)
+    {
+        if (ThrowAsField is not { Locked: null } f) return;
+        if (Script != null && ScriptLock == null && ThrowAs is { } old) Script.SwapDefaultEffect(old, throwAs);
+        f.Value = throwAs;
+    }
     private ThrowContext? _scriptContext;
     /// <summary>What the script's steps need from the item (its name as it is now), or null for an item that is not thrown.</summary>
     public ThrowContext? ScriptContext { get => _scriptContext is { } c ? c with { Title = Title } : null; internal set => _scriptContext = value; }
@@ -165,6 +193,8 @@ public sealed class ExistingItem : ProjectItem
     public string? IconPathWritten { get; internal set; }
     /// <summary>Each place in the item's calls where the script writes <see cref="IconPath"/> (the R&amp;D row, the looks).</summary>
     internal List<ExistingField> IconFields { get; } = [];
+    /// <summary>Owner, Nov 21: a loop item's upgrade lines are its own list in the script's data row (pu = { ... }), and the build edits that list.</summary>
+    internal bool UpgradeLinesInRow { get; set; }
     /// <summary>The module that registers it.</summary>
     public string Module { get; init; } = "";
     /// <summary>
@@ -395,6 +425,22 @@ public static partial class ExistingMod
     }
 
     /// <summary>
+    /// Issue #115: a thrown-item script module of the tool (<c>..._throw.lua</c>) that runs steps for an item that no module
+    /// declares (no AddToEquipIdTable row). The item does not exist in game, so the script never runs, and the tool can't
+    /// read the item's model or stats. One message for each such item.
+    /// </summary>
+    private static List<string> OrphanThrowScripts(List<(string path, string src, SandboxResult run)> runs)
+    {
+        var declared = runs.SelectMany(r => r.run.Calls).Where(c => c.Path.EndsWith(".AddToEquipIdTable", StringComparison.Ordinal))
+            .SelectMany(c => c.Arguments.FirstOrDefault() is LuaValue.Table t ? t.Items.OfType<LuaValue.Table>() : [])
+            .Select(e => e.Items.FirstOrDefault() is LuaValue.Name n ? n.Value : "").ToHashSet(StringComparer.Ordinal);
+        return [.. runs.Where(r => Regex.IsMatch(r.path, @"_throw(_\d+)?\.lua$", RegexOptions.IgnoreCase))
+            .SelectMany(r => Regex.Matches(r.src, @"(?<![\w.])equipId\s*==\s*(TppEquip\.EQP_\w+)").Select(m => (r.path, k: m.Groups[1].Value)))
+            .Distinct().Where(x => !declared.Contains(x.k))
+            .Select(x => $"{x.path}: no module declares {x.k} (no AddToEquipIdTable row), so the item does not exist in game, its script never runs, and its model and stats can't be read. Put back the module that declares it.")];
+    }
+
+    /// <summary>
     /// Reads an existing V Framework mod: runs each of its scripts in the sandbox, turns what the script registers into items,
     /// and recovers the names and descriptions from the mod's language files by hashing the IDs the script names.
     /// </summary>
@@ -410,6 +456,7 @@ public static partial class ExistingMod
             if (!src.Contains("V_", StringComparison.Ordinal)) continue;
             runs.Add((path, src, LuaSandbox.Run(src)));
         }
+        // A mod whose only script is a thrown-item script of the tool (issue #115) is not one: it is ported from its model.
         if (runs.All(r => !r.run.Calls.Any(c => c.Path.StartsWith("V_", StringComparison.Ordinal)))) return null;
 
         var data = new ExistingModData { Source = mod };
@@ -422,6 +469,7 @@ public static partial class ExistingMod
         bool HasKey(string id) => langs.Values.Any(l => l.Any(s => s.File.Get(FoxHash.StrCode32(id)) != null));
         string? EnglishOf(string id) => langs.TryGetValue("eng", out var e) ? e.Select(s => s.File.Get(FoxHash.StrCode32(id))).FirstOrDefault(t => t != null) : null;
 
+        data.Notes.AddRange(OrphanThrowScripts(runs));
         var stems = Stems(mod);
         var equip = EquipPackages(runs.Select(r => r.run));
         var usedIds = new HashSet<string>(StringComparer.Ordinal);
@@ -433,6 +481,10 @@ public static partial class ExistingMod
         {
             data.Modules[modulePath] = src;
             if (run.Error != null) data.Notes.Add($"{modulePath}: {run.Error}" + (run.Calls.Count > 0 ? " Everything it registered before that is shown." : ""));
+            // Issue #125: each call knows how often its written call ran, so a field of one loop run is not edited as if it were its own.
+            var runsAt = run.Calls.Where(c => c.Site >= 0).GroupBy(c => (c.Path, c.Site)).ToDictionary(g => g.Key, g => g.Count());
+            for (int i = 0; i < run.Calls.Count; i++)
+                if (runsAt.GetValueOrDefault((run.Calls[i].Path, run.Calls[i].Site)) is > 1 and var n) run.Calls[i] = run.Calls[i] with { SiteRuns = n };
             var written = run.Calls.Select(c => c.Path).Distinct().ToDictionary(p => p, p => LuaSource.FindCalls(src, p));
             modules.Add(new ModuleRun(modulePath, src, run, written));
             var develop = run.Calls.Where(c => c.Path == Develop && c.Arguments.Count >= 2 && c.Arguments[0] is LuaValue.Text && c.Arguments[1] is LuaValue.Table).ToList();
@@ -478,6 +530,15 @@ public static partial class ExistingMod
         }
         // A Set* call that a weapon's Stats tab reads is not an "other" call (gap G8): its values are settings now.
         var read = BindWeapons(project, modules);
+        // Issue #125: the items of one loop share each plain value the loop writes, so a change shows on all of them.
+        var shared = new Dictionary<(string, string, int, int, string), ExistingField>();
+        foreach (var it in project.Items.OfType<ExistingItem>())
+            for (int i = 0; i < it.Fields.Count; i++)
+                if (it.Fields[i] is { LoopItems: > 1, Locked: null } f)
+                {
+                    var k = (f.Module, f.CallPath, f.Site, f.ArgIndex, string.Join(".", f.Path));
+                    if (shared.TryGetValue(k, out var first)) it.Fields[i] = first; else shared[k] = f;
+                }
         foreach (var g in others.Where(c => !read.Contains(c)).GroupBy(c => c.Path))
             data.OtherCalls[g.Key] = g.Count();
         BindAlso(project);
@@ -493,10 +554,25 @@ public static partial class ExistingMod
     /// <summary>
     /// The calls grouped by the written call that made them, in the order the script first made each. A call written once
     /// and made once is a group of one; a call in a loop is one group of all its runs. A call the text does not show
-    /// (<see cref="RecordedCall.Site"/> is -1) is a group of its own, so nothing is merged on a guess.
+    /// (<see cref="RecordedCall.Site"/> is -1) is a group of its own, so nothing is merged on a guess. A loop whose runs
+    /// each give a different key (issue #125) is a group per run: each run registers an item of its own.
     /// </summary>
     private static IEnumerable<List<RecordedCall>> Registrations(IEnumerable<RecordedCall> calls) =>
-        calls.GroupBy(c => (c.Path, c.Site >= 0 ? c.Site : -1 - c.Occurrence)).Select(g => g.ToList());
+        calls.GroupBy(c => (c.Path, c.Site >= 0 ? c.Site : -1 - c.Occurrence)).SelectMany(g =>
+        {
+            var runs = g.ToList();
+            var keys = runs.Select(KeyOf).ToList();
+            return runs.Count > 1 && keys.All(k => k.Length > 0) && keys.Distinct(StringComparer.Ordinal).Count() == runs.Count
+                ? runs.Select(r => new List<RecordedCall> { r }) : [runs];
+        });
+
+    /// <summary>The key a registration or R&amp;D row call gives ("" when none).</summary>
+    private static string KeyOf(RecordedCall c) => c.Arguments.FirstOrDefault() switch
+    {
+        LuaValue.Text t => t.Value,
+        LuaValue.Table t => StringOf(t["key"]),
+        _ => "",
+    };
 
     /// <summary>The value at a field path in a table (null when the path is not there).</summary>
     private static LuaValue? At(LuaValue? v, IEnumerable<string> path)
@@ -549,6 +625,9 @@ public static partial class ExistingMod
         if (args != null) Strings(args, "", found);
         if (rowTable != null) Strings(rowTable, "row", found);
         var assigned = new HashSet<string?> { nameId, realId, infoId };
+        // Issue #123: the upgrade lines (p10..p17) show on the Name tab, not under "Other in-game text".
+        var lineIds = Enumerable.Range(0, DevelopRow.MaxUpgradeLines).Select(i => Lang(constTable, $"langPowerUpInfo{i}")).OfType<string>().ToList();
+        foreach (var l in lineIds) assigned.Add(l);
         var other = new List<(string, string)>();
         foreach (var (path, text) in found)
         {
@@ -574,7 +653,7 @@ public static partial class ExistingMod
         };
         item.OtherText.AddRange(other);
         item.Instances.AddRange(instances);
-        foreach (var textId in new[] { nameId, realId, infoId }.Concat(other.Select(x => x.Item2)).OfType<string>().Distinct())
+        foreach (var textId in new[] { nameId, realId, infoId }.Concat(other.Select(x => x.Item2)).Concat(lineIds).OfType<string>().Distinct())
         {
             foreach (var (lang, slots) in langs)
                 foreach (var s in slots)
@@ -599,7 +678,7 @@ public static partial class ExistingMod
                 var on = inRow ? rows : calls;
                 if (on.Count == 0) continue;
                 var keys = System.Text.RegularExpressions.Regex.Split(inRow ? path[4..] : path, @"\.|(?=\[)").Where(k => k.Length > 0).ToArray();
-                item.IconFields.Add(MakeField("Icon", "iconFtexPath", FieldType.Text, modulePath, on, inRow ? 1 : 0, keys, src, written, writtenAsFlag: false, overName: true));
+                item.IconFields.Add(MakeField("Icon", "iconFtexPath", FieldType.Text, modulePath, on, inRow ? 1 : 0, keys, src, written, writtenAsFlag: false, overName: true, oneItemOnly: true));
             }
         item.Calls = calls;
         item.Rows = rows;
@@ -647,13 +726,19 @@ public static partial class ExistingMod
         ("flow", "resourceUsageType1", FieldType.Text, d => NullIfEmpty(d.Usage1)), ("flow", "resourceUsageType1Count", FieldType.Number, d => d.Usage1Count),
         ("flow", "resourceUsageType2", FieldType.Text, d => NullIfEmpty(d.Usage2)), ("flow", "resourceUsageType2Count", FieldType.Number, d => d.Usage2Count),
         ("flow", "displayInfo", FieldType.Flag, d => d.HiddenUntilObtained),
-        ("const", "baseEquipDevelopId", FieldType.Number, d => d.UpgradeOfDevelopId), ("const", "skill", FieldType.Text, d => d.Skill),
+        ("const", "baseEquipDevelopId", FieldType.Number, d => d.GradeBefore is { } gb ? new LuaSource.Code(DevelopRow.GradeBeforeLua(gb)) : d.UpgradeOfDevelopId), ("const", "skill", FieldType.Text, d => d.Skill),
         // Only a game blueprint is set here; a mod's own one (OwnBluePrint) is never written, so the script keeps it.
         ("const", "bluePrintId", FieldType.Text, d => d.BluePrint is { } bp ? new LuaSource.Code(DevelopRow.BluePrintLua(bp)) : null),
         ("const", "isResultRankLimited", FieldType.Flag, d => d.RankLimited), ("const", "langResultRankLimited", FieldType.Text, d => NullIfEmpty(d.ResultRankLang)),
         // The look-name group: not in the row, so ApplyDevelop leaves it; ApplyOutfit sets it from the look count.
         ("const", "equipDevelopGroupID", FieldType.Number, _ => null),
+        // Issue #123: the upgrade lines, in order with no gaps (p10..p17).
+        .. Enumerable.Range(0, DevelopRow.MaxUpgradeLines).Select(i => ("const", $"langPowerUpInfo{i}", FieldType.Text, (Func<DevelopRow, object?>)(d => i < d.UpgradeLines.Count ? d.UpgradeLines[i] : null))),
     ];
+
+    /// <summary>Issue #123: why the upgrade lines of an existing item can't be edited, or null.</summary>
+    public static string? UpgradeLinesLockOf(ExistingItem item) => item.UpgradeLinesInRow ? null :
+        item.DevelopFields.FirstOrDefault(f => f.Label.StartsWith("langPowerUpInfo", StringComparison.Ordinal) && f.Locked != null)?.Locked;
 
     private static string? NullIfEmpty(string? s) => string.IsNullOrEmpty(s) ? null : s;
 
@@ -671,14 +756,16 @@ public static partial class ExistingMod
             // A skill is a staff skill name (text); a script that gives a number keeps it as a number.
             // bluePrintId = 65535 (none) is a number too.
             if (key is "skill" or "bluePrintId" && have?.Value is LuaValue.Number) type = FieldType.Number;
-            var f = MakeField("R&D", key, type, modulePath, rows, 1, [table, name], src, written, writtenAsFlag: true);
+            var f = MakeField("R&D", key, type, modulePath, rows, 1, [table, name], src, written, writtenAsFlag: true, oneItemOnly: true);
             item.DevelopFields.Add(f);
             at[key] = f;
         }
-        // A key the script leaves out, or sets in a way the tool can't read, is null (or 0).
-        int? N(string k) => at[k] is { Present: true, Locked: null, Original: double d } ? (int)Math.Round(d) : null;
-        bool B(string k) => at[k] is { Locked: null, Original: true };
-        string? S(string k) => at[k] is { Locked: null, Original: string { Length: > 0 } s } ? s : null;
+        // A key the script leaves out, or sets in a way the tool can't read, is null (or 0). A loop's value (issue #125)
+        // is read for this item even though it is locked.
+        bool Read(ExistingField f) => f.Locked == null || f.LoopItems > 1;
+        int? N(string k) => at[k] is { Present: true, Original: double d } f && Read(f) ? (int)Math.Round(d) : null;
+        bool B(string k) => at[k] is { Original: true } f && Read(f);
+        string? S(string k) => at[k] is { Original: string { Length: > 0 } s } f && Read(f) ? s : null;
         // The main section is the p63/p64 pair when the script sets one, else a p55 level (the R&D section).
         int mainId = N("sectionIDForDevelop") ?? 0, mainLv = N("developSectionLv") ?? 0;
         if (mainId == 0 && N("sectionLvForDevelop") is > 0 and var rd) (mainId, mainLv) = (DevelopRow.RdSection, rd);
@@ -702,10 +789,34 @@ public static partial class ExistingMod
             Resource1 = S("resourceType1"), Resource1Count = N("resourceType1Count") ?? 0, Resource2 = S("resourceType2"), Resource2Count = N("resourceType2Count") ?? 0,
             Usage1 = S("resourceUsageType1"), Usage1Count = N("resourceUsageType1Count") ?? 0, Usage2 = S("resourceUsageType2"), Usage2Count = N("resourceUsageType2Count") ?? 0,
             HiddenUntilObtained = B("displayInfo"), UpgradeOfDevelopId = N("baseEquipDevelopId"),
+            GradeBefore = at["baseEquipDevelopId"] is { Locked: null, Original: LuaSource.Code gb } ? DevelopRow.GradeBeforeOf(gb.Lua) : null,
             Skill = S("skill") ?? (at["skill"] is { Present: true, Locked: null, Original: double sk } && sk != 0 ? sk.ToString(System.Globalization.CultureInfo.InvariantCulture) : null),
             RankLimited = B("isResultRankLimited"), ResultRankLang = S("langResultRankLimited"),
-        };
+        }.WithUpgradeLines(Enumerable.Range(0, DevelopRow.MaxUpgradeLines).Select(i => S($"langPowerUpInfo{i}") ?? ""));
         item.Develop = item.DevelopOriginal = row;
+        if (item.Key is { } k && at["langPowerUpInfo0"].LoopItems > 1 && UpgradeLinesLockOf(item) != null && UpgradeLinesRow(src, k, row.UpgradeLines) != null)
+            item.UpgradeLinesInRow = true;
+    }
+
+    /// <summary>
+    /// The data row of a loop item (a GRADES row): the table that gives the item's key as a plain string, and its one list
+    /// entry that holds exactly the item's upgrade lines. Null when the key is written more than once or no single list matches.
+    /// </summary>
+    internal static (LuaTable row, string entry)? UpgradeLinesRow(string src, string key, IReadOnlyList<string> lines)
+    {
+        string lit = LuaLiteral.Quote(key);
+        int at = src.IndexOf(lit, StringComparison.Ordinal);
+        if (at < 0 || src.IndexOf(lit, at + 1, StringComparison.Ordinal) >= 0) return null;
+        for (int i = src.LastIndexOf('{', at); i >= 0; i = i > 0 ? src.LastIndexOf('{', i - 1) : -1)
+        {
+            if (LuaSource.ParseTable(src, i) is not { } row || row.Close < at) continue;
+            if (!row.Entries.Any(e => e.ValueStart == at)) return null;
+            var hits = row.Entries.Where(e => e.Key != null && e.Kind == LuaLiteralKind.Table && e.Table is { } t
+                && t.Entries.All(x => x.Key == null && x.Kind == LuaLiteralKind.String)
+                && t.Entries.Select(x => (LuaLiteral.TryParse(src[x.ValueStart..x.ValueEnd]) as LuaValue.Text)?.Value).SequenceEqual(lines)).ToList();
+            return hits.Count == 1 ? (row, hits[0].Key!) : null;
+        }
+        return null;
     }
 
     /// <summary>
@@ -724,6 +835,7 @@ public static partial class ExistingMod
             var get = DevelopKeys.First(k => k.key == f.Label).get;
             object? now = get(d);
             f.Value = f.Original;
+            if (item.UpgradeLinesInRow && f.Label.StartsWith("langPowerUpInfo", StringComparison.Ordinal)) continue;
             if (Equals(now, get(o))) continue;
             if (now == null)
             {
@@ -1001,15 +1113,16 @@ public static partial class ExistingMod
 
     /// <summary>One setting, read from the first of <paramref name="calls"/>. It can be changed only when one written call makes them all and gives it the same value each time.</summary>
     private static ExistingField MakeField(string group, string label, FieldType type, string module, List<RecordedCall> calls, int argIndex, string[] path,
-        string src, Dictionary<string, List<LuaCallSite>> written, bool writtenAsFlag, bool overName = true)
+        string src, Dictionary<string, List<LuaCallSite>> written, bool writtenAsFlag, bool overName = true, bool equipName = false, object? absentDefault = null, bool oneItemOnly = false)
     {
         var call = calls[0];
         var current = At(call.Arguments[argIndex], path);
-        object original = type switch { FieldType.Bool => false, FieldType.Number => 0d, FieldType.Flag => false, _ => "" };
+        object original = absentDefault ?? type switch { FieldType.Bool => false, FieldType.Number => 0d, FieldType.Flag => false, _ => "" };
         bool present = false, asBool = false;
         string? locked = null;
         // V Framework reads dashAttack as on/off or as an attack ID (issue #96): an ID reads as its attack name.
         if (type == FieldType.Bool && path[^1] == "dashAttack" && Abilities.DashAttackOf(current) is { } attack) { present = true; original = attack; }
+        else if (equipName && current is LuaValue.Name { Value: var eqp } && eqp.StartsWith("TppEquip.", StringComparison.Ordinal)) { present = true; original = eqp["TppEquip.".Length..]; }
         else if (current is LuaValue.Number n)
         {
             present = true;
@@ -1028,11 +1141,19 @@ public static partial class ExistingMod
             present = true;
             if (type == FieldType.Text) original = t.Value; else locked = "the script gives text where a number or switch is expected";
         }
+        // Issue #121: a "Grade before" link that the tool wrote reads back as its Lua.
+        else if (current is LuaValue.Name { Value: var gbl } && DevelopRow.GradeBeforeOf(gbl) is { } gbk) { present = true; original = new LuaSource.Code(DevelopRow.GradeBeforeLua(gbk)); }
         else if (current != null && current is not LuaValue.Name { Value: "nil" }) { present = true; locked = "the script sets it with a name or an expression that the tool can't work out"; }
         if (locked == null && calls.Any(c => c.Site < 0)) locked = "the script makes this call in a way the tool can't follow";
         if (locked == null && calls.Select(c => c.Site).Distinct().Count() > 1) locked = "the script writes these calls in more than one place";
         if (locked == null && calls.Skip(1).Any(c => !Equals(At(c.Arguments[argIndex], path), current)))
             locked = $"it is not the same each of the {calls.Count} times the script makes this call (the script works it out each time)";
+        // Issue #125: the written call also makes other items (one loop run each). Only a plain value can change, for all
+        // of them; a name or an expression (g.grade) is worked out per run, and a literal there would change every run.
+        int loopItems = call.SiteRuns > calls.Count ? call.SiteRuns : 1;
+        if (loopItems > 1) overName = false;
+        // shortcut: an R&D or icon value is edited on one item's row, and the other rows of the loop would not follow; locked until owners ask.
+        if (locked == null && loopItems > 1 && oneItemOnly) locked = $"the script writes it once for the {loopItems} items its loop makes";
         if (locked == null)
         {
             var sites = written[call.Path];
@@ -1041,14 +1162,16 @@ public static partial class ExistingMod
             else
             {
                 object trial = type switch { FieldType.Bool => true, FieldType.Number => 1d, FieldType.Flag => 1, _ => "x" };
-                if (LuaSource.SetField(src, table, path, trial, out var err, overName) == null) locked = err;
+                if (LuaSource.SetField(src, table, path, trial, out var err, overName) == null)
+                    locked = loopItems > 1 ? $"the script works it out for each of the {loopItems} items its loop makes ({err})" : err;
             }
         }
         // Compare with what the text writes: a field the run found but the text writes by another route stays locked.
         return new ExistingField
         {
             Group = group, Label = label, Type = type, Original = original, Value = original, Present = present, Module = module, CallPath = call.Path,
-            Site = call.Site, ArgIndex = argIndex, Path = path, WrittenAsBool = writtenAsFlag && asBool, Locked = locked, OverName = overName,
+            Site = call.Site, ArgIndex = argIndex, Path = path, WrittenAsBool = writtenAsFlag && asBool, Locked = locked, OverName = overName, EquipName = equipName,
+            LoopItems = loopItems,
         };
     }
 
@@ -1113,7 +1236,7 @@ public static partial class ExistingMod
     public static ProjectBuildResult Build(ModProject p, GameData? game = null)
     {
         var data = p.Existing ?? throw new InvalidOperationException("Not an existing-mod project.");
-        var errors = new List<string>();
+        var errors = new List<string>(CopyFamily.Errors(p));
         var warnings = new List<string>();
         var b = MgsvBuilder.From(data.Source);
         b.Name = p.Name; b.Version = p.Version; b.Author = p.Author; b.Website = p.Website; b.Description = p.Description;
@@ -1138,6 +1261,13 @@ public static partial class ExistingMod
                 var updated = LuaSource.SetField(sources[f.Module], table, f.Path, f.ForLua, out var err, f.OverName);
                 if (updated == null) errors.Add($"{who}: {err}.");
                 else sources[f.Module] = updated;
+            }
+            if (item.UpgradeLinesInRow && item.Develop is { } dv && item.DevelopOriginal is { } dvo && !dv.UpgradeLines.SequenceEqual(dvo.UpgradeLines))
+            {
+                string m = item.DevelopFields.First(f => f.Label == "langPowerUpInfo0").Module;
+                string list = dv.UpgradeLines.Count == 0 ? "{}" : "{ " + string.Join(", ", dv.UpgradeLines.Select(LuaLiteral.Quote)) + " }";
+                if (UpgradeLinesRow(sources[m], item.Key!, dvo.UpgradeLines) is not { } hit) errors.Add($"\"{item.Title}\" · upgrade lines: the item's row in the script was not found.");
+                else sources[m] = LuaSource.ReplaceTable(sources[m], hit.row, [hit.entry], list, out _)!;
             }
             // Keys taken out of the R&D row or an outfit branch, then tables: after the values, each against the script as it now stands.
             foreach (var f in remove)
@@ -1190,6 +1320,9 @@ public static partial class ExistingMod
             foreach (var (start, end) in ranges) src = src[..start] + src[end..];
             sources[module] = src;
         }
+        // A removed head option leaves its key in no list of the script (headOptions, FOLLOW_VANILLA): the game would look up a head that is gone.
+        foreach (var gone in data.Opened.Where(o => o.ItemType == ItemKind.HeadOption && o.Key != null && p.Items.All(i => i.Id != o.Id) && RemoveLockOf(data, o) == null))
+            foreach (var module in sources.Keys.ToList()) sources[module] = WithoutListedKey(sources[module], gone.Key!);
         // A call that comes after a removed call of the same name in its module is now one place nearer the start.
         int SiteNow(string module, string path, int site) => site - cut.Count(c => c.module == module && c.path == path && c.site < site);
         // New calls last: they would move the place of every later ExtendVanillaOutfit call that a field points to.
@@ -1318,7 +1451,7 @@ public static partial class ExistingMod
     public static string? RemoveLockOf(ExistingModData data, ExistingItem item)
     {
         if (item.Calls.Count == 0 && item.Rows.Count == 0) return "the script has no call of its own for it";
-        if (item.Instances.Count > 0 || item.Calls.Count > 1 || item.Rows.Count > 1)
+        if (item.Instances.Count > 0 || item.Calls.Count > 1 || item.Rows.Count > 1 || item.Calls.Concat(item.Rows).Any(c => c.SiteRuns > 1))
             return "one call in the script registers it more than once, together with other things";
         if (item.Calls.Concat(item.Rows).Any(c => c.Site < 0)) return "the script makes its call in a way the tool can't follow";
         if (!data.Modules.TryGetValue(item.Module, out var src)) return "its script is not in the mod";
@@ -1338,6 +1471,17 @@ public static partial class ExistingMod
     /// The text of the statement that is only this call, from the start of its line to the end of it (a trailing ';' and
     /// a line comment go with it), or null when the call is part of a longer line or expression.
     /// </summary>
+    /// <summary>The script without <paramref name="key"/> in a table: a <c>["key"] = value,</c> row, or a <c>"key"</c> entry of a list.</summary>
+    internal static string WithoutListedKey(string src, string key)
+    {
+        string q = System.Text.RegularExpressions.Regex.Escape("\"" + key + "\"");
+        var ml = System.Text.RegularExpressions.RegexOptions.Multiline;
+        src = System.Text.RegularExpressions.Regex.Replace(src, @"^[ \t]*\[" + q + @"\][ \t]*=[^\r\n]*\r?\n", "", ml);
+        src = System.Text.RegularExpressions.Regex.Replace(src, @"(?<=[{,][ \t]*)" + q + @"[ \t]*,[ \t]*", "");
+        src = System.Text.RegularExpressions.Regex.Replace(src, @"[ \t]*,[ \t]*" + q + @"(?=[ \t]*\})", "");
+        return System.Text.RegularExpressions.Regex.Replace(src, @"\{[ \t]*" + q + @"[ \t]*\}", "{}");
+    }
+
     private static (int start, int end)? StatementOf(string src, LuaCallSite call, out string why)
     {
         why = "";
@@ -1349,7 +1493,8 @@ public static partial class ExistingMod
         int prevStart = before.LastIndexOf('\n') + 1;
         string prev = before[prevStart..];
         int comment = prev.IndexOf("--", StringComparison.Ordinal);
-        if (comment >= 0 && prev.IndexOf('"') < 0 && prev.IndexOf('\'') < 0) prev = prev[..comment];
+        // A whole-line comment ends no expression, even with quotes in it (SVFM writes the item title in quotes there).
+        if (comment >= 0 && (prev[..comment].Trim().Length == 0 || prev.IndexOf('"') < 0 && prev.IndexOf('\'') < 0)) prev = prev[..comment];
         prev = prev.TrimEnd();
         if (prev.Length > 0 && (prev[^1] is '=' or '(' or ',' or '{' or '[' or '+' or '-' or '*' or '/' or '<' or '>' or '~' or '.'
             || System.Text.RegularExpressions.Regex.IsMatch(prev, @"(^|[^\w])(return|and|or|not|local|in)$")))
@@ -1374,7 +1519,11 @@ public static partial class ExistingMod
     {
         var langs = ReadLanguages(data.Source);
         var ids = items.SelectMany(i => i.Text.Keys).Distinct().ToList();
-        var texts = items.SelectMany(i => i.Text).GroupBy(kv => kv.Key).ToDictionary(g => g.Key, g => g.First().Value);
+        // Items of one loop share text IDs (issue #125): the edited copy of a text wins over the copies as the mod ships them.
+        // shortcut: the other items show the old text until the mod is opened again; share the text objects if owners ask.
+        bool Edited(string id, Dictionary<string, string> per) => ModText.Languages.Any(l =>
+            TextIn(per, l.Item1) is { } t && langs.TryGetValue(l.Item1, out var ss) && ss.Select(s => s.File.Get(FoxHash.StrCode32(id))).FirstOrDefault(x => x != null) is { } shipped && t != shipped);
+        var texts = items.SelectMany(i => i.Text).GroupBy(kv => kv.Key).ToDictionary(g => g.Key, g => g.Select(kv => kv.Value).FirstOrDefault(v => Edited(g.Key, v)) ?? g.First().Value);
         string engBase = langs.TryGetValue("eng", out var eng) && eng.Count > 0 ? eng[0].Base : "svfm_text";
         var created = new Dictionary<string, List<LangSlot>>(StringComparer.Ordinal);
         // An ID that no language file has yet (a name added in the tool) gets the English text in every language file the

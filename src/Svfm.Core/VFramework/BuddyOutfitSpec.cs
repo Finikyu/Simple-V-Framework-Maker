@@ -21,8 +21,6 @@ public sealed class BuddyOutfitSpec
     /// <summary>The name in the detail panel (R&amp;D p30); vanilla Quiet costumes use the name itself. null = NameLang.</summary>
     public string? RealNameLang { get; init; }
     public string? InfoLang { get; init; }
-    /// <summary>Ability lines in Sortie Prep (R&amp;D langPowerUpInfo0..; vanilla BATTLE DRESS: ability_1082).</summary>
-    public List<string> PowerUpInfoLangs { get; init; } = [];
     public required string IconFtexPath { get; set; }
     public DevelopRow Develop { get; set; } = new();
     public List<string> Header { get; } = [];

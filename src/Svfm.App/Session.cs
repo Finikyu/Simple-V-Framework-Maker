@@ -13,6 +13,8 @@ public sealed class Session : Observable
     public static Func<string, GameData> GameFactory { get; set; } = GameData.OpenGameFolder;
 
     public Settings Settings { get; }
+    /// <summary>The file pickers and questions of the window (set by <see cref="MainVm"/>).</summary>
+    public IDialogs? Dialogs { get; set; }
     private GameData? _game;
     private long _gameChecked;
     private readonly object _gameLock = new();
@@ -216,6 +218,15 @@ public sealed class Session : Observable
         var copy = await _open!.DuplicateAsync(item);
         NotifyChanged();
         return copy;
+    }
+
+    /// <summary>"Make grades..." (issue #121): copies of an item at the given grades, each linked to the one before.</summary>
+    public async Task<List<ProjectItem>> MakeGradesAsync(ProjectItem item, IReadOnlyList<int> grades)
+    {
+        DevLog.Info("edit", "change");
+        var made = await _open!.MakeGradesAsync(item, grades);
+        NotifyChanged();
+        return made;
     }
 
     public void Remove(ProjectItem item)

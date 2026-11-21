@@ -413,9 +413,8 @@ public static class BuddyConverter
             Key = key, Buddy = r.Buddy, FpkPath = pkg + ".fpk", Bruise = o.Bruise,
             Dog = r.Buddy == "dog" ? o.Dog ?? (r.DogGear is { } g ? DogGearBehaviour.Vanilla(g) : null) : null,
             Horse = r.Buddy == "horse" ? o.Horse ?? (r.HorseTack is { } ht && ht != 0 ? HorseTackBehaviour.Vanilla(ht) : null) : null,
-            PowerUpInfoLangs = [.. r.PowerUpInfoLangs],
             NameLang = $"{prefix}_name", InfoLang = $"{prefix}_info", IconFtexPath = iconPath,
-            Develop = o.Develop ?? new DevelopRow { Grade = 1, GmpCost = 0, InitiallyAvailable = true, UsageGmpCost = vanRow?.UsageGmp ?? 0 },
+            Develop = o.Develop ?? new DevelopRow { Grade = 1, GmpCost = 0, InitiallyAvailable = true, UsageGmpCost = vanRow?.UsageGmp ?? 0 }.WithUpgradeLines(r.PowerUpInfoLangs),
         };
         if (r.Buddy == "dog" && o.Dog == null && r.OwnPackage)
             // The mod gives every gear the same look and Zeta keeps each gear's own behaviour; one V Framework gear has one.

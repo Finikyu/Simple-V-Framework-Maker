@@ -222,10 +222,20 @@ public sealed record ExplosionAction(string BlastId = ThrowAction.Item, string A
         Radius is > 100 ? "An explosion's radius is at most 100 m." : null;
 }
 
-/// <summary>A noise guards hear and check, with no actual sound (V_NoiseSystem.AddNoise). Kinds: 0x0D grenade bouncing
-/// (a threat), 0x1A small item bouncing, 0x1C smoke grenade going off, 0x50 the vanilla special noise.</summary>
+/// <summary>A noise guards hear and check, with no actual sound (V_NoiseSystem.AddNoise). The known kinds are in
+/// <see cref="Kinds"/>; .docs/Noise_kinds.md gives the source of each.</summary>
 public sealed record NoiseAction(int Type) : ThrowAction
 {
+    /// <summary>The noise kinds that have a known name (#111), for a pick list.</summary>
+    public static readonly IReadOnlyList<(int Value, string Label)> Kinds =
+    [
+        (0x0D, "Grenade bouncing (guards treat it as a threat)"),
+        (0x1A, "Small item bouncing"),
+        (0x1C, "Smoke grenade going off"),
+        (0x0B, "A soldier's hands-up cry"),
+        (0x1E, "A soldier collapsing"),
+        (0x50, "Special noise of the game"),
+    ];
     public override string Describe() => $"noise 0x{Type:X2}";
     public override string? Library => "V_NoiseSystem";
     public override bool NeedsPosition => true;
@@ -272,6 +282,28 @@ public sealed class ThrowScript
         foreach (var (e, l) in On) c.On[e] = [.. l];
         return c;
     }
+
+    /// <summary>
+    /// The item is now thrown as <paramref name="newSwp"/> (issue #112). A default script (only the effect of
+    /// <paramref name="oldSwp"/> when it goes off, used up after it where that item is) becomes the default of the new
+    /// item, in the same ID form. Any other script stays as it is. True when the script changed.
+    /// </summary>
+    public bool SwapDefaultEffect(string oldSwp, string newSwp)
+    {
+        static string Fam(string s) => SupportWeaponFamilies.Family(s).Replace("EQP_", "");
+        var steps = On.SelectMany(kv => kv.Value.Select(a => (e: kv.Key, a))).ToList();
+        if (Fam(oldSwp) == Fam(newSwp) || steps.Count == 0 || steps.Any(s => s.e != ThrowEvent.GoesOff)
+            || steps[0].a is not VanillaEffectAction v || Fam(v.Swp) != Fam(oldSwp)
+            || steps.Count != (SupportWeaponFamilies.EffectCall(oldSwp)?.removeAfter == true ? 2 : 1) || steps.Skip(1).Any(s => s.a is not RemoveAction))
+            return false;
+        CopyFrom(VanillaEffect(v.Swp.StartsWith("EQP_", StringComparison.Ordinal) ? newSwp : newSwp.Replace("EQP_", "")));
+        return true;
+    }
+
+    /// <summary>The vanilla effect steps whose item is not <paramref name="throwAs"/>'s kind, by name (for a note).</summary>
+    public IEnumerable<string> OtherEffects(string throwAs) => On.Values.SelectMany(l => l).OfType<VanillaEffectAction>()
+        .Where(v => SupportWeaponFamilies.Family(v.Swp).Replace("EQP_", "") != SupportWeaponFamilies.Family(throwAs).Replace("EQP_", ""))
+        .Select(v => SupportWeaponFamilies.Name(v.Swp)).Distinct();
 
     /// <summary>Replaces this script's steps with <paramref name="from"/>'s.</summary>
     public void CopyFrom(ThrowScript from)
@@ -497,27 +529,41 @@ public sealed class ThrowScript
         return "Script: " + string.Join("; ", parts.Select(p => $"{ThrowEvents.Label(p.e)}, {string.Join(", ", p.steps.Select(a => a.Describe()))}")) + ".";
     }
 
-    /// <summary>The steps a script can use, for an editor: name, what it does, and a new step with default values.</summary>
-    public static readonly IReadOnlyList<(string Name, string Description, Func<ThrowAction> New)> Steps =
+    /// <summary>The steps a script can use, in editor order: name, what it does, and a new step with the editor's
+    /// default values. The effect step depends on the item: see <see cref="EffectStep"/>. One source for the editor (#111).</summary>
+    public static readonly IReadOnlyList<ThrowStepKind> Steps =
     [
-        ("Vanilla effect", "Runs a vanilla item's effect on it (grenade, stun, smoke, sleeping gas, Molotov, bait, fake sign).", () => new VanillaEffectAction("SWP_Grenade")),
-        ("Go off", "It goes off now (on a hit: an impact fuse).", () => new GoOffAction()),
-        ("Stick", "It stops where it is; its fuse keeps running (on a hit: sticky).", () => new StickAction()),
-        ("Remove", "It is used up and disappears.", () => new RemoveAction()),
-        ("Set fuse", "Sets the time it has left.", () => new SetFuseAction(3)),
-        ("Chaff", "Jams cameras, UAVs and Sahelanthropus, cuts CP radio and lock-on.", () => new ChaffAction(10)),
-        ("Stun burst", "A stun grenade burst.", () => new StunAction()),
-        ("Smoke / sleeping gas", "A smoke or sleeping-gas cloud.", () => new CloudAction(30, 8)),
-        ("Fire", "Molotov fire.", () => new FireAction()),
-        ("Explosion", "An explosion's damage and push (no look or sound).", () => new ExplosionAction()),
-        ("Noise", "A noise guards hear and check.", () => new NoiseAction(0x0D)),
-        ("Landing noise", "Enemies hear it land.", () => new ReboundNoiseAction()),
-        ("Landing sound", "Plays its landing sound.", () => new LandingSoundAction()),
-        ("Smoke trail", "It gives off smoke.", () => new SmokeTrailAction()),
-        ("Announce", "A line in the announce log (testing).", () => new AnnounceAction("went off")),
-        ("Own Lua", "Lua of your own.", () => new CustomLuaAction("")),
+        new("It goes off now", "The item goes off at once, before its fuse ends. At \"Hits a surface\" this makes an impact fuse.", () => new GoOffAction()),
+        new("It sticks where it lands", "The item stops where it is. Its fuse keeps running. At \"Hits a surface\" this makes it sticky.", () => new StickAction()),
+        new("Remove the item", "The item is used up and goes away. Put this step last.", () => new RemoveAction()),
+        new("Set the fuse", "Sets the time that is left before the item goes off.", () => new SetFuseAction(3)),
+        new("Enemies hear it land", "Guards near the item hear it land and come to look.", () => new ReboundNoiseAction()),
+        new("Landing sound", "Plays the landing sound of the item. Guards do not hear it.", () => new LandingSoundAction()),
+        new("Smoke trail", "The item gives off a trail of smoke.", () => new SmokeTrailAction()),
+        new("Chaff", "A chaff cloud where the item is. It jams cameras, UAVs and Sahelanthropus, and cuts the radio of the enemy base and lock-on. A new chaff cloud replaces the old one.", () => new ChaffAction(10)),
+        new("Stun burst", "A stun grenade flash where the item is. Enemies in the radius are stunned.", () => new StunAction()),
+        new("Smoke or sleeping-gas cloud", "A cloud where the item is. Smoke hides the player. Sleeping gas puts enemies to sleep.", () => new CloudAction(10, 5)),
+        new("Fire", "Molotov fire where the item is. It burns enemies that walk into it.", () => new FireAction()),
+        new("Explosion with the item's blast", "The damage and the push of an explosion where the item is. There is no flash and no sound. Add a Noise step if guards must hear it.", () => new ExplosionAction()),
+        new("Noise", "A noise where the item is. Guards hear it and come to look. Nobody hears a real sound.", () => new NoiseAction(0x1C)),
+        new("Announce on screen", "Shows a line of text in the log at the bottom left. For tests.", () => new AnnounceAction("hello"), DeveloperOnly: true),
+        new("Own Lua", "Your own Lua code runs at this moment.", () => new CustomLuaAction("")),
     ];
+
+    /// <summary>The step that runs the vanilla effect of <paramref name="swp"/> (the item's "Thrown as").</summary>
+    public static ThrowStepKind EffectStep(string swp)
+    {
+        var n = SupportWeaponFamilies.Name(swp);
+        return new($"The {n} effect", $"The item does what the vanilla {n} does when it goes off.", () => new VanillaEffectAction(swp));
+    }
+
+    /// <summary>What a step does, in plain words (the description of its kind).</summary>
+    public static string Help(ThrowAction a) => a is VanillaEffectAction v ? EffectStep(v.Swp).Description
+        : Steps.FirstOrDefault(k => k.New().GetType() == a.GetType())?.Description ?? "";
 }
+
+/// <summary>A kind of step: its name, what it does, and a new step with default values.</summary>
+public sealed record ThrowStepKind(string Name, string Description, Func<ThrowAction> New, bool DeveloperOnly = false);
 
 /// <summary>Vanilla support weapon kinds: family names and the V Framework call that runs a kind's effect.</summary>
 public static class SupportWeaponFamilies

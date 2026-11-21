@@ -54,7 +54,7 @@ public static class SnakeHeadAddon
         var modelData = new Dictionary<string, byte[]>();
         foreach (var m in models)
         {
-            modelPath[m.Id] = $"/Assets/tpp/chara/sna/Scenes/{setPrefix}_{m.Id}.fmdl";
+            modelPath[m.Id] = Naming.SnaModel(setPrefix, m.Id);
             modelData[m.Id] = FmdlModel.ShowOnlyGroups(m.Fmdl, m.Groups);
         }
 
@@ -130,7 +130,7 @@ public static class SnakeHeadAddon
         // Avatar's own bandana for a bandana option (Snake's bandana is part of his face model).
         var avatarFv2 = new Dictionary<string, string>();
         string avatarPkg = $"/Assets/tpp/pack/player/fova/plfova_{setPrefix}_av";
-        string avatarBandana = $"/Assets/tpp/chara/sna/Scenes/{setPrefix}_avbandana.fmdl";
+        string avatarBandana = Naming.SnaModel(setPrefix, "avbandana");
         ulong? avatarBandanaSim = null;
         {
             var fpk = new FoxPackage();
@@ -224,6 +224,39 @@ public static class SnakeHeadAddon
     }
 
     /// <summary>
+    /// Issue #126: adds Snake's vanilla bandana of Demon stage <paramref name="stage"/> (1-3) to a head package: a copy of
+    /// the bandana face model (face4/5/6) in which only the bandana meshes (sna_bdn0 textures: knot band and tails) draw,
+    /// at <paramref name="modelPath"/>, the face's cloth .sim and the bandana textures' small mips. Returns the .fv2 attach
+    /// of the copy (with the .sim when the game has one).
+    /// </summary>
+    public static Fv2File.ModelAttach AddSnakeBandana(GameData game, int stage, string modelPath, FoxPackage fpk, FoxPackage fpkd, TexturePack pack, List<string> notes)
+    {
+        int face = stage + 3;
+        string vp = string.Format(FacePkg, face);
+        var vfpk = FoxPackage.Read(game.Read(vp + ".fpk"));
+        byte[] data = vfpk.Files.FirstOrDefault(f => f.Path.EndsWith("_cov.fmdl", StringComparison.Ordinal))?.Data
+            ?? throw new InvalidDataException($"{vp}.fpk has no face model.");
+        var fm = FmdlModel.Read(data);
+        var band = HeadIcon.Bandana(fm);
+        if (band.Count == 0) throw new InvalidDataException($"{vp}: the face model has no bandana meshes.");
+        if (fpk.Find(modelPath) == null) fpk.Files.Add(new PackageFile(modelPath, FmdlModel.KeepMeshes(data, band.Select(x => x.Index).ToHashSet())));
+        // The tails' cloth: the vanilla face .fv2 attaches the face with its .sim. The copy keeps the face's bones.
+        ulong? sim = null;
+        var vfv2 = vfpk.Find(string.Format(FaceFv2, face));
+        if (vfv2 != null && new Fv2File(vfv2.Data).Attachments() is [{ Sim: { } s }] && game.TryRead(vp + ".fpkd") is { } vd
+            && FoxPackage.Read(vd).Files.FirstOrDefault(f => f.Path.EndsWith(".sim", StringComparison.Ordinal) && FoxHash.PathCode64(f.Path) == s) is { } simFile)
+        {
+            if (fpkd.Find(simFile.Path) == null) fpkd.Files.Add(simFile);
+            sim = s;
+        }
+        else notes.Add($"{vp}: no cloth .sim found for the Snake bandana; its tails do not move.");
+        var codes = band.SelectMany(x => fm.Materials[x.MaterialIndex].Textures).Select(t => t.PathCode).ToHashSet();
+        if (game.TryRead(vp + ".pftxs") is { } vt)
+            foreach (var t in TexturePack.Read(vt).Textures) if (codes.Contains(t.PathCode) && pack.Find(t.PathCode) == null) pack.Textures.Add(t);
+        return new Fv2File.ModelAttach(FoxHash.PathCode64(modelPath), sim);
+    }
+
+    /// <summary>
     /// An option's icon: its extra models (and the bandana when it wears one) alone, in the head icon style their size
     /// calls for (measured against Snake's face of stage 1, which is not drawn).
     /// </summary>
@@ -236,7 +269,7 @@ public static class SnakeHeadAddon
             var fm = FmdlModel.Read(m.Fmdl);
             gear.AddRange(HeadIcon.Moved(fm.Meshes.Where(x => m.Groups.Contains(x.MeshGroup)), HeadIcon.ToFaceSpace(fm)));
         }
-        if (o.Bandana) gear.AddRange(HeadIcon.Bandana(face));
+        if (o.Bandana) gear.AddRange(HeadIcon.Bandana(TailPose.Hang(face)));
         return HeadIcon.RenderGear(gear, HeadIcon.HeadSilhouette(face));
     }
 

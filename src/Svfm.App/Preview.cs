@@ -732,10 +732,11 @@ public sealed class PreviewVm : Observable
 
     /// <summary>
     /// What the picture shows for "Own arm" when the model has no left arm. The game has no plain (not bionic) arm
-    /// package for Snake (the arm packages arm0-arm7 are all bionic), so there is nothing to draw in its place.
+    /// package for Snake (the arm packages arm0-arm7 are all bionic), so the game draws no left arm. The preview mirrors
+    /// the right arm (issue #44, <see cref="OutfitPreview.MirrorRightArm"/>).
     /// </summary>
     public string ArmNote => _arm is { Id.Length: 0 } && ArmsOn && _scene is { HasOwnLeftArm: false }
-        ? "This model has no left arm, and the game has no plain arm for Snake or the Avatar. The preview shows no left arm."
+        ? "This model has no left arm, and the game has no plain arm for Snake or the Avatar. The preview shows the right arm mirrored; in game the left arm does not show."
         : "";
 
     /// <summary>Lists the arms for the character being previewed (Snake and Avatar).</summary>

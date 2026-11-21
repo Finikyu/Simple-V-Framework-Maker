@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
+using Avalonia.VisualTree;
 
 namespace Svfm.App;
 
@@ -19,6 +20,7 @@ public sealed partial class MainWindow : Window, IDialogs
         InitializeComponent();
         Title = $"Simple V Framework Maker v{typeof(MainWindow).Assembly.GetName().Version?.ToString(3)}"; // #74: the version is in the title
         DataContext = _vm = new MainVm(session, this);
+        Focusable = true; // #117: Esc in a number field moves the focus here, so the window shortcuts work again
         KeyDown += OnKeyDown;
         var search = this.FindControl<TextBox>("FieldSearchBox")!;
         search.AttachedToVisualTree += (_, _) => search.Focus();
@@ -39,7 +41,8 @@ public sealed partial class MainWindow : Window, IDialogs
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
         bool ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
-        bool typing = FocusManager?.GetFocusedElement() is TextBox;
+        // Issue #117: an editable field keeps its keys (digits, Ctrl+Z, Esc), also when the focus is on a part inside it.
+        bool typing = FocusManager?.GetFocusedElement() is Visual f && f.GetSelfAndVisualAncestors().Any(a => a is TextBox or NumericUpDown or ComboBox { IsEditable: true });
         if (e.Key == Key.F12) { _vm.ToggleDev.Execute(null); e.Handled = true; }
         else if (ctrl && e.Key == Key.F && _vm.CanSearch && this.FindControl<Button>("SearchButton") is { } search) { search.Flyout!.ShowAt(search); e.Handled = true; }
         else if (ctrl && e.Key == Key.Z && !typing) { _vm.UndoCommand.Execute(null); e.Handled = true; }
@@ -47,8 +50,9 @@ public sealed partial class MainWindow : Window, IDialogs
         else if (ctrl && e.Key == Key.O) { _vm.OpenProjectCommand.Execute(null); e.Handled = true; }
         else if (ctrl && e.Key == Key.OemComma) { _vm.OpenSettingsCommand.Execute(null); e.Handled = true; }
         else if (!ctrl && !typing && e.Key is >= Key.D1 and <= Key.D9 && _vm.Editor is { } edn && _vm.Screen == edn) { edn.GoTab(e.Key - Key.D0); e.Handled = true; }
-        else if (e.Key == Key.Escape && _vm.Screen is BuildVm) { _vm.ShowEditor(); e.Handled = true; }
-        else if (e.Key == Key.Escape && _vm.Editor is { Confirming: true } ed) { ed.Confirming = false; e.Handled = true; }
+        else if (!typing && e.Key == Key.Escape && _vm.Screen is BuildVm) { _vm.ShowEditor(); e.Handled = true; }
+        else if (!typing && e.Key == Key.Escape && _vm.Screen is FoundVm found) { found.Back.Execute(null); e.Handled = true; }
+        else if (!typing && e.Key == Key.Escape && _vm.Editor is { Confirming: true } ed) { ed.Confirming = false; e.Handled = true; }
     }
 
     public async Task<string?> PickFile(string title, params (string name, string[] patterns)[] types)

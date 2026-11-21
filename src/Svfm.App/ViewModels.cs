@@ -25,7 +25,7 @@ public interface IDialogs
 public sealed class MainVm : Observable
 {
     public Session Session { get; }
-    public IDialogs Dialogs { get; set; }
+    public IDialogs Dialogs { get => Session.Dialogs!; set => Session.Dialogs = value; }
     public OpenVm OpenScreen { get; }
     private Observable _screen;
 
@@ -50,7 +50,7 @@ public sealed class MainVm : Observable
     private bool _showDev;
     /// <summary>The Developer tab (log, self-check, report).</summary>
     public DeveloperVm Dev => _dev ??= new DeveloperVm(this);
-    public bool ShowDev { get => _showDev; set { if (Set(ref _showDev, value)) { Raise(nameof(ShowApp)); Raise(nameof(ShowHeader)); Raise(nameof(CanSearch)); DevLog.Info("ui", value ? "Developer tab opened" : "Developer tab closed"); if (value) Dev.Refresh(); } } }
+    public bool ShowDev { get => _showDev; set { if (Set(ref _showDev, value)) { Raise(nameof(ShowApp)); Raise(nameof(ShowHeader)); Raise(nameof(StepIndex)); Raise(nameof(CanSearch)); DevLog.Info("ui", value ? "Developer tab opened" : "Developer tab closed"); if (value) Dev.Refresh(); } } }
     public bool ShowApp => !_showDev;
     /// <summary>File > Developer screen and F12: open the developer log, or go back to the maker.</summary>
     public Command ToggleDev => new(() => ShowDev = !ShowDev);
@@ -61,7 +61,7 @@ public sealed class MainVm : Observable
 
     public bool OnFound => _screen is FoundVm;
     public bool OnOld => _screen is EditorVm or BuildVm;
-    public Observable Screen { get => _screen; private set { Set(ref _screen, value); Raise(nameof(OnOpen)); Raise(nameof(OnFound)); Raise(nameof(OnOld)); Raise(nameof(ShowHeader)); Raise(nameof(OnEditor)); Raise(nameof(OnBuild)); Raise(nameof(CanSearch)); } }
+    public Observable Screen { get => _screen; private set { Set(ref _screen, value); Raise(nameof(OnOpen)); Raise(nameof(OnFound)); Raise(nameof(OnOld)); Raise(nameof(ShowHeader)); Raise(nameof(OnEditor)); Raise(nameof(OnBuild)); Raise(nameof(StepIndex)); Raise(nameof(CanSearch)); } }
     public bool OnOpen => _screen is OpenVm;
     public bool HasProject => Session.Project != null;
     public Command UndoCommand { get; }
@@ -89,6 +89,11 @@ public sealed class MainVm : Observable
     public Command TogglePreview => new(() => PreviewMode = PreviewMode == PreviewMode.Off ? PreviewMode.Stills : PreviewMode.Off);
     public bool OnEditor => _screen is EditorVm;
     public bool OnBuild => _screen is BuildVm;
+    /// <summary>Issue #122 (N1): the step of the screen in the header step bar: 0 Open, 1 Found, 2 Editor, 3 Build.</summary>
+    public int StepIndex => _showDev ? -1 : _screen switch { OpenVm => 0, FoundVm => 1, EditorVm => 2, BuildVm => 3, _ => -1 };
+    /// <summary>Issue #122 (N2): the header Back button of the build screen; Esc does the same.</summary>
+    public Command BackToEdit => _backToEdit ??= new Command(ShowEditor);
+    private Command? _backToEdit;
     public bool PreviewOff { get => PreviewMode == PreviewMode.Off; set { if (value) PreviewMode = PreviewMode.Off; } }
     public bool PreviewStills { get => PreviewMode == PreviewMode.Stills; set { if (value) PreviewMode = PreviewMode.Stills; } }
 
@@ -353,6 +358,8 @@ public sealed class OpenVm(MainVm main) : Observable
     public IEnumerable<RecentVm> RecentItems => Main.Session.Settings.Recent.Select(r => new RecentVm(Main, r));
     public bool HasRecent => Main.Session.Settings.Recent.Count > 0;
     public void RefreshRecent() { Raise(nameof(RecentItems)); Raise(nameof(HasRecent)); }
+    /// <summary>Issue #116: empties the Recent projects list. It removes only the links, never a project file.</summary>
+    public Command ClearRecent => new(() => { Main.Session.Settings.Recent.Clear(); Main.Session.Settings.Save(); RefreshRecent(); });
 
     public Command StartEditing => new(() => Main.ProjectOpened(), () => CanEdit);
 
@@ -425,6 +432,8 @@ public sealed class OpenVm(MainVm main) : Observable
 }
 
 public sealed record ModChoice(string Label, Command Pick);
+/// <summary>Issue #108: one "!" note of the selected item. Level 0 is blue (information), 1 orange (warning), 2 red (critical).</summary>
+public sealed record NoteRow(int Level, string Text) { public bool Warn => Level == 1; public bool Bad => Level == 2; }
 
 /// <summary>One line of the Recent projects list.</summary>
 public sealed class RecentVm
@@ -485,6 +494,10 @@ public sealed class ItemVm : Observable
     public string BuddyNote => "The buddy the costume was made for. It is added as a new costume; the vanilla ones are untouched.";
     public string NotOfferedNote => "D-Walker mods are reported as not portable: V Framework 1.7 has no costume slot for it.";
     public bool HasSide => Item is SupportWeaponItem;
+    // #122 N7: the side panel can be hidden. One choice for all items, so it stays when the user picks another item.
+    static bool _sideOpen = true;
+    public bool SideOpen { get => _sideOpen; set { _sideOpen = value; Raise(); Raise(nameof(ShowSide)); } }
+    public bool ShowSide => HasSide && SideOpen;
     public bool IsThrown => Item is SupportWeaponItem;
     public IReadOnlyList<string> SideWritten => Item is SupportWeaponItem t
         ? [$"An equip row like the {SupportWeaponFamilies.Name(t.Spec.ThrowAs)}'s: the same block, its own .parts, no package of its own.", "A new stats row, an R&D row and the icon. No vanilla row or file changes.", "The script, in the module's message handlers."]
@@ -493,6 +506,8 @@ public sealed class ItemVm : Observable
         ? ["Placed items (decoys, mines, C4) can't be ported: V Framework 1.7 only makes thrown ones.", "Chaff, noise and explosion steps need V Framework 1.7 installed."]
         : [];
     public StatsVm? Stats { get; }
+    /// <summary>Issue #123: the upgrade lines on the Name tab.</summary>
+    public UpgradeLinesVm UpgradeLines { get; }
     public List<StatsVm> MoreStats { get; } = [];
     public ScriptVm? Script { get; }
     public StatsVm? StatsFor(string tabId) => tabId == "stats" ? Stats : MoreStats.FirstOrDefault(x => x.TabId == tabId);
@@ -510,10 +525,12 @@ public sealed class ItemVm : Observable
         // An existing head option: "Worn with" edits the head read from its script.
         if (item is ExistingItem { Model: HeadOptionItem eh }) HeadInfo = new HeadVm(s, eh, item);
         if (ProjectEdits.DevelopOf(item) != null) Develop = new DevelopVm(s, item);
+        UpgradeLines = new UpgradeLinesVm(s, this, item);
         Stats = StatsVm.For(s, item);
         MoreStats.AddRange(StatsVm.More(s, item));
         if (item is SupportWeaponItem swi) Script = new ScriptVm(s, swi);
         if (item is ExistingItem { Script: not null } esc) Script = new ScriptVm(s, esc);
+        if (Stats != null && Script != null) Stats.ThrowAsChanged = Script.Reload;
         if (item is ExistingItem ex)
         {
             if (ex.RealNameId != null) ExtraTexts.Add(new ExtraTextVm(this, "Real name (shown when the item is picked)", ex.RealNameId));
@@ -582,7 +599,7 @@ public sealed class ItemVm : Observable
     private string LockReason => Intake_Can ? "You cannot change the icon of this item. The note above tells why." : "This item has no icon that the tool can change.";
     private bool GenerateOn => CanGenerateCard && CanGenerate;
     public string PackagedReason => CanPickPackaged ? "" : "This mod has no packaged icon for this item.";
-    public string GameReason => CanPickGameIcon ? "" : LockReason;
+    public string GameReason => CanPickGameIcon ? "" : !CanUpload ? LockReason : _s.Intake!.GameIconLockOf(Item)!;
     public string GenerateReason => GenerateOn ? "" : !CanUpload ? LockReason
         : CanGenerateCard ? "The tool cannot make an icon for this kind of item. Upload an image." : "This item has no model in the mod. The tool cannot make an icon without a model. Upload an image.";
     public string UploadReason => CanUpload ? "" : LockReason;
@@ -594,7 +611,7 @@ public sealed class ItemVm : Observable
     /// game card is open, so it can never sit open under a "generate from the model" choice. An existing item takes a
     /// game icon by a new path in its script, which needs no model.
     /// </summary>
-    public bool CanPickGameIcon => CanUpload;
+    public bool CanPickGameIcon => CanUpload && _s.Intake!.GameIconLockOf(Item) == null;
     /// <summary>An existing item has no maker, so its icon can't be generated; only an uploaded picture can replace it (gap G2).</summary>
     public bool CanGenerateCard => CanUpload && (!IsExisting || Item is ExistingItem { Model: not null });
     private bool _pickerOpen; private string _gameSearch = ""; private string? _selectedGame; private Bitmap? _gamePreview; private CancellationTokenSource? _gameWait;
@@ -685,7 +702,7 @@ public sealed class ItemVm : Observable
     // Buddy costumes and head options are included: they have a maker now (see Intake), so their icon can be regenerated.
     // The owner could not attempt it before ("I could not attempt to generate an icon for Quiet", the same for D-Dog and
     // D-Horse, and "On head option ... I could not reselect 'generate from the model'").
-    public bool CanGenerate => HasIconControls || Item is WeaponItem or BuddyOutfitItem or HeadOptionItem or ExistingItem { Model: not null };
+    public bool CanGenerate => HasIconControls || Item is WeaponItem or SupportWeaponItem or BuddyOutfitItem or HeadOptionItem or ExistingItem { Model: not null };
     public string IconSourceName => SourceGame ? "An icon already in the game: " + GameIconName : SourceUpload ? "Uploaded image" : SourceGenerate ? (Cur?.Style == IconStyle.CamoCrop ? (_s.Intake!.IsCamoReplacer(Item) ? "Crop of the mod's camo texture" : "Crop of the outfit's main texture") : "Generated from the model") : SourcePackaged ? "Icon packaged with the mod" : "No icon";
     private Command? _upload;
     public Command UploadIcon => _upload ??= new Command(async () => { EndGenerate(); await UploadAsync(); }, () => CanUpload);
@@ -713,7 +730,7 @@ public sealed class ItemVm : Observable
     /// <summary>A head option: Generate now makes the icon from the view of the 3D preview, not from a framing (issue #17).</summary>
     public bool GeneratesFromView => Item is HeadOptionItem or ExistingItem { Model: HeadOptionItem };
     /// <summary>A weapon: its icon is an outline drawing from the 3D preview's view, with the preview's attachments (owner, Nov 7).</summary>
-    public bool IsWeaponIcon => Item is WeaponItem or ExistingItem { Model: WeaponItem };
+    public bool IsWeaponIcon => Item is WeaponItem or SupportWeaponItem or ExistingItem { Model: WeaponItem };
     /// <summary>Generate mode follows the 3D preview's view (a head option or a weapon), not a framing.</summary>
     public bool FollowsView => GeneratesFromView || IsWeaponIcon;
     /// <summary>Ends Generate mode (another icon card was picked). The icons already generated stay.</summary>
@@ -876,7 +893,9 @@ public sealed class ItemVm : Observable
     /// <summary>Sets the outline icon size to 100 %.</summary>
     public Command FullSize => _fullSize ??= new Command(() => FrameZoom = 100);
     private Command? _fullSize;
-    public double FrameZoom { get => (Src?.Zoom ?? 1f) * 100; set { if (_draft is { } d) SetDraft(d with { Zoom = Math.Clamp((float)(value / 100), 0.4f, 5f) }); else if (Cur is { } c) Reframe(c with { Zoom = (float)(value / 100) }); } }
+    // Issue #105: a weapon's draft takes its size from the 3D preview (Preview.WeaponIconOf), so the SIZE card of the
+    // outline icon sets the icon itself, also while Generate mode is open. Before this, SIZE did nothing in Generate mode.
+    public double FrameZoom { get => ((IsWeaponIcon ? Cur : Src)?.Zoom ?? 1f) * 100; set { if (_draft is { } d && !IsWeaponIcon) SetDraft(d with { Zoom = Math.Clamp((float)(value / 100), 0.4f, 5f) }); else if (Cur is { } c) Reframe(c with { Zoom = (float)(value / 100) }); } }
     public double CropMaxX => CanCrop ? _s.Intake!.CropBounds(Item).x : 0;
     public double CropMaxY => CanCrop ? _s.Intake!.CropBounds(Item).y : 0;
     public double CropX { get => Src?.CropX ?? 0; set { if (Src is { } c && (int)value != c.CropX) Apply(c with { CropX = (int)value }, "icon:x"); } }
@@ -898,6 +917,16 @@ public sealed class ItemVm : Observable
         _s.Intake!.ApplyIcon(Item, n);
         LoadIcon(); RaiseIcon();
         _s.NotifyChanged();
+        RefreshSharers();
+    }
+
+    /// <summary>
+    /// Issue #105: one icon file is one icon in game, so a drawn icon is also the icon of the items that share the file
+    /// (the 12 grades of the smoke pellet). Their views are drawn again, or they keep the old icon and SIZE.
+    /// </summary>
+    private void RefreshSharers()
+    {
+        if (_s.Intake!.IconSharersOf(Item) is { Count: > 0 } others) RefreshOthers?.Invoke(others);
     }
 
     private void SetStyle(IconStyle style)
@@ -931,6 +960,7 @@ public sealed class ItemVm : Observable
             // A newer request for this item came while this one waited: only the newest is drawn, so it is the last to write.
             if (ticket != _iconTicket) return;
             await Task.Run(() => _s.Intake!.ApplyIcon(Item, n)); LoadIcon();
+            RefreshSharers();
         }
         catch (Exception e) when (e is not OperationCanceledException) { IconError = e.Message; ReportError?.Invoke(e); } // issue #39: any failure is shown and written to error.log
         finally
@@ -983,7 +1013,15 @@ public sealed class ItemVm : Observable
     // Gaps G1 and G11 of .docs/Parity_Existing_VFramework_Mods.md: an item read from an existing V Framework mod can be
     // removed when its calls are statements of their own (ExistingMod.RemoveLockOf), but not duplicated. Each drop-down
     // row shows the "!" for its own item; the Item menu shows it for the selected one.
-    public string? DuplicateLock => Item is ExistingItem x ? ExistingMod.DuplicateLockOf(x) : null;
+    public string? DuplicateLock => (Item is ExistingItem x ? ExistingMod.DuplicateLockOf(x) : null) ?? (_s.Project is { } p ? CopyFamily.LockOf(p, Item) : null);
+    /// <summary>#113: another member of the item's Copy family has its grade (a red "!" on the row and the R&amp;D tab), or null.</summary>
+    public string? GradeClash => _s.Project is { } p && CopyFamily.ClashOf(p, Item) is { } o
+        ? $"\"{o.Title}\" is in the same copy family and has the same grade {Item.RdRow!.Grade}. The build refuses two items of one family in one grade: give each its own grade on the R&D tab." : null;
+    public bool HasGradeClash => GradeClash != null;
+    /// <summary>A grade change of one member shows on the row of each other member.</summary>
+    public void RaiseGradeClash() { Raise(nameof(GradeClash)); Raise(nameof(HasGradeClash)); Raise(nameof(ListTitle)); }
+    /// <summary>The title with the R&amp;D grade, when the item has one (owner, Nov 21: the 12 pellet items all read "Smoke Pellet").</summary>
+    public string ListTitle => Item.RdRow?.Grade is int g ? $"{Title} · Grade {g}" : Title;
     public string? RemoveLock => Item is ExistingItem x && _s.Project?.Existing is { } data ? ExistingMod.RemoveLockOf(data, x) : null;
     public bool ActionsLocked => DuplicateLock != null || RemoveLock != null;
     /// <summary>The row's "i": the V Framework slots the item takes.</summary>
@@ -1026,10 +1064,10 @@ public sealed class ItemVm : Observable
     public string Description { get => GetText(InfoId, "eng", false); set { SetText(InfoId, "eng", value); Raise(); RowsChanged(); } }
     public string Title => Item.Title.Length > 0 ? Item.Title : Item.Id;
 
-    private void RowsChanged() { foreach (var r in Rows) r.RaiseAll(); Raise(nameof(Title)); }
+    private void RowsChanged() { foreach (var r in Rows) r.RaiseAll(); Raise(nameof(Title)); Raise(nameof(ListTitle)); }
 
     /// <summary>Re-read everything after an undo.</summary>
-    public void Refresh() { ClearStaleGamePick(); foreach (var t in ExtraTexts) t.RaiseAll(); foreach (var g in SettingGroups) foreach (var f in g.Fields) f.RaiseAll(); Outfit?.Reload(); Also?.Refresh(); HeadInfo?.Reload(); Develop?.Reload(); Stats?.Reload(); foreach (var m in MoreStats) m.Reload(); Script?.Reload(); LoadIcon(); RaiseIcon(); Raise(nameof(Name)); Raise(nameof(Description)); Raise(nameof(Title)); foreach (var n in new[] { nameof(HasTwin), nameof(TwinSync), nameof(TwinSyncText), nameof(SyncedNote) }) Raise(n); foreach (var r in Rows) r.RaiseAll(); foreach (var n in new[] { nameof(DuplicateLock), nameof(RemoveLock), nameof(ActionsLocked), nameof(ActionsNote) }) Raise(n); }
+    public void Refresh() { ClearStaleGamePick(); foreach (var t in ExtraTexts) t.RaiseAll(); foreach (var g in SettingGroups) foreach (var f in g.Fields) f.RaiseAll(); Outfit?.Reload(); Also?.Refresh(); HeadInfo?.Reload(); Develop?.Reload(); UpgradeLines.Reload(); Stats?.Reload(); foreach (var m in MoreStats) m.Reload(); Script?.Reload(); LoadIcon(); RaiseIcon(); Raise(nameof(Name)); Raise(nameof(Description)); Raise(nameof(Title)); foreach (var n in new[] { nameof(HasTwin), nameof(TwinSync), nameof(TwinSyncText), nameof(SyncedNote) }) Raise(n); foreach (var r in Rows) r.RaiseAll(); foreach (var n in new[] { nameof(DuplicateLock), nameof(RemoveLock), nameof(ActionsLocked), nameof(ActionsNote), nameof(GradeClash), nameof(HasGradeClash) }) Raise(n); }
 
     public bool IsEmptyName => Name.Trim().Length == 0;
 
@@ -1058,7 +1096,11 @@ public sealed class DevelopVm(Session s, ProjectItem item) : Observable
     private DevelopRow Dev => ProjectEdits.DevelopOf(item)!;
     private void Mutate(string field, Func<DevelopRow, DevelopRow> f) { s.Checkpoint($"{item.Id}:{field}"); ProjectEdits.SetDevelop(item, f(Dev)); s.NotifyChanged(); }
     public bool GradeOn { get => Dev.Grade != null; set { if (value != GradeOn) { Mutate("d:grade", d => d with { Grade = value ? 1 : null }); Raise(); Raise(nameof(Grade)); } } }
-    public decimal Grade { get => Dev.Grade ?? 1; set => Mutate("d:g", d => d with { Grade = (int)Math.Clamp(value, 1, 15) }); }
+    // #124: the game supports grades 1 to 12. A new value is limited to that; an old value above 12 stays until the user changes it.
+    public decimal Grade { get => Dev.Grade ?? 1; set { if (value == Grade) return; Mutate("d:g", d => d with { Grade = (int)Math.Clamp(value, 1, CopyFamily.MaxGrade) }); Raise(); Raise(nameof(GradeHigh)); Raise(nameof(GradeMax)); } }
+    public bool GradeHigh => Dev.Grade > CopyFamily.MaxGrade;
+    /// <summary>The Grade box maximum: 12, or the old value above 12, so that the box does not change it when the item opens.</summary>
+    public decimal GradeMax => Math.Max(CopyFamily.MaxGrade, Grade);
     public decimal DevelopCost { get => Dev.GmpCost; set => Mutate("d:c", d => d with { GmpCost = (int)Math.Max(0, value) }); }
     public decimal UsageCost { get => Dev.UsageGmpCost; set => Mutate("d:u", d => d with { UsageGmpCost = (int)Math.Max(0, value) }); }
     public bool AlreadyDeveloped { get => Dev.InitiallyAvailable; set { Mutate("d:i", d => d with { InitiallyAvailable = value }); Raise(nameof(DevelopNote)); } }
@@ -1231,6 +1273,35 @@ public sealed class DevelopVm(Session s, ProjectItem item) : Observable
         get => Dev.UpgradeOfDevelopId is { } id ? VanillaRows.FirstOrDefault(r => r.Id == id) : null;
         set { if (value != null) { Mutate("d:upv", d => d with { UpgradeOfDevelopId = value.Id }); Raise(); } }
     }
+    // ---- Issue #121: "Grade before", another item of the project that must be developed first ----
+    /// <summary>"None" and each other item with an R&amp;D row, by title.</summary>
+    // One list for every item: a list per item made the ComboBox write into the item it was leaving when the selection changed.
+    private static (string Sig, List<GradeBeforeChoice> List) _gradeBeforeShared = ("", [new(null, "None")]);
+    public List<GradeBeforeChoice> GradeBeforeList
+    {
+        get
+        {
+            var all = s.Project is { } p ? GradeSeries.Choices(p, null).ToList() : [];
+            string sig = string.Join("", all.Select(i => i.Key + "" + i.Title));
+            if (sig != _gradeBeforeShared.Sig) _gradeBeforeShared = (sig, [new(null, "None"), .. all.Select(i => new GradeBeforeChoice(i.Key, i.Title))]);
+            return _gradeBeforeShared.List;
+        }
+    }
+    public GradeBeforeChoice? GradeBeforeChoice
+    {
+        get => GradeBeforeList.FirstOrDefault(c => c.Key == Dev.GradeBefore);
+        set
+        {
+            if (value == null || value.Key == Dev.GradeBefore) return;
+            // A pick that makes a loop is refused; the "!" names the loop.
+            _gradeLoop = s.Project is { } p ? GradeSeries.LoopOf(p, item, value.Key) : null;
+            if (_gradeLoop == null) Mutate("d:gb", d => d with { GradeBefore = value.Key });
+            Raise(); Raise(nameof(GradeLoop)); Raise(nameof(HasGradeLoop));
+        }
+    }
+    private string? _gradeLoop;
+    public string? GradeLoop => _gradeLoop == null ? null : $"Not set: that makes a loop ({_gradeLoop}).";
+    public bool HasGradeLoop => _gradeLoop != null;
     public bool RankLimited { get => Dev.RankLimited; set { Mutate("d:rl", d => d with { RankLimited = value }); Raise(nameof(RankLimited)); } }
     private decimal _vanillaId;
     public decimal VanillaId { get => _vanillaId; set { Set(ref _vanillaId, value); Raise(nameof(VanillaInfo)); } }
@@ -1258,8 +1329,11 @@ public sealed class DevelopVm(Session s, ProjectItem item) : Observable
     public VanillaRowChoice? CopyFrom
     {
         get => _copyFrom;
-        set { if (Set(ref _copyFrom, value)) { Raise(nameof(CopyFromInfo)); CopyFromRow.Raise(); } }
+        set { if (Set(ref _copyFrom, value)) { Raise(nameof(CopyFromInfo)); CopyFromRow.Raise(); _copyPicker?.RaiseSelected(); } }
     }
+    private VanillaPickerVm? _copyPicker;
+    /// <summary>Issue #109: the card's picker (search box and kind sections) for <see cref="CopyFrom"/>.</summary>
+    public VanillaPickerVm CopyPicker => _copyPicker ??= new(OwnKinds, () => CopyFrom, v => CopyFrom = v);
     public string CopyFromInfo => _copyFrom == null ? "Pick an item to see its row." : $"Grade {_copyFrom.Grade}, develop {_copyFrom.DevelopGmp:N0} GMP, deploy {_copyFrom.UsageGmp:N0} GMP ; also its time, staff, materials, specialist and blueprint (the deploy cost is on the Deployment tab)";
     // Issue #63: one instance, so the Raise in CopyFrom reaches the button that is bound to it (a new one per get left it disabled).
     private Command? _copyFromRow;
@@ -1281,45 +1355,48 @@ public sealed class DevelopVm(Session s, ProjectItem item) : Observable
     };
     /// <summary>An existing V Framework mod keeps its own follow table; the build refuses a change.</summary>
     public bool FollowEditable => item is not ExistingItem;
+    /// <summary>Issue #125: the R&amp;D row of an item that a script loop makes is written once for all the loop's items, so it is read-only here.</summary>
+    public string? RowLock => item is ExistingItem x && x.DevelopFields.FirstOrDefault(f => f.LoopItems > 1 && f.Locked != null) is { } f ? "Can't be changed here: " + f.Locked + "." : null;
+    public bool RowLocked => RowLock != null;
+    public bool ValuesEditable => !FollowOn && !RowLocked;
     public bool FollowOn
     {
         get => Dev.FollowsVanillaDevelopId != null;
         set
         {
             if (value == FollowOn) return;
-            Mutate("d:follow", d => d with { FollowsVanillaDevelopId = value ? FollowList.FirstOrDefault()?.Id : null });
-            Raise(); Raise(nameof(FollowChoice)); Raise(nameof(FollowNote));
+            Mutate("d:follow", d => d with { FollowsVanillaDevelopId = value ? FollowPicker.First?.Id : null });
+            Raise(); Raise(nameof(FollowChoice)); Raise(nameof(FollowNote)); Raise(nameof(ValuesEditable)); _followPicker?.RaiseSelected();
         }
     }
-    private string _followSearch = "";
-    public string FollowSearch { get => _followSearch; set { if (Set(ref _followSearch, value ?? "")) Raise(nameof(FollowList)); } }
-    /// <summary>All game developments, the item's own kind first, then by kind and name; the search box filters it.</summary>
-    public IReadOnlyList<VanillaRowChoice> FollowList
-    {
-        get
-        {
-            var own = OwnKinds;
-            var q = _followSearch.Trim();
-            return VanillaRows.Where(r => q.Length == 0 || r.Label.Contains(q, StringComparison.OrdinalIgnoreCase) || r.KindLabel.Contains(q, StringComparison.OrdinalIgnoreCase) || r.Id.ToString() == q)
-                .OrderBy(r => Array.IndexOf(own, r.KindCode) is var i && i >= 0 ? i : own.Length)
-                .ThenBy(r => r.KindLabel, StringComparer.OrdinalIgnoreCase).ThenBy(r => r.Label, StringComparer.OrdinalIgnoreCase).ToList();
-        }
-    }
+    private VanillaPickerVm? _followPicker;
+    /// <summary>All game developments in kind sections, the item's own kind first and open; the search box filters them (issue #109).</summary>
+    public VanillaPickerVm FollowPicker => _followPicker ??= new(OwnKinds, () => FollowChoice, v => FollowChoice = v);
     public VanillaRowChoice? FollowChoice
     {
         get => Dev.FollowsVanillaDevelopId is { } id ? VanillaRows.FirstOrDefault(r => r.Id == id) : null;
-        set { if (value != null && value.Id != Dev.FollowsVanillaDevelopId) { Mutate("d:follow", d => d with { FollowsVanillaDevelopId = value.Id }); Raise(); Raise(nameof(FollowNote)); } }
+        set { if (value != null && value.Id != Dev.FollowsVanillaDevelopId) { Mutate("d:follow", d => d with { FollowsVanillaDevelopId = value.Id }); Raise(); Raise(nameof(FollowNote)); _followPicker?.RaiseSelected(); } }
     }
     public string FollowNote => FollowChoice is { } c
         ? $"Unlocks when \"{c.Label}\" ({c.KindLabel}) is developed. The row is not shown in R&D, so the values below are not used. The Sortie cost on the Deployment tab still applies."
         : Dev.FollowsVanillaDevelopId is { } id ? $"Follows the game development {id}." : "Off: the item has its own R&D row.";
 
-    public void Reload() { foreach (var n in new[] { nameof(FollowOn), nameof(FollowChoice), nameof(FollowNote), nameof(GradeOn), nameof(Grade), nameof(DevelopCost), nameof(UsageCost), nameof(AlreadyDeveloped), nameof(DevelopNote), nameof(TimeMinutes), nameof(Section), nameof(SectionLevel), nameof(Section2), nameof(Section2Level), nameof(Resource1), nameof(Resource1Choice), nameof(Resource1Count), nameof(Resource2), nameof(Resource2Choice), nameof(Resource2Count), nameof(Usage1), nameof(Usage1Choice), nameof(Usage1Count), nameof(Usage2), nameof(Usage2Choice), nameof(Usage2Count), nameof(SkillOn), nameof(SkillList), nameof(SkillChoice), nameof(Unlock), nameof(UpgradeOn), nameof(UpgradeOf), nameof(UpgradeOfChoice), nameof(RankLimited), nameof(ResultLine), nameof(MissionOn), nameof(AfterMission), nameof(BluePrintList), nameof(BluePrintChoice), nameof(BluePrintPickOn), nameof(OwnBluePrintOn), nameof(OwnBluePrint), nameof(CopyFromInfo) }) Raise(n); }
+    public void Reload() { foreach (var n in new[] { nameof(FollowOn), nameof(FollowChoice), nameof(FollowNote), nameof(GradeOn), nameof(Grade), nameof(DevelopCost), nameof(UsageCost), nameof(AlreadyDeveloped), nameof(DevelopNote), nameof(TimeMinutes), nameof(Section), nameof(SectionLevel), nameof(Section2), nameof(Section2Level), nameof(Resource1), nameof(Resource1Choice), nameof(Resource1Count), nameof(Resource2), nameof(Resource2Choice), nameof(Resource2Count), nameof(Usage1), nameof(Usage1Choice), nameof(Usage1Count), nameof(Usage2), nameof(Usage2Choice), nameof(Usage2Count), nameof(SkillOn), nameof(SkillList), nameof(SkillChoice), nameof(Unlock), nameof(UpgradeOn), nameof(UpgradeOf), nameof(UpgradeOfChoice), nameof(GradeBeforeList), nameof(GradeBeforeChoice), nameof(RankLimited), nameof(ResultLine), nameof(MissionOn), nameof(AfterMission), nameof(BluePrintList), nameof(BluePrintChoice), nameof(BluePrintPickOn), nameof(OwnBluePrintOn), nameof(OwnBluePrint), nameof(CopyFromInfo) }) Raise(n); _followPicker?.RaiseSelected(); }
 }
 
 /// <summary>A material the game charges for development or deployment: the Lua's internal name and the game's own name.</summary>
 /// <summary>A story mission an R&amp;D row can wait for: its code and the name the game shows.</summary>
 public sealed record MissionChoice(int Code, string Label) { public override string ToString() => Label; }
+
+/// <summary>One grade box of the "Make grades…" panel (issue #121); a change rechecks the panel.</summary>
+public sealed class GradeBoxVm(int value, Action changed) : Observable
+{
+    private decimal _value = value;
+    public decimal Value { get => _value; set { if (Set(ref _value, Math.Clamp(value, 1, CopyFamily.MaxGrade))) changed(); } }
+}
+
+/// <summary>An item a "Grade before" link can name (issue #121): its key, or null for none.</summary>
+public sealed record GradeBeforeChoice(string? Key, string Label) { public override string ToString() => Label; }
 
 public sealed record MaterialChoice(string Id, string Label)
 {
@@ -1352,7 +1429,8 @@ public sealed class VanillaRowChoice(int id, Svfm.Core.Knowledge.VanillaDevelopR
     public string Label { get; } = $"{(englishName ?? row.Name)}  ·  grade {row.Grade}";
     /// <summary>The kind code of the row, from its name ("name_st_37001" gives "st").</summary>
     public string KindCode => Row.Name.Split('_') is { Length: > 2 } p ? p[1] : "";
-    public string KindLabel => KindCode switch
+    public string KindLabel => LabelOf(KindCode);
+    public static string LabelOf(string kindCode) => kindCode switch
     {
         "st" => "Suit", "wp" or "weapon" => "Weapon", "it" => "Item", "arm" => "Arm", "dd" => "D-Dog", "dh" => "D-Horse",
         "dw" => "D-Walker", "hl" => "Helicopter", "mb" => "Mother Base", "qe" => "Quiet", "tl" => "Tool", _ => "Other",
@@ -1367,16 +1445,11 @@ public sealed record CheckRow(string Title, string Detail, string Level)
     public Avalonia.Media.IBrush Brush => Level switch { "bad" => Avalonia.Media.Brushes.IndianRed, "warn" => Avalonia.Media.Brush.Parse("#FF8A3D"), _ => Avalonia.Media.Brush.Parse("#58B07F") };
 }
 
-/// <summary>A line of the Copy these settings list: a mod item to copy to, or (issue #64, R&amp;D tab) a vanilla item to copy from.</summary>
-public sealed class CopyTarget : Observable
+/// <summary>A line of the Copy these settings list: a mod item to copy to (issue #109: never a vanilla item, the R&amp;D card copies from those).</summary>
+public sealed class CopyTarget(ItemVm item) : Observable
 {
-    public CopyTarget(ItemVm item) { Item = item; Label = item.Title; }
-    public CopyTarget(VanillaRowChoice vanilla) { Vanilla = vanilla; Label = $"{vanilla.Label}  (vanilla)"; }
-    /// <summary>The mod item, or null for a vanilla item.</summary>
-    public ItemVm? Item { get; }
-    /// <summary>The vanilla item, or null for a mod item.</summary>
-    public VanillaRowChoice? Vanilla { get; }
-    public string Label { get; }
+    public ItemVm Item { get; } = item;
+    public string Label { get; } = item.Title;
     private bool _on;
     public bool On { get => _on; set => Set(ref _on, value); }
 }
@@ -1388,7 +1461,7 @@ public sealed class TabVm(string id, string title, int number, string group) : O
     /// <summary>The tab holds changes from the original (shown as an amber dot and an amber border).</summary>
     public bool Changed { get => _changed; set { if (Set(ref _changed, value)) Raise(nameof(ChangedClass)); } }
     /// <summary>False for a tab that doesn't apply to the selected item: it is greyed out and can't be opened.</summary>
-    public bool Enabled { get => _enabled; set { if (Set(ref _enabled, value)) { Raise(nameof(Disabled)); Raise(nameof(OffClass)); Note = value ? "" : "This tab does not apply to the selected item."; } } }
+    public bool Enabled { get => _enabled; set { if (Set(ref _enabled, value)) { Raise(nameof(Disabled)); Raise(nameof(OffClass)); Raise(nameof(NoteWarn)); Raise(nameof(NoteBad)); Note = value ? "" : "This tab does not apply to the selected item."; } } }
     private bool _enabled = true;
     public bool Disabled => !_enabled;
     /// <summary>Style classes for the tab button: "changed" (amber border) and "off" (greyed out).</summary>
@@ -1396,13 +1469,16 @@ public sealed class TabVm(string id, string title, int number, string group) : O
     public string OffClass => _enabled ? "" : "off";
     private string _status = "ok";
     /// <summary>ok, warn or bad: the dot beside the tab (green, orange, red).</summary>
-    public string Status { get => _status; set { if (Set(ref _status, value)) Raise(nameof(StatusBrush)); } }
+    public string Status { get => _status; set { if (Set(ref _status, value)) { Raise(nameof(StatusBrush)); Raise(nameof(NoteWarn)); Raise(nameof(NoteBad)); } } }
     /// <summary>The "i" badge: what the tab holds (owner, Nov 3: the "i" and "!" badges stay on tabs).</summary>
     public string Info => EditorVm.TabInfo(Id) is { Length: > 0 } t ? t : Title + ".";
     /// <summary>The "!" badge: why the tab is greyed, or what its orange or red dot warns about.</summary>
     public string Note { get => _note; set { if (Set(ref _note, value)) Raise(nameof(HasNote)); } }
     private string _note = "";
     public bool HasNote => _note.Length > 0;
+    /// <summary>Issue #120: the "!" is orange for an orange dot and red for a red dot; the "greyed" note stays blue.</summary>
+    public bool NoteWarn => _enabled && _status == "warn";
+    public bool NoteBad => _enabled && _status == "bad";
     public Avalonia.Media.IBrush StatusBrush => Avalonia.Media.Brush.Parse(_status switch { "bad" => "#E5484D", "warn" => "#F0A73A", _ => "#4CB782" });
     public Command Select { get; set; } = new(() => { });
     public string Id { get; } = id;
@@ -1477,6 +1553,9 @@ public sealed class EditorVm : Observable
         AskRemove = new Command(() => { Confirming = true; }, () => _selected != null && Items.Count > 1 && RemoveLock == null);
         DoRemove = new Command(() => RemoveSelected());
         KeepIt = new Command(() => { Confirming = false; });
+        AskGrades = new Command(() => { _gradeCount = 1; FillGradeBoxes(); Grading = true; Raise(nameof(GradeCount)); }, () => _selected != null && GradesLock == null && !Busy);
+        DoMakeGrades = new Command(async () => await MakeGradesAsync(), () => GradesProblem == null && !Busy);
+        CancelGrades = new Command(() => { Grading = false; });
         FillLanguages = new Command(() => FillEmptyFromEnglish(), () => _selected != null);
         AddFromMod = new Command(async () => await AddFromModAsync(), () => !Busy);
         ToggleCompare = new Command(() => { ShowCompare = !ShowCompare; });
@@ -1490,26 +1569,15 @@ public sealed class EditorVm : Observable
     // ---- Copy this tab's settings to other items ----
     public ObservableCollection<CopyTarget> CopyTargets { get; } = [];
     public bool CanCopy => CopyTargets.Count > 0 && _tab?.Id is "abilities" or "camo" or "rd" or "deploy";
-    public string CopyInfo => "Copies what is on this tab (abilities, camo concealment, R&D row or deployment) to the items you tick, so the Black Ocelot variants do not have to be typed three times. On the R&D tab, tick one vanilla item to copy its R&D row to this item and the ticked items. The abilities do not change.";
+    public string CopyInfo => "Copies what is on this tab (abilities, camo concealment, R&D row or deployment) from this item to the mod items you tick, so the Black Ocelot variants do not have to be typed three times. To use the R&D row of a vanilla item, copy it to this item with \"Copy R&D stats from a vanilla item\" first. The vanilla items do not change.";
+    /// <summary>Issue #109: on the R&amp;D tab the title says that only mod items are in the list.</summary>
+    public string CopyTitle => _tab?.Id == "rd" ? "COPY THESE SETTINGS TO OTHER MOD ITEMS" : "COPY THESE SETTINGS TO OTHER ITEMS";
     public Command CopySettings => new(() =>
     {
         if (_selected == null || _tab == null) return;
-        var ticked = CopyTargets.Where(t => t.On).ToList();
-        var vanilla = ticked.Where(t => t.Vanilla != null).ToList();
-        var targets = ticked.Where(t => t.Item != null).Select(t => t.Item!).ToList();
-        if (vanilla.Count > 1) { Status = "Tick only one vanilla item to copy from."; return; }
-        if (vanilla.Count == 0 && targets.Count == 0) { Status = "Tick the items to copy to first."; return; }
+        var targets = CopyTargets.Where(t => t.On).Select(t => t.Item).ToList();
+        if (targets.Count == 0) { Status = "Tick the items to copy to first."; return; }
         var s = _main.Session; s.Checkpoint();
-        if (vanilla is [{ Vanilla: { } v }])
-        {
-            // Issue #64: a vanilla item is the source; its R&D row only (the vanilla abilities are not in the app data).
-            targets.Insert(0, _selected);
-            foreach (var i in targets) { ProjectEdits.CopyVanillaRow(i.Item, v.Row); i.Refresh(); }
-            s.NotifyChanged();
-            Status = $"Copied the R&D row of {v.Label} to {targets.Count} item{(targets.Count == 1 ? "" : "s")}.";
-            foreach (var t in CopyTargets) t.On = false;
-            return;
-        }
         foreach (var t in targets)
         {
             switch (_tab.Id)
@@ -1535,10 +1603,7 @@ public sealed class EditorVm : Observable
         if (_selected != null && _tab != null)
             foreach (var i in Items.Where(i => i != _selected && (_tab.Id is "abilities" or "camo" ? ProjectEdits.OutfitOf(i.Item) != null && ProjectEdits.OutfitOf(_selected.Item) != null : _tab.Id is "rd" or "deploy" && ProjectEdits.DevelopOf(i.Item) != null && ProjectEdits.DevelopOf(_selected.Item) != null)))
                 CopyTargets.Add(new CopyTarget(i));
-        // Issue #64: on the R&D tab the vanilla items follow the mod items, as sources.
-        if (_tab?.Id == "rd" && _selected != null && ProjectEdits.DevelopOf(_selected.Item) != null)
-            foreach (var v in DevelopVm.VanillaRows) CopyTargets.Add(new CopyTarget(v));
-        Raise(nameof(CanCopy));
+        Raise(nameof(CanCopy)); Raise(nameof(CopyTitle));
     }
 
     public Command AddFromMod { get; }
@@ -1666,30 +1731,41 @@ public sealed class EditorVm : Observable
     /// <summary>Marks the tabs that differ from the original and fills the comparison of the current one.</summary>
     private static string StatusOf(ItemVm it, string tab) => tab switch
     {
-        "name" => it.Name.Trim().Length == 0 || it.Outfit is { } o && !o.Wearers.Any(w => w.Wears) && o.Wearers.Count > 0 ? "bad" : it.Description.Trim().Length == 0 ? "warn" : "ok",
-        "rd" => it.Develop != null && ProjectEdits.DevelopOf(it.Item) is { InitiallyAvailable: false, GmpCost: 0 } ? "warn" : "ok",
+        "name" => it.Name.Trim().Length == 0 || it.Outfit is { } o && !o.Wearers.Any(w => w.Wears) && o.Wearers.Count > 0 ? "bad" : it.Description.Trim().Length == 0 || NoAvatarOf(it) != null ? "warn" : "ok",
+        "rd" => it.Develop == null || ProjectEdits.DevelopOf(it.Item) is not { } dv ? "ok" : dv.IsHiddenUpgrade() || it.HasGradeClash ? "bad" : dv is { InitiallyAvailable: false, GmpCost: 0 } ? "warn" : "ok",
         // The slots tab now also holds "also under other outfits", so it carries both warnings: a slot with no label,
         // and an outfit added under another with no slots ticked (which would add nothing).
         "slots" => it.Outfit is { } ov && ov.LookRows.Any(r => r.Look.DisplayName != null && ov.LookLabel(r.Look).Trim().Length == 0) ? "warn"
             : it.Item is OutfitItem oo && oo.Spec.AlsoUnder.Any(a => a.Slots.Count == 0) ? "warn" : "ok",
+        "stats" => it.Item is SupportWeaponItem { Spec.ShortFuse: true } ? "warn" : "ok",
         _ => "ok",
     };
+
+    /// <summary>Why the Avatar can't wear the item's head (issue #126); null when it can.</summary>
+    private static string? NoAvatarOf(ItemVm it) => (it.Item as HeadOptionItem)?.Spec.NoAvatarReason;
+
+    /// <summary>The Name tab's warning: the Avatar refusal and the missing description, each when it applies.</summary>
+    private static string NameWarn(ItemVm it) => string.Join(" ", new[] { NoAvatarOf(it), it.Description.Trim().Length == 0 ? NoteOf("name", "warn") : null }.Where(x => x != null));
 
     /// <summary>The text of the tab's "!" badge for the dot that <see cref="StatusOf"/> sets; empty when the dot is green.</summary>
     private static string NoteOf(string tab, string status) => (tab, status) switch
     {
         ("name", "bad") => "The item has no name, or nobody can wear it.",
         ("name", "warn") => "The item has no description.",
+        ("rd", "bad") => "The game hides this upgrade in R&D: it is not developed and costs 0 GMP to develop. Set a develop cost of 1 GMP or more.",
         ("rd", "warn") => "The item is not available at the start, and it costs nothing to develop.",
         ("slots", "warn") => "A sortie slot has no label, or an outfit added under another outfit has no slots ticked.",
+        ("stats", "warn") => StatsVm.ShortFuseNote,
         _ => "",
     };
 
     public void RefreshChanges()
     {
         CompareRows.Clear();
+        RefreshNotes();
+        foreach (var i in Items) i.RaiseGradeClash();
         if (_selected == null) return;
-        foreach (var t in Tabs) { t.Changed = _selected.DiffFor(t.Id).Count > 0; t.Status = StatusOf(_selected, t.Id); if (t.Enabled) t.Note = NoteOf(t.Id, t.Status); }
+        foreach (var t in Tabs) { t.Changed = _selected.DiffFor(t.Id).Count > 0; t.Status = StatusOf(_selected, t.Id); if (t.Enabled) t.Note = t.Id == "rd" && _selected.GradeClash is { } gc ? gc : t.Id == "name" && t.Status == "warn" ? NameWarn(_selected) : NoteOf(t.Id, t.Status); }
         if (_tab != null) foreach (var r in _selected.DiffFor(_tab.Id)) CompareRows.Add(r);
         Raise(nameof(TabHasChanges)); Raise(nameof(NoDifferences)); ResetTab.Raise();
     }
@@ -1703,7 +1779,7 @@ public sealed class EditorVm : Observable
     public static string GroupOf(ProjectItem i) => i is SupportWeaponItem or ExistingItem { Support: true } ? "THROWABLES" : i.Kind switch { ItemKind.Outfit => "OUTFITS", ItemKind.ExtraLooks => "LOOKS ON VANILLA SUITS", ItemKind.HeadOption => "HEADS", ItemKind.Weapon => "WEAPONS", ItemKind.Item => "THROWABLES", _ => "BUDDY COSTUMES" };
     /// <summary>Whether an item matches a search: every word is in its name or its key.</summary>
     public static bool Matches(ItemVm i, string search) => search.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-        .All(w => i.Title.Contains(w, StringComparison.OrdinalIgnoreCase) || (i.Item.Key?.Contains(w, StringComparison.OrdinalIgnoreCase) ?? false));
+        .All(w => i.ListTitle.Contains(w, StringComparison.OrdinalIgnoreCase) || (i.Item.Key?.Contains(w, StringComparison.OrdinalIgnoreCase) ?? false));
     public bool InGroup(params string[] g) => _selected != null && g.Contains(GroupOf(_selected.Item));
     /// <summary>The five item drop-downs: Outfits, Heads, Weapons, Throwables, Buddies.</summary>
     public IReadOnlyList<CategoryVm> Categories { get; }
@@ -1770,7 +1846,49 @@ public sealed class EditorVm : Observable
     }
     private bool _busy;
     /// <summary>A copy or a merge runs. Both commands read it, so a change turns them on or off.</summary>
-    public bool Busy { get => _busy; private set { _busy = value; DuplicateCommand.Raise(); AddFromMod.Raise(); } }
+    public bool Busy { get => _busy; private set { _busy = value; DuplicateCommand.Raise(); AddFromMod.Raise(); AskGrades.Raise(); DoMakeGrades.Raise(); } }
+
+    // ---- Issue #121: "Make grades…", a series of copies, each one developed after the one before ----
+    public Command AskGrades { get; }
+    public Command DoMakeGrades { get; }
+    public Command CancelGrades { get; }
+    private bool _grading;
+    public bool Grading { get => _grading; set => Set(ref _grading, value); }
+    private int GradeMax => _selected != null && _main.Session.Project is { } p ? GradeSeries.MaxCount(p, _selected.Item) : 0;
+    private string? GradesLock => _selected == null ? null
+        : !_main.Session.Intake!.CanDuplicate(_selected.Item) || DuplicateLock != null ? DuplicateLock ?? "it can't be copied"
+        : GradeMax == 0 ? "it has no grade, or its copy family uses every grade above it" : null;
+    public string GradesTip => GradesLock is { } l ? $"No grades can be made of this item: {l}." : "Make copies of the selected item at higher grades. Each one must be developed after the one before.";
+    private int _gradeCount = 1;
+    public decimal GradeCount { get => _gradeCount; set { int n = (int)Math.Clamp(value, 1, Math.Max(1, GradeMax)); if (n != _gradeCount) { _gradeCount = n; FillGradeBoxes(); } Raise(); } }
+    public decimal GradeCountMax => Math.Max(1, GradeMax);
+    public List<GradeBoxVm> GradeBoxes { get; private set; } = [];
+    private void FillGradeBoxes()
+    {
+        GradeBoxes = _selected != null && _main.Session.Project is { } p ? [.. GradeSeries.DefaultGrades(p, _selected.Item, _gradeCount).Select(g => new GradeBoxVm(g, RecheckGrades))] : [];
+        Raise(nameof(GradeBoxes)); Raise(nameof(GradeCountMax)); RecheckGrades();
+    }
+    private void RecheckGrades() { Raise(nameof(GradesProblem)); Raise(nameof(HasGradesProblem)); DoMakeGrades.Raise(); }
+    public string? GradesProblem => _selected == null || _main.Session.Project is not { } p || GradeBoxes.Count == 0 ? "no grades to make"
+        : GradeSeries.Problem(p, _selected.Item, [.. GradeBoxes.Select(b => (int)b.Value)]) is { } why ? char.ToUpperInvariant(why[0]) + why[1..] + "." : null;
+    public bool HasGradesProblem => GradesProblem != null;
+    private async Task MakeGradesAsync()
+    {
+        if (_selected == null || GradesProblem != null) return;
+        var src = _selected.Item;
+        List<int> grades = [.. GradeBoxes.Select(b => (int)b.Value)];
+        Busy = true; Status = "Making grades…";
+        try
+        {
+            var made = await _main.Session.MakeGradesAsync(src, grades);
+            Grading = false;
+            Reload();
+            Selected = Items.FirstOrDefault(i => i.Item == made[^1]) ?? Selected;
+            Status = $"Made {made.Count} grade(s) of “{src.Title}”.";
+        }
+        catch (Exception e) when (e is InvalidOperationException or ArgumentException or IOException) { Status = "Couldn't make the grades: " + e.Message; }
+        finally { Busy = false; }
+    }
     public Command DuplicateCommand { get; }
     public Command AskRemove { get; }
     public Command DoRemove { get; }
@@ -1787,6 +1905,31 @@ public sealed class EditorVm : Observable
     private string? RemoveLock => _selected?.RemoveLock;
     public bool ItemActionsLocked => _selected?.ActionsLocked ?? false;
     public string ItemActionsNote => _selected?.ActionsNote ?? "";
+    /// <summary>
+    /// Issue #108: the "!" notes of the selected item, highest level first, for the "!" button next to Help and its panel:
+    /// the refusal of Duplicate or Remove (orange) and the note of each tab (blue for a greyed tab, else the level of its dot).
+    /// </summary>
+    public IReadOnlyList<NoteRow> Notes { get; private set; } = [];
+    public bool HasNotes => Notes.Count > 0;
+    public int NoteLevel => Notes.Count > 0 ? Notes[0].Level : 0;
+    public bool NotesWarn => NoteLevel == 1;
+    public bool NotesBad => NoteLevel == 2;
+    /// <summary>The closed panel: the first sentence of the highest note.</summary>
+    public string NotesSummary => Notes.Count == 0 ? "" : Notes[0].Text.IndexOf(". ", StringComparison.Ordinal) is var i and > 0 ? Notes[0].Text[..(i + 1)] : Notes[0].Text;
+    /// <summary>The panel is open: kept while the user moves between items, for this session only.</summary>
+    public bool NotesOpen { get => _notesOpen; set { if (Set(ref _notesOpen, value)) Raise(nameof(NotesClosed)); } }
+    private bool _notesOpen;
+    public bool NotesClosed => !_notesOpen;
+    public Command ToggleNotes => _toggleNotes ??= new(() => NotesOpen = !NotesOpen);
+    private Command? _toggleNotes;
+    private void RefreshNotes()
+    {
+        var rows = new List<NoteRow>();
+        if (_selected?.ActionsNote is { Length: > 0 } a) rows.Add(new(1, a));
+        if (_selected != null) foreach (var t in Tabs.Where(t => t.HasNote)) rows.Add(new(t.NoteBad ? 2 : t.NoteWarn ? 1 : 0, $"{t.Title}: {t.Note}"));
+        Notes = rows.OrderByDescending(r => r.Level).ToList();
+        foreach (var n in new[] { nameof(Notes), nameof(HasNotes), nameof(NoteLevel), nameof(NotesWarn), nameof(NotesBad), nameof(NotesSummary) }) Raise(n);
+    }
     public string DuplicateTip => DuplicateLock is { } d ? $"This item can't be duplicated: {d}." : "Make a copy of the selected item";
     public string RemoveTip => RemoveLock is { } r ? $"This item can't be taken out of the mod: {r}." : "Remove the selected item from this mod";
     public string RemoveText => _selected == null ? "" : _selected.IsExisting
@@ -1798,7 +1941,7 @@ public sealed class EditorVm : Observable
     public ItemVm? Selected
     {
         get => _selected;
-        set => _main.Session.NotAnEdit(() => { if (Set(ref _selected, value)) { foreach (var c in Categories) c.Refresh(); Preview.Fire(Preview.LoadAsync(value)); RebuildTabs(); Confirming = false; Raise(nameof(HasSelected)); Raise(nameof(RemoveText)); foreach (var n in new[] { nameof(ItemActionsLocked), nameof(ItemActionsNote), nameof(DuplicateTip), nameof(RemoveTip) }) Raise(n); DuplicateCommand.Raise(); AskRemove.Raise(); FillLanguages.Raise(); RefreshSortie(true); } });
+        set => _main.Session.NotAnEdit(() => { if (Set(ref _selected, value)) { foreach (var c in Categories) c.Refresh(); Preview.Fire(Preview.LoadAsync(value)); RebuildTabs(); Confirming = false; Grading = false; Raise(nameof(HasSelected)); Raise(nameof(RemoveText)); foreach (var n in new[] { nameof(ItemActionsLocked), nameof(ItemActionsNote), nameof(DuplicateTip), nameof(RemoveTip), nameof(GradesTip) }) Raise(n); DuplicateCommand.Raise(); AskGrades.Raise(); AskRemove.Raise(); FillLanguages.Raise(); RefreshSortie(true); } });
     }
     public bool HasSelected => _selected != null;
 
@@ -1813,7 +1956,7 @@ public sealed class EditorVm : Observable
             foreach (var it in p.Items.Where(ShownInBar)) { var vm = existing.TryGetValue(it, out var e) ? e : new ItemVm(_main.Session, it) { ReportError = _main.ReportError, DialogsOf = () => _main.Dialogs, OpenGenerate = Preview.StartGenerate, RefreshOthers = others => { foreach (var v in Items.Where(v => others.Contains(v.Item))) v.Refresh(); } }; vm.Refresh(); Items.Add(vm); }
         Selected = Items.FirstOrDefault(i => i.Item == keep) ?? Items.FirstOrDefault();
         foreach (var c in Categories) c.Refresh();
-        DuplicateCommand.Raise(); AskRemove.Raise();
+        DuplicateCommand.Raise(); AskRemove.Raise(); AskGrades.Raise(); Raise(nameof(GradesTip));
     }
 
     /// <summary>

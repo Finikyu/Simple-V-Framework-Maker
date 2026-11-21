@@ -45,7 +45,7 @@ public sealed class FieldVm(Session s, ExistingItem item, ExistingField f) : Obs
     public bool Editable => f.Locked == null;
     public bool IsLocked => f.Locked != null;
     public string LockedNote => f.Locked == null ? "" : "Can't be changed here: " + f.Locked + ".";
-    public string Note => f.Present ? "" : "not set in the script";
+    public string Note => f.LoopNote ?? (f.Present ? "" : "not set in the script");
     public bool BoolValue { get => f.Value is true; set { Change(value); } }
     public IReadOnlyList<Choice> DashAttacks => Choice.DashAttacks;
     public Choice DashValue { get => Choice.DashOf(f.Value); set { if (value != null) Change(Choice.DashValue(value)); } }

@@ -92,7 +92,12 @@ public static class ModClassifier
         // The avatar's own parts (the horn, the avatar face). These belong to the avatar the player builds in the avatar
         // creator, not to a player outfit, and V Framework 1.7 has no hook for them: RegisterOutfit/RegisterHeadOption
         // both act on the player's suit and head, never on /pack/player/avatar/. So there is nothing to port to.
-        var avatarParts = files.Where(f => f.Kind == ModFileKind.AvatarPart).ToList();
+        // Issue #126: the Avatar creator's hair packages, replaced with a whole head (Nexus 2266): head options.
+        var avatarHair = files.Where(f => f.Kind == ModFileKind.AvatarPart && f.Path.Contains("/avatar/hair/", StringComparison.Ordinal)).ToList();
+        if (avatarHair.Count > 0)
+            routes.Add($"Avatar head replacer ({string.Join(", ", avatarHair.Select(a => a.Path[(a.Path.LastIndexOf('/') + 1)..]).Distinct())}): " +
+                       "port as head options for Snake (not the Avatar: the Avatar creator face clips through them).");
+        var avatarParts = files.Where(f => f.Kind == ModFileKind.AvatarPart && !avatarHair.Contains(f)).ToList();
         if (avatarParts.Count > 0)
             routes.Add($"Avatar part replacer ({string.Join(", ", avatarParts.Select(a => a.Path[(a.Path.LastIndexOf('/') + 1)..]).Distinct())}): " +
                        "not portable. These are the avatar's own parts (the horn, the avatar face), which the avatar creator " +

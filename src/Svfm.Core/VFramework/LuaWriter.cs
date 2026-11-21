@@ -213,7 +213,6 @@ public static class LuaWriter
         w.Append($"      langEquipName      = {Str(b.NameLang)},\n");
         w.Append($"      langEquipRealName  = {Str(b.RealNameLang ?? b.NameLang)},\n");
         if (b.InfoLang != null) w.Append($"      langEquipInfo      = {Str(b.InfoLang)},\n");
-        for (int i = 0; i < b.PowerUpInfoLangs.Count; i++) w.Append($"      langPowerUpInfo{i}   = {Str(b.PowerUpInfoLangs[i])},\n");
         w.Append($"      iconFtexPath       = {Str(b.IconFtexPath)},\n");
         WriteConstExtras(w, b.Develop);
         w.Append("    },\n");
@@ -493,7 +492,11 @@ public static class LuaWriter
 
     private static void WriteConstExtras(StringBuilder w, DevelopRow d)
     {
-        if (d.UpgradeOfDevelopId is { } up) w.Append($"      baseEquipDevelopId  = {up},\n");
+        // Issue #123: the upgrade lines, in order and with no gaps.
+        var lines = d.UpgradeLines;
+        for (int i = 0; i < lines.Count; i++) w.Append($"      langPowerUpInfo{i}    = {Str(lines[i])},\n");
+        if (d.GradeBefore is { } gb) w.Append($"      baseEquipDevelopId  = {DevelopRow.GradeBeforeLua(gb)},\n");
+        else if (d.UpgradeOfDevelopId is { } up) w.Append($"      baseEquipDevelopId  = {up},\n");
         if (d.Skill is { } sk) w.Append($"      skill               = {(DevelopRow.IsNumber(sk) ? sk : Str(sk))},\n");
         if (d.RankLimited) w.Append("      isResultRankLimited = 1,\n");
         if (d.RankLimited && d.ResultRankLang != null) w.Append($"      langResultRankLimited = {Str(d.ResultRankLang)},\n");

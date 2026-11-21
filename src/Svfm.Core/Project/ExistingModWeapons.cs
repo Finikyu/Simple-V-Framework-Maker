@@ -153,7 +153,7 @@ public static partial class ExistingMod
     {
         ["ammo"] = ("Thrown item", "Carried at once"), ["fuseTime"] = ("Thrown item", "Fuse time (seconds)"),
         ["activeTime"] = ("Thrown item", "Effect time (seconds)"), ["grade"] = ("Thrown item", "Grade"),
-        ["damageType"] = ("Sortie Prep details", "Damage type icon (number)"),
+        ["damageType"] = ("Sortie Prep details", "Icon shown"),
         ["barDamage"] = ("Sortie Prep details", "Damage bar (0 empty, 1 full)"),
         ["barDurability"] = ("Sortie Prep details", "Durability bar (0 empty, 1 full)"),
         ["barEffectTime"] = ("Sortie Prep details", "Effect duration bar (0 empty, 1 full)"),
@@ -168,7 +168,7 @@ public static partial class ExistingMod
     /// Gives a thrown or placed item the settings of its support weapon calls (gap G6): SetSupportWeaponParameter (found by
     /// the item's constant in the equip table), SetSupportWeapon (by its equip constant), and the SetDamage and
     /// SetBlastParameter rows that SetSupportWeapon names, when the mod makes them itself. A row of the game's own is not
-    /// the mod's to change and is not listed. A value set by a name (what it is thrown as, a damage row) is shown only, and
+    /// the mod's to change and is not listed. What it is thrown as is a field (issue #112). Another value set by a name (a damage row) is shown only, and
     /// so is a Sortie Prep bar the script hides with false: the bar is a number or false, never true.
     /// </summary>
     /// <summary>Gives a thrown item its script, read from every module of the mod (row 14).</summary>
@@ -185,6 +185,9 @@ public static partial class ExistingMod
         item.ScriptLock = why;
     }
 
+    /// <summary>The original of a support weapon number that the script does not set (#111): a value no real setting has.</summary>
+    public const double NotSet = -1;
+
     private static void BindSupport(ExistingItem item, string? swp, Dictionary<(string set, string id), (ModuleRun module, List<RecordedCall> calls)> made, HashSet<RecordedCall> read)
     {
         void Bind(string set, string id, string? group, IReadOnlyList<PartField> known)
@@ -196,8 +199,11 @@ public static partial class ExistingMod
             string own = SupportIds.GetValueOrDefault(set, "attackId");
             string Group(string key) => group ?? SupportKeys.GetValueOrDefault(key, (group: "Thrown item", label: key)).group;
             string Label(string key) => known.FirstOrDefault(f => f.Path == key)?.Label ?? SupportKeys.GetValueOrDefault(key, (group: "", label: key)).label;
+            // What it is thrown as is a pick (issue #112): a field written back as TppEquip.X, not a name shown only.
+            if (set == "SetSupportWeapon" && args["throwAs"] is LuaValue.Name)
+                item.Fields.Add(MakeField("Thrown item", "Thrown as", FieldType.Text, module.Path, calls, 0, ["throwAs"], module.Src, module.Written, writtenAsFlag: false, equipName: true));
             foreach (var (key, v) in args.Fields)
-                if (key != own && v is LuaValue.Name { Value: not ("true" or "nil") } nv && (nv.Value != "false" || key.StartsWith("bar", StringComparison.Ordinal)))
+                if (key != own && !(set == "SetSupportWeapon" && key == "throwAs") && v is LuaValue.Name { Value: not ("true" or "nil") } nv && (nv.Value != "false" || key.StartsWith("bar", StringComparison.Ordinal)))
                     item.PartNames.Add((Group(key), Label(key), nv.Value == "false" ? "hidden" : nv.Value));
             foreach (var (path, value) in Leaves(args, []))
             {
@@ -209,6 +215,9 @@ public static partial class ExistingMod
                     : value is LuaValue.Text ? FieldType.Text : value is LuaValue.Name ? FieldType.Bool : FieldType.Number;
                 item.Fields.Add(MakeField(Group(dotted), Label(dotted), type, module.Path, calls, 0, path, module.Src, module.Written, writtenAsFlag: type == FieldType.Flag));
             }
+            // #111: a damage type the script leaves out can still be picked; NotSet (the original) is "not set" and is not written.
+            if (set == "SetSupportWeaponParameter" && args["damageType"] == null)
+                item.Fields.Add(MakeField(Group("damageType"), Label("damageType"), FieldType.Number, module.Path, calls, 0, ["damageType"], module.Src, module.Written, writtenAsFlag: false, absentDefault: NotSet));
         }
 
         if (swp != null) Bind("SetSupportWeaponParameter", swp, null, []);

@@ -39,9 +39,12 @@
           <Button Name="SaveButton" Content="Save" AutomationProperties.Name="Save the project" Command="{Binding SaveCommand}" ToolTip.Tip="Save the project (Ctrl+S)" />
           <Button Name="BuildButton" Classes="primary" Content="Review &amp; build" Command="{Binding BuildCommand}" />
         </StackPanel>
+        <!-- Issue #122 (N2): the one Back button, at the left. On the build screen it goes back to the editor, as Esc does (issue #81). -->
+        <Button DockPanel.Dock="Left" Name="BackToEditButton" Content="Back" Command="{Binding BackToEdit}" IsVisible="{Binding OnBuild}" Margin="0,0,12,0" VerticalAlignment="Center" ToolTip.Tip="Back to editing (Esc)" />
         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" ClipToBounds="True">
-          <Path Stroke="{StaticResource AmberBrush}" StrokeThickness="1.8" Width="22" Height="22" Stretch="Uniform" Data="M12 2L20.5 7V17L12 22L3.5 17V7Z M12 7V17 M7.5 9.5L16.5 14.5 M16.5 9.5L7.5 14.5" />
-          <TextBlock Text="Simple V Framework Maker" FontWeight="Bold" LetterSpacing="1.2" VerticalAlignment="Center" Margin="0,0,10,0" />
+          <Image Source="/Assets/logo.png" Width="26" Height="26" VerticalAlignment="Center" RenderOptions.BitmapInterpolationMode="HighQuality" />
+          <TextBlock Text="SIMPLE V FRAMEWORK MAKER" FontFamily="{StaticResource HeadFont}" FontSize="{StaticResource SizeTitle}" FontWeight="SemiBold" LetterSpacing="{StaticResource HeadSpacing}" VerticalAlignment="Center" />
+          <app:StepBar Name="Steps" Step="{Binding StepIndex}" Margin="6,0,10,0" />
           <Button Name="FileButton" Content="File ▾" AutomationProperties.Name="File menu">
             <Button.Flyout>
               <MenuFlyout Placement="BottomEdgeAlignedLeft">
@@ -71,6 +74,12 @@
               </MenuFlyout>
             </Button.Flyout>
           </Button>
+          <!-- Issue #108: one "!" for the notes of the selected item, in the colour of the highest level; greyed with no note. -->
+          <Panel IsEnabled="{Binding OnEditor}">
+            <Button Name="NotesButton" Command="{Binding Editor.ToggleNotes}" IsEnabled="{Binding Editor.HasNotes, FallbackValue=False}" AutomationProperties.Name="Notes of the selected item" ToolTip.Tip="Show or hide the notes of the selected item" ToolTip.ShowOnDisabled="True">
+              <app:NoteBadge Classes="info" Classes.warn="{Binding Editor.NotesWarn}" Classes.bad="{Binding Editor.NotesBad}"><TextBlock Text="!" /></app:NoteBadge>
+            </Button>
+          </Panel>
           <Button Name="HelpButton" Content="Help ▾" AutomationProperties.Name="Help menu">
             <Button.Flyout>
               <MenuFlyout Placement="BottomEdgeAlignedLeft">
@@ -82,7 +91,30 @@
         </StackPanel>
       </DockPanel>
     </Border>
-    <Border DockPanel.Dock="Top" IsVisible="{Binding HasNotice}" Background="#3A1E1C" BorderBrush="{StaticResource RedBrush}" BorderThickness="0,0,0,1" Padding="20,8">
+    <!-- Issue #108: the notes of the selected item. Closed: the first sentence of the highest note. Open: every note in full. -->
+    <Border Name="NotesPanel" DockPanel.Dock="Top" DataContext="{Binding Editor}" IsVisible="{Binding HasNotes, FallbackValue=False}" Background="{StaticResource NoteFillBrush}" BorderBrush="{StaticResource BlueBrush}" BorderThickness="0,0,0,1" Padding="20,6">
+      <Panel IsVisible="{Binding $parent[Window].((app:MainVm)DataContext).OnEditor}">
+        <DockPanel IsVisible="{Binding NotesClosed}">
+          <Button DockPanel.Dock="Right" Content="Show all" Command="{Binding ToggleNotes}" Margin="8,0,0,0" />
+          <app:NoteBadge Classes="info" Classes.warn="{Binding NotesWarn}" Classes.bad="{Binding NotesBad}" Margin="0,0,8,0"><TextBlock Text="!" /></app:NoteBadge>
+          <TextBlock Name="NotesSummary" Text="{Binding NotesSummary}" TextTrimming="CharacterEllipsis" MaxLines="1" VerticalAlignment="Center" Foreground="{StaticResource TextBrush}" />
+        </DockPanel>
+        <DockPanel IsVisible="{Binding NotesOpen}">
+          <Button DockPanel.Dock="Right" VerticalAlignment="Top" Content="Hide" Command="{Binding ToggleNotes}" Margin="8,0,0,0" />
+          <ItemsControl Name="NotesList" ItemsSource="{Binding Notes}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="app:NoteRow">
+                <DockPanel Margin="0,2">
+                  <app:NoteBadge Classes="info" Classes.warn="{Binding Warn}" Classes.bad="{Binding Bad}" VerticalAlignment="Top" Margin="0,0,8,0"><TextBlock Text="!" /></app:NoteBadge>
+                  <SelectableTextBlock Text="{Binding Text}" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}" />
+                </DockPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </DockPanel>
+      </Panel>
+    </Border>
+    <Border DockPanel.Dock="Top" IsVisible="{Binding HasNotice}" Background="{StaticResource NoticeFillBrush}" BorderBrush="{StaticResource RedBrush}" BorderThickness="0,0,0,1" Padding="20,8">
       <DockPanel>
         <Button DockPanel.Dock="Right" Content="Dismiss" Command="{Binding DismissNotice}" />
         <Button Name="OpenErrorLogButton" DockPanel.Dock="Right" Margin="0,0,8,0" Content="Open error.log" Command="{Binding OpenErrorLog}" IsVisible="{Binding NoticeHasLog}" />

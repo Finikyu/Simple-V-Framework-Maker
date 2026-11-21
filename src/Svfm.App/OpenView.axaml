@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:app="using:Svfm.App" x:Class="Svfm.App.OpenView" x:DataType="app:OpenVm">
   <DockPanel>
-    <app:HeaderBar DockPanel.Dock="Top">
+    <app:HeaderBar DockPanel.Dock="Top" Step="0">
       <app:HeaderBar.Actions>
         <!--
           The owner: "Clicking Settings on the first screen opens up a folder selection, but I'm not sure why or what it's
@@ -12,56 +12,67 @@
       </app:HeaderBar.Actions>
     </app:HeaderBar>
     <!-- Issue #11: credit the author of V Framework on the first screen. HyperlinkButton opens NavigateUri in the browser. -->
-    <StackPanel Name="CreditFooter" DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,12">
-      <TextBlock Classes="muted" FontSize="13" VerticalAlignment="Center" Text="Built for V Framework by" />
-      <HyperlinkButton Name="CreditLink" Content="Yazed0071" FontSize="13" Padding="4,0" VerticalAlignment="Center"
+    <!-- Issue #122: no text stands on the dotted ground, so the credit sits in a bar. -->
+    <Border DockPanel.Dock="Bottom" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Padding="4">
+    <StackPanel Name="CreditFooter" Orientation="Horizontal" HorizontalAlignment="Center">
+      <TextBlock Classes="muted" FontSize="{StaticResource SizeBody}" VerticalAlignment="Center" Text="Built for V Framework by" />
+      <HyperlinkButton Name="CreditLink" Content="Yazed0071" FontSize="{StaticResource SizeBody}" Padding="4,0" VerticalAlignment="Center"
                        NavigateUri="https://github.com/Yazed0071/V_Framework" ToolTip.Tip="https://github.com/Yazed0071/V_Framework" />
     </StackPanel>
+    </Border>
     <ScrollViewer>
-      <Grid ColumnDefinitions="*,32,340" Margin="24,40" MaxWidth="1132">
+      <Grid ColumnDefinitions="*,20,340" Margin="20,20" MaxWidth="1132">
         <StackPanel Grid.Column="0" Spacing="20">
+          <Border Classes="card" Padding="20">
+          <StackPanel Spacing="12">
           <Grid ColumnDefinitions="Auto,*">
             <Image Source="/Assets/logo.png" Width="88" Height="88" Margin="0,0,20,0" VerticalAlignment="Top" RenderOptions.BitmapInterpolationMode="HighQuality" />
             <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
-              <TextBlock Text="Turn a mod into V Framework content" FontSize="30" FontWeight="Bold" TextWrapping="Wrap" />
-              <TextBlock Foreground="#C9CDD2" MaxWidth="640" TextWrapping="Wrap" HorizontalAlignment="Left" LineHeight="21"
+              <TextBlock Text="Turn a mod into V Framework content" FontSize="{StaticResource SizeScreen}" FontWeight="Bold" TextWrapping="Wrap" />
+              <TextBlock Foreground="{StaticResource SoftTextBrush}" MaxWidth="640" TextWrapping="Wrap" HorizontalAlignment="Left" LineHeight="21"
                          Text="A replacer becomes its own outfit, head, weapon or item, so the vanilla game stays as it was. An existing V Framework mod opens for editing." />
             </StackPanel>
           </Grid>
+          <TextBlock Classes="muted" FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" MaxWidth="680" HorizontalAlignment="Left" LineHeight="20"
+                     Text="The tool works out what it was given. A replacer is converted into new items; a V Framework mod, including one made with this tool, opens straight into the editor with everything it already sets up." />
+          </StackPanel>
+          </Border>
 
-          <Grid MinHeight="260" Cursor="Hand" Background="#00000000" Name="DropZone">
+          <Grid MinHeight="260" Cursor="Hand" Background="Transparent" Name="DropZone">
             <Rectangle Stroke="{StaticResource DashBrush}" StrokeThickness="1.5" StrokeDashArray="4,4" RadiusX="12" RadiusY="12" Fill="{StaticResource PanelBrush}" />
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="14" Margin="32">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12" Margin="20">
               <Path Stroke="{StaticResource AmberBrush}" StrokeThickness="1.6" Width="44" Height="44" Stretch="Uniform" HorizontalAlignment="Center"
                     Data="M22 6V28 M13 19L22 28 31 19 M8 30V36A2 2 0 0 0 10 38H34A2 2 0 0 0 36 36V30" />
-              <TextBlock Text="Drop a mod here, or click to choose" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" />
+              <TextBlock Text="Drop a mod here, or click to choose" FontSize="{StaticResource SizeTitle}" FontWeight="SemiBold" HorizontalAlignment="Center" />
               <TextBlock Classes="muted" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="520" LineHeight="21"
                          Text="Any SnakeBite or DMM .mgsv, or a .zip holding one: a replacer, a V Framework mod, or one made with this tool." />
-              <Button Classes="primary" Content="Choose a file…" Command="{Binding ChooseMod}" HorizontalAlignment="Center" IsEnabled="{Binding NotBusy}" Margin="0,6,0,0" />
+              <Button Classes="primary" Content="Choose a file…" Command="{Binding ChooseMod}" HorizontalAlignment="Center" IsEnabled="{Binding NotBusy}" Margin="0,8,0,0" />
               <TextBlock Text="Reading the mod…" Foreground="{StaticResource AmberBrush}" IsVisible="{Binding Busy}" HorizontalAlignment="Center" />
             </StackPanel>
           </Grid>
 
-          <TextBlock Text="{Binding Message}" Foreground="{StaticResource OrangeBrush}" TextWrapping="Wrap" IsVisible="{Binding Message.Length}" />
+          <Border Classes="card" IsVisible="{Binding Message.Length}"><TextBlock Text="{Binding Message}" Foreground="{StaticResource OrangeBrush}" TextWrapping="Wrap" /></Border>
           <ScrollViewer MaxHeight="220" HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Mods in this download"><ItemsControl ItemsSource="{Binding Choices}" IsVisible="{Binding HasChoices}">
-            <ItemsControl.ItemTemplate><DataTemplate x:DataType="app:ModChoice"><Button Content="{Binding Label}" Command="{Binding Pick}" Margin="0,2" HorizontalAlignment="Left" /></DataTemplate></ItemsControl.ItemTemplate>
+            <ItemsControl.ItemTemplate><DataTemplate x:DataType="app:ModChoice"><Button Content="{Binding Label}" Command="{Binding Pick}" Margin="0,4" HorizontalAlignment="Left" /></DataTemplate></ItemsControl.ItemTemplate>
           </ItemsControl></ScrollViewer>
 
-          <TextBlock Classes="muted" FontSize="13" TextWrapping="Wrap" MaxWidth="680" HorizontalAlignment="Left" LineHeight="20"
-                     Text="The tool works out what it was given. A replacer is converted into new items; a V Framework mod, including one made with this tool, opens straight into the editor with everything it already sets up." />
-
-          <StackPanel Spacing="8" IsVisible="{Binding HasRecent}">
-            <TextBlock Classes="lbl" Text="RECENT PROJECTS" />
-            <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
+          <Border Classes="card" IsVisible="{Binding HasRecent}">
+          <StackPanel Spacing="8">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Classes="lbl" Text="RECENT PROJECTS" VerticalAlignment="Center" />
+              <Button Grid.Column="1" Name="ClearRecentButton" Content="Clear" Command="{Binding ClearRecent}" Padding="8,0" Background="Transparent" BorderThickness="0" Foreground="{StaticResource AmberBrush}"
+                      AutomationProperties.Name="Clear recent projects" ToolTip.Tip="Remove all projects from this list. The project files stay." />
+            </Grid>
+            <Border BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusCard}" ClipToBounds="True">
               <ScrollViewer MaxHeight="300" HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Recent projects"><ItemsControl ItemsSource="{Binding RecentItems}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="app:RecentVm">
-                    <Button Command="{Binding Open}" Background="{StaticResource CardBrush}" BorderThickness="0,0,0,1" BorderBrush="#23272C" CornerRadius="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="14,12">
+                    <Button Command="{Binding Open}" Background="{StaticResource CardBrush}" BorderThickness="0,0,0,1" BorderBrush="{StaticResource DimLineBrush}" CornerRadius="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="12,12">
                       <Grid ColumnDefinitions="Auto,*">
-                        <Border Width="96" Height="48" CornerRadius="3" Background="Black" ClipToBounds="True"><Image Source="{Binding Icon}" Stretch="UniformToFill" /></Border>
-                        <StackPanel Grid.Column="1" Margin="14,0,0,0" Spacing="3" VerticalAlignment="Center">
-                          <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="{Binding Name}" FontWeight="SemiBold" /><TextBlock Text="{Binding Version}" Classes="muted" /></StackPanel>
-                          <TextBlock Text="{Binding Summary}" Classes="muted" FontSize="13" TextTrimming="CharacterEllipsis" />
+                        <Border Width="96" Height="48" CornerRadius="{StaticResource RadiusControl}" Background="Black" ClipToBounds="True"><Image Source="{Binding Icon}" Stretch="UniformToFill" /></Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="4" VerticalAlignment="Center">
+                          <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Text="{Binding Name}" FontWeight="SemiBold" /><TextBlock Text="{Binding Version}" Classes="muted" /></StackPanel>
+                          <TextBlock Text="{Binding Summary}" Classes="muted" FontSize="{StaticResource SizeBody}" TextTrimming="CharacterEllipsis" />
                         </StackPanel>
                       </Grid>
                     </Button>
@@ -70,31 +81,32 @@
               </ItemsControl></ScrollViewer>
             </Border>
           </StackPanel>
+          </Border>
         </StackPanel>
 
-        <Border Grid.Column="2" Classes="card" Padding="18" VerticalAlignment="Top" CornerRadius="12" Background="{StaticResource PanelBrush}">
+        <Border Grid.Column="2" Classes="card" Padding="20" VerticalAlignment="Top" CornerRadius="{StaticResource RadiusCard}" Background="{StaticResource PanelBrush}">
           <StackPanel Spacing="12">
             <TextBlock Classes="lbl" Text="SETUP" />
             <Grid ColumnDefinitions="Auto,*">
-              <Ellipse Width="10" Height="10" Margin="0,5,10,0" VerticalAlignment="Top" Fill="{StaticResource OkTextBrush}" IsVisible="{Binding GameOk}" />
-              <Ellipse Width="10" Height="10" Margin="0,5,10,0" VerticalAlignment="Top" Fill="{StaticResource OrangeBrush}" IsVisible="{Binding !GameOk}" />
-              <StackPanel Grid.Column="1" Spacing="3">
+              <Ellipse Width="10" Height="10" Margin="0,4,8,0" VerticalAlignment="Top" Fill="{StaticResource OkTextBrush}" IsVisible="{Binding GameOk}" />
+              <Ellipse Width="10" Height="10" Margin="0,4,8,0" VerticalAlignment="Top" Fill="{StaticResource OrangeBrush}" IsVisible="{Binding !GameOk}" />
+              <StackPanel Grid.Column="1" Spacing="4">
                 <TextBlock Text="Game folder" FontWeight="SemiBold" />
-                <TextBlock Classes="mono" Text="{Binding GameShown}" Foreground="#C9CDD2" TextWrapping="Wrap" />
-                <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Vanilla files are read from the game's archives. File names come from the path dictionary built into the tool." />
-                <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding GameStatus}" IsVisible="{Binding !GameOk}" Foreground="{StaticResource OrangeBrush}" />
-                <TextBlock FontSize="12" Foreground="#C9CDD2" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="18">
+                <TextBlock Classes="mono" Text="{Binding GameShown}" Foreground="{StaticResource SoftTextBrush}" TextWrapping="Wrap" />
+                <TextBlock Classes="muted" FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" Text="Vanilla files are read from the game's archives. File names come from the path dictionary built into the tool." />
+                <TextBlock Classes="muted" FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" Text="{Binding GameStatus}" IsVisible="{Binding !GameOk}" Foreground="{StaticResource OrangeBrush}" />
+                <TextBlock FontSize="{StaticResource SizeBody}" Foreground="{StaticResource SoftTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="18">
                   <Run FontWeight="Bold" Text="Why the tool needs the game files:" /><Run Text=" a mod only holds what it changed, so the tool reads the game's own files to tell new files from vanilla ones, to reuse vanilla parts a mod relies on (face animation, texture blocks), to draw icons and the 3D preview from the real models, and to offer the game's icons, camos and R&amp;D rows. It only reads: nothing is written into the game folder or uploaded." />
                 </TextBlock>
               </StackPanel>
             </Grid>
             <Grid ColumnDefinitions="Auto,*">
-              <Ellipse Width="10" Height="10" Margin="0,5,10,0" VerticalAlignment="Top" Fill="{StaticResource OkTextBrush}" />
-              <StackPanel Grid.Column="1" Spacing="3"><TextBlock Text="Target" FontWeight="SemiBold" /><TextBlock Foreground="#C9CDD2" FontSize="13" Text="V Framework 1.7 · Infinite Heaven · IHHook" /></StackPanel>
+              <Ellipse Width="10" Height="10" Margin="0,4,8,0" VerticalAlignment="Top" Fill="{StaticResource OkTextBrush}" />
+              <StackPanel Grid.Column="1" Spacing="4"><TextBlock Text="Target" FontWeight="SemiBold" /><TextBlock Foreground="{StaticResource SoftTextBrush}" FontSize="{StaticResource SizeBody}" Text="V Framework 1.7 · Infinite Heaven · IHHook" /></StackPanel>
             </Grid>
             <Grid ColumnDefinitions="Auto,*">
-              <Ellipse Width="10" Height="10" Margin="0,5,10,0" VerticalAlignment="Top" Fill="{StaticResource OkTextBrush}" />
-              <StackPanel Grid.Column="1" Spacing="3"><TextBlock Text="Mod managers" FontWeight="SemiBold" /><TextBlock Foreground="#C9CDD2" FontSize="13" Text="SnakeBite and DMM" /><TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Builds are checked against installed mods for clashes." /></StackPanel>
+              <Ellipse Width="10" Height="10" Margin="0,4,8,0" VerticalAlignment="Top" Fill="{StaticResource OkTextBrush}" />
+              <StackPanel Grid.Column="1" Spacing="4"><TextBlock Text="Mod managers" FontWeight="SemiBold" /><TextBlock Foreground="{StaticResource SoftTextBrush}" FontSize="{StaticResource SizeBody}" Text="SnakeBite and DMM" /><TextBlock Classes="muted" FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" Text="Builds are checked against installed mods for clashes." /></StackPanel>
             </Grid>
             <Button Content="Change…" Command="{Binding BrowseGame}" HorizontalAlignment="Left" Margin="0,4,0,0" />
           </StackPanel>
