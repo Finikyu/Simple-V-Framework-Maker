@@ -1183,11 +1183,11 @@ public static partial class ExistingMod
     /// item's own is added (the script is then pointed at it, see <see cref="ApplyIconPath"/>).
     /// An icon whose files are still the opened mod's own arrays is left as it is, so an untouched build stays byte-identical.
     /// </summary>
-    private static void WriteIcon(MgsvBuilder b, MgsvMod source, ExistingItem item)
+    private static void WriteIcon(MgsvBuilder b, MgsvMod source, ExistingItem item, IReadOnlyDictionary<string, byte[]> files)
     {
         if (IntakeResult.IconPathOf(item) is not { } stem) return;
         bool Under(string k) => k.StartsWith(stem + ".", StringComparison.OrdinalIgnoreCase);
-        var now = item.Files.Where(f => Under(f.Key)).ToList();
+        var now = files.Where(f => Under(f.Key)).ToList();
         var shipped = source.ArchiveFiles.Where(f => Under(f.Key)).ToList();
         // A path of the item's own that the mod does not ship (a new icon file): its files are added. A game icon has none.
         if (shipped.Count == 0) { foreach (var (k, v) in now) b.AddArchiveFile(k, v); return; }
@@ -1240,7 +1240,10 @@ public static partial class ExistingMod
         var warnings = new List<string>();
         var b = MgsvBuilder.From(data.Source);
         b.Name = p.Name; b.Version = p.Version; b.Author = p.Author; b.Website = p.Website; b.Description = p.Description;
-        foreach (var item in p.Items.OfType<ExistingItem>()) WriteIcon(b, data.Source, item);
+        // A head whose infinite ammo the edit turns on gets the infinity mark on its icon (issue #133).
+        var mark = game != null && p.Items.Any(i => ProjectBuilder.GetsInfinityMark(p, i)) ? Rendering.HeadIcon.InfinityMark(game) : null;
+        foreach (var item in p.Items.OfType<ExistingItem>())
+            WriteIcon(b, data.Source, item, mark != null && ProjectBuilder.InfinityIconOf(p, item) is { } icon ? Rendering.HeadIcon.WithInfinityMark(item.Files, icon, mark) : item.Files);
 
         // Scripts: change only the edited settings.
         var sources = new Dictionary<string, string>(data.Modules, StringComparer.Ordinal);

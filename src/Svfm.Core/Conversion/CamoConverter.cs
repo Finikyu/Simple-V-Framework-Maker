@@ -348,12 +348,13 @@ public static class CamoConverter
     /// <param name="camo">The camo the mod replaces.</param>
     /// <param name="texture">The camo texture.</param>
     /// <param name="crop">Where to cut, and the tone.</param>
+    /// <param name="zoom">SIZE: 1 cuts the icon window as it is; more draws the fabric bigger.</param>
     /// <returns>The 256x128 icon.</returns>
-    public static RgbaImage CropIcon(GameData game, CamoInfo camo, RgbaImage texture, IconChoice.CamoCrop crop)
+    public static RgbaImage CropIcon(GameData game, CamoInfo camo, RgbaImage texture, IconChoice.CamoCrop crop, float zoom = 1f)
     {
         var old = camo.Icon != null ? game.TryReadTexture(camo.Icon + ".ftex") : null;
         if (old == null) throw new FileNotFoundException($"vanilla icon {camo.Icon} not found (needed for the frame mask)");
-        return SuitIcon.FromCamoTexture(texture, SuitIcon.MaskFrom(old), (crop.X, crop.Y), crop.Contrast, crop.Brightness);
+        return SuitIcon.FromCamoTexture(texture, SuitIcon.MaskFrom(old), (crop.X, crop.Y), crop.Contrast, crop.Brightness, zoom: zoom);
     }
 
     private static RgbaImage CamoTexture(GameData game, Dictionary<string, byte[]> files, CamoPortResult? main1, MgsvMod mod, string main1Vanilla, string moved)

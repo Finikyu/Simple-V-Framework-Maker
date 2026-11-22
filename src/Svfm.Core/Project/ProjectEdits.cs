@@ -695,9 +695,9 @@ public sealed class ProjectEdits
             }
             else notApplied.Add(si.Title);
         // The "+ Bandana" heads (#126) are added by the Worn with card, not by the port: add them again.
-        foreach (var si in sp.Items.Where(i => i.CopyOf == null && i.Id.EndsWith("_bandana", StringComparison.Ordinal) && !originals.ContainsKey(i.Id)))
-            if (originals.GetValueOrDefault(si.Id[..^"_bandana".Length]) is HeadOptionItem h && _intake.Game is { } game)
-                try { var c = BandanaCombo.Add(game, p, h); RememberOriginal(c); originals[c.Id] = c; }
+        foreach (var si in sp.Items.Where(i => i.CopyOf == null && BandanaCombo.HeadOf(i.Id) != null && !originals.ContainsKey(i.Id)))
+            if (BandanaCombo.HeadOf(si.Id) is var (head, inf) && originals.GetValueOrDefault(head) is HeadOptionItem h && _intake.Game is { } game)
+                try { var c = BandanaCombo.Add(game, p, h, inf); RememberOriginal(c); originals[c.Id] = c; }
                 catch (Exception e) when (e is InvalidOperationException or InvalidDataException or FileNotFoundException) { }
         var keep = sp.Items.Select(i => i.Id).ToHashSet();
         var removed = sp.Removed?.ToHashSet();

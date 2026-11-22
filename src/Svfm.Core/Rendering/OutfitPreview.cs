@@ -49,6 +49,13 @@ public sealed class OutfitPreview
     /// <summary>The first model whose gear a head option's view icon shows (1 when model 0 is a face the option only carries).</summary>
     public int GearFrom { get; private init; }
 
+    /// <summary>
+    /// The head that hides the back of the gear in a head option's view icon. It is not drawn (owner, Nov 22: the icon
+    /// showed the vanilla head; the vanilla headgear icons draw only the gear). Set only when a model is Snake's bandana
+    /// alone: without it the back of the band shows through (issue #132). Empty otherwise.
+    /// </summary>
+    public IReadOnlyList<FmdlMesh> GhostHead { get; private init; } = [];
+
     private OutfitPreview(List<FmdlModel> models, TextureSource source, List<Fv2File.TextureSwap> swaps, bool? ownLeftArm = null)
     {
         _models = models; _source = source; _swaps = swaps;
@@ -214,27 +221,37 @@ public sealed class OutfitPreview
     /// <param name="dict">Path names for the texture codes.</param>
     /// <param name="item">The head option.</param>
     /// <param name="who">The branch to draw; null takes the first branch the option has.</param>
+    /// <param name="project">The project, for a package that another item of the project holds; null looks only in the item.</param>
     /// <returns>The preview, or null when the option has no model of its own (a soldier face the game already has).</returns>
-    public static OutfitPreview? ForHeadOption(GameData game, PathDictionary? dict, HeadOptionItem item, PlayerBranch? who = null)
+    public static OutfitPreview? ForHeadOption(GameData game, PathDictionary? dict, HeadOptionItem item, PlayerBranch? who = null, ModProject? project = null)
     {
         var branch = who is { } w && item.Spec.Branches.TryGetValue(w, out var b) ? b
             : item.Spec.Branches.OrderBy(k => k.Key).Select(k => k.Value).FirstOrDefault();
         if (branch?.Fpk is not { Length: > 0 } fpk) return null;
         string hp = fpk.EndsWith(".fpk", StringComparison.Ordinal) ? fpk[..^4] : fpk;
-        if (!item.Files.TryGetValue(hp + ".fpk", out var fpkData)) return null;
+        var files = item.Files;
+        // A head set (SnakeHeadAddon) keeps its shared stage package only in the files of its first option.
+        if (!files.ContainsKey(hp + ".fpk") && project?.Items.FirstOrDefault(i => i.Files.ContainsKey(hp + ".fpk")) is { } holder) files = holder.Files;
+        if (!files.TryGetValue(hp + ".fpk", out var fpkData)) return null;
         var (models, faceFirst) = SuitRender.HeadModels(FoxPackage.Read(fpkData), branch.Fv2);
         if (models.Count == 0) return null;
 
         var src = new TextureSource(game, dict);
-        if (item.Files.TryGetValue(hp + ".pftxs", out var packData)) src.AddModPack(TexturePack.Read(packData));
-        foreach (var (path, data) in item.Files.Where(f => f.Key.Contains(".ftex", StringComparison.Ordinal)))
+        if (files.TryGetValue(hp + ".pftxs", out var packData)) src.AddModPack(TexturePack.Read(packData));
+        foreach (var (path, data) in files.Where(f => f.Key.Contains(".ftex", StringComparison.Ordinal)))
             src.AddModFile(path, data);
         // Hidden groups shown, except copies of a shown group: a head package hides most of its groups because in game a
         // look's .fv2 shows them, and some (the PW helmet) hide a second visor that would draw twice.
         // The icon shows only the extras (issue #129), so a face copy that the .fv2 attaches with them is left out of it.
         // Only the face gets its hidden groups shown: an attached extra can be a whole body with one group shown (the scarf
         // and goggles mod), and in game it stays that way.
-        return new OutfitPreview(models.Select((m, i) => faceFirst && i == 0 ? m.WithHeadGroupsShown() : m).ToList(), src, []) { GearFrom = faceFirst && models.Count > 1 ? 1 : 0 };
+        int gearFrom = faceFirst && models.Count > 1 ? 1 : 0;
+        bool bandanaAlone = models.Skip(gearFrom).Any(m => HeadIcon.GearMeshes(m) is { Count: > 0 } g && g.All(x => HeadIcon.UsesTexture(m, x, "sna_bdn0")));
+        return new OutfitPreview(models.Select((m, i) => faceFirst && i == 0 ? m.WithHeadGroupsShown() : m).ToList(), src, [])
+        {
+            GearFrom = gearFrom,
+            GhostHead = bandanaAlone && SnakeHeadAddon.BandanaFace(game, 1) is { } face ? HeadIcon.HeadSilhouette(face) : [],
+        };
     }
 
     /// <summary>
@@ -454,19 +471,28 @@ public sealed class OutfitPreview
         var turn = f.View!.Value;
         // The preview moves its centre by the pan (IconRenderer: OffsetX x 2 and OffsetY times the world height), so the gear moves the other way.
         var shift = new Vector3(-f.OffsetX * 2 * f.WorldHeight, -f.OffsetY * f.WorldHeight, 0);
-        var gear = _models.Skip(GearFrom).SelectMany(HeadIcon.GearMeshes).ToList();
-        List<FmdlMesh> Turned(Vector3 by) => gear.Select(x => new FmdlMesh
+        var gear = IconGear();
+        List<FmdlMesh> Turned(Vector3 by) => Turn(gear, by);
+        List<FmdlMesh> Turn(List<FmdlMesh> meshes, Vector3 by) => meshes.Select(x => new FmdlMesh
         {
             Index = x.Index, MaterialIndex = x.MaterialIndex, MeshGroup = x.MeshGroup, Indices = x.Indices,
             Normals = x.Normals?.Select(n => Vector3.TransformNormal(n, turn)).ToArray(),
             Positions = x.Positions.Select(p => Vector3.Transform(p, turn) + by).ToArray(),
         }).ToList();
+        var head = GhostHead.ToList();
         var framed = Turned(Vector3.Zero);
         // The meshes are already turned, so the outline renderer's own turn is none.
         var o = HeadIcon.Gear with { Yaw = 0, Pitch = 0, Zoom = Math.Max(0.05f, zoom) };
         if (supersample > 0) o = o with { Supersample = supersample };
-        return OutlineIconRenderer.Render(shift == Vector3.Zero ? framed : Turned(shift), o, frame: framed);
+        if (head.Count == 0) return OutlineIconRenderer.Render(shift == Vector3.Zero ? framed : Turned(shift), o, frame: framed);
+        return OutlineIconRenderer.Render(Turned(shift), o, occluders: Turn(head, shift), frame: framed);
     }
+
+    /// <summary>
+    /// The gear meshes of the Generate icon, all in Snake's face space: an extra whose chest bone is not at the origin (the
+    /// scarf and goggles mod: 15 cm up) sits above the bandana and the ghost head otherwise (owner, Nov 21: the goggles were above the head).
+    /// </summary>
+    public List<FmdlMesh> IconGear() => _models.Skip(GearFrom).SelectMany(m => HeadIcon.Moved(HeadIcon.GearMeshes(m), HeadIcon.ToFaceSpace(m))).ToList();
 
     private IconFraming ViewFraming(float yawDegrees, int width, int height, float pitchDegrees, float zoom, float panX, float panY)
     {

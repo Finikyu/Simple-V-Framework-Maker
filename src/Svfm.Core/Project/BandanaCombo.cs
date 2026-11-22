@@ -18,27 +18,38 @@ public static class BandanaCombo
 {
     public const int BandanaDevelopId = 37001;
 
-    /// <summary>The combo item of <paramref name="h"/> in the project, or null.</summary>
-    public static HeadOptionItem? Of(ModProject p, HeadOptionItem h) =>
-        p.Items.OfType<HeadOptionItem>().FirstOrDefault(i => i.Id == IdOf(h));
+    // Owner, Nov 22: a plain copy and an infinite copy can each be added and removed on their own.
+    private const string Suffix = "_bandana", InfiniteSuffix = "_bandana_inf";
 
-    private static string IdOf(HeadOptionItem h) => h.Id + "_bandana";
+    /// <summary>The combo item of <paramref name="h"/> (the infinite copy when <paramref name="infinite"/>) in the project, or null.</summary>
+    public static HeadOptionItem? Of(ModProject p, HeadOptionItem h, bool infinite = false) =>
+        p.Items.OfType<HeadOptionItem>().FirstOrDefault(i => i.Id == IdOf(h, infinite));
+
+    private static string IdOf(HeadOptionItem h, bool infinite) => h.Id + (infinite ? InfiniteSuffix : Suffix);
+
+    /// <summary>The id of the head that the combo item <paramref name="id"/> copies, and if it is the infinite copy; null for an item that is not a combo.</summary>
+    public static (string head, bool infinite)? HeadOf(string id) =>
+        id.EndsWith(InfiniteSuffix, StringComparison.Ordinal) ? (id[..^InfiniteSuffix.Length], true)
+        : id.EndsWith(Suffix, StringComparison.Ordinal) ? (id[..^Suffix.Length], false) : null;
 
     /// <summary>
     /// Adds the combo of <paramref name="h"/> (once) right after it and lists it on every Snake look that lists
-    /// <paramref name="h"/>. Returns the combo item.
+    /// <paramref name="h"/>. With <paramref name="infinite"/>, the combo is the infinite copy: it gives infinite ammo.
+    /// Returns the combo item.
     /// </summary>
-    public static HeadOptionItem Add(GameData game, ModProject p, HeadOptionItem h)
+    public static HeadOptionItem Add(GameData game, ModProject p, HeadOptionItem h, bool infinite = false)
     {
-        if (Of(p, h) is { } had) return had;
+        if (Of(p, h, infinite) is { } had) return had;
         if (!h.Spec.Branches.TryGetValue(PlayerBranch.Snake, out var snake) || snake.Fv2 == null || snake.Fpk == null)
             throw new InvalidOperationException($"\"{h.Title}\" has no Snake head, so it has no bandana combo.");
-        var (key, prefix) = p.NewItemNames(IdOf(h));
+        var (key, prefix) = p.NewItemNames(IdOf(h, infinite));
         var stages = snake.FaceStages.Count > 0 ? snake.FaceStages : new Dictionary<int, (string fv2, string fpk)> { [1] = (snake.Fv2, snake.Fpk) };
         var notes = new List<string>();
         var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
         var newStages = new Dictionary<int, (string fv2, string fpk)>();
-        byte[]? Load(string path) => h.Files.TryGetValue(path, out var d) ? d : game.TryRead(path);
+        // A head set (SnakeHeadAddon) keeps its shared stage package only in the files of its first option.
+        byte[]? Load(string path) => h.Files.TryGetValue(path, out var d) ? d
+            : p.Items.FirstOrDefault(i => i.Files.ContainsKey(path)) is { } holder ? holder.Files[path] : game.TryRead(path);
         foreach (var (stage, (fv2, fpk)) in stages.OrderBy(kv => kv.Key))
         {
             // A branch may name its package with or without ".fpk"; the combo keeps the same form.
@@ -60,11 +71,21 @@ public static class BandanaCombo
             files[pkg + ".pftxs"] = pack.Write();
             newStages[stage] = (fv2Out, ext ? pkg + ".fpk" : pkg);
         }
-        string title = (h.Title.Length > 0 ? h.Title : h.Id) + " + Bandana";
+        // The combo gets a copy of the head's icon at a path of its own (issue #133): a shared icon file gets no infinity
+        // mark, and a Generate of one item would change the icon of both.
+        string? icon = h.Spec.IconFtexPath;
+        if (icon != null && Load(icon + ".ftex") is { } ftex)
+        {
+            string own = $"/Assets/tpp/ui/texture/EquipIcon/svfm/ui_{prefix}_alp";
+            files[own + ".ftex"] = ftex;
+            for (int k = 1; k <= 6; k++) if (Load($"{icon}.{k}.ftexs") is { } mip) files[$"{own}.{k}.ftexs"] = mip;
+            icon = own;
+        }
+        string title = (h.Title.Length > 0 ? h.Title : h.Id) + (infinite ? " + Infinite Bandana" : " + Bandana");
         var spec = new HeadOptionSpec
         {
             SnakeFaceOnly = h.Spec.SnakeFaceOnly, NoAvatarReason = h.Spec.NoAvatarReason, Key = key, NameLang = $"{prefix}_name", RealNameLang = $"{prefix}_name", InfoLang = $"{prefix}_info",
-            IconFtexPath = h.Spec.IconFtexPath, InfiniteAmmo = h.Spec.InfiniteAmmo,
+            IconFtexPath = icon, InfiniteAmmo = infinite || h.Spec.InfiniteAmmo,
             Develop = new DevelopRow { InitiallyAvailable = false, GmpCost = 0, Grade = 1, FollowsVanillaDevelopId = BandanaDevelopId,
                 UsageGmpCost = Knowledge.GameKnowledge.VanillaDevelop(BandanaDevelopId)?.UsageGmp ?? 0 },
         };
@@ -94,11 +115,11 @@ public static class BandanaCombo
             files[pkg + ".pftxs"] = pack.Write();
             spec.Branches[PlayerBranch.Avatar] = av with { Fv2 = fv2Out, Fpk = ext ? pkg + ".fpk" : pkg };
         }
-        var item = new HeadOptionItem { Id = IdOf(h), Key = key, Prefix = prefix, Spec = spec, Title = title };
+        var item = new HeadOptionItem { Id = IdOf(h, infinite), Key = key, Prefix = prefix, Spec = spec, Title = title };
         foreach (var (path, data) in files) item.Files[path] = data;
         item.Notes.AddRange(notes);
         item.SetText(spec.NameLang, title);
-        item.SetText(spec.InfoLang, $"{h.Title} with the bandana.");
+        item.SetText(spec.InfoLang, infinite ? $"{h.Title} with the bandana. Infinite ammo." : $"{h.Title} with the bandana.");
         int at = p.Items.IndexOf(h);
         p.Items.Insert(at < 0 ? p.Items.Count : at + 1, item);
         foreach (var o in p.Items.Select(ProjectEdits.OutfitOf).OfType<OutfitItem>())
@@ -113,10 +134,10 @@ public static class BandanaCombo
         return item;
     }
 
-    /// <summary>Takes the combo of <paramref name="h"/> out of the project and off every look.</summary>
-    public static void Remove(ModProject p, HeadOptionItem h)
+    /// <summary>Takes the combo of <paramref name="h"/> (the infinite copy when <paramref name="infinite"/>) out of the project and off every look.</summary>
+    public static void Remove(ModProject p, HeadOptionItem h, bool infinite = false)
     {
-        if (Of(p, h) is not { } c) return;
+        if (Of(p, h, infinite) is not { } c) return;
         foreach (var o in p.Items.Select(ProjectEdits.OutfitOf).OfType<OutfitItem>())
             foreach (var who in o.Spec.Branches.Keys.ToList())
                 o.Spec.Branches[who] = ModHeads.With(o.Spec.Branches[who], [c.Spec.Key], false);

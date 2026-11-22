@@ -561,13 +561,18 @@ public sealed class ItemVm : Observable
     {
         if (_s.Intake!.Icons.TryGetValue(Item.Id, out var img))
         {
-            // The icon as the build writes it: with the infinity mark for a head with infinite ammo.
-            if (_s.Project is { } p && _s.Game is { } g && ProjectBuilder.GetsInfinityMark(p, Item) && Svfm.Core.Rendering.HeadIcon.InfinityMark(g) is { } mark)
-                img = Svfm.Core.Rendering.HeadIcon.WithInfinityMark(img, mark);
-            using var ms = new MemoryStream(Png.Encode(img));
+            using var ms = new MemoryStream(Png.Encode(AsBuilt(img)));
             Icon = new Bitmap(ms);
         }
     }
+
+    /// <summary>
+    /// The icon as the build writes it: with the infinity mark for a head with infinite ammo. The Generate result uses it
+    /// too, so the mark shows before the build (issue #133).
+    /// </summary>
+    public Svfm.Core.Formats.RgbaImage AsBuilt(Svfm.Core.Formats.RgbaImage img) =>
+        _s.Project is { } p && _s.Game is { } g && ProjectBuilder.GetsInfinityMark(p, Item) && Svfm.Core.Rendering.HeadIcon.InfinityMark(g) is { } mark
+            ? Svfm.Core.Rendering.HeadIcon.WithInfinityMark(img, mark) : img;
 
     // ---- Icon controls (outfits made from a camo replacer) ----
     // A render that is asked for but not yet drawn counts as the current icon, so a second quick click reads the first.
@@ -604,6 +609,8 @@ public sealed class ItemVm : Observable
         : CanGenerateCard ? "The tool cannot make an icon for this kind of item. Upload an image." : "This item has no model in the mod. The tool cannot make an icon without a model. Upload an image.";
     public string UploadReason => CanUpload ? "" : LockReason;
     public bool SourceGenerate => Cur != null && (Cur.Style is not (IconStyle.Custom or IconStyle.Game) || Cur.FromView);
+    /// <summary>The icon card's SIZE row of an outfit icon (render or camo crop), issue #131. A weapon has its own card, a head the preview zoom.</summary>
+    public bool FrameSizeOn => Cur?.Style is IconStyle.ChestRender or IconStyle.CamoCrop;
     public bool SourceGame => Cur?.Style == IconStyle.Game;
     /// <summary>
     /// Whether "An icon already in the game" is offered. Each item kind writes its icon path in its R&amp;D row, so a game
@@ -891,11 +898,45 @@ public sealed class ItemVm : Observable
     public double FrameX { get => Src?.OffsetX * 100 ?? 0; set { if (_draft is { } d) SetDraft(d with { OffsetX = Math.Clamp((float)(value / 100), -0.5f, 0.5f) }); else if (Cur is { } c) Reframe(c with { OffsetX = (float)(value / 100) }); } }
     public double FrameY { get => Src?.OffsetY * 100 ?? 0; set { if (_draft is { } d) SetDraft(d with { OffsetY = Math.Clamp((float)(value / 100), -0.5f, 0.5f) }); else if (Cur is { } c) Reframe(c with { OffsetY = (float)(value / 100) }); } }
     /// <summary>Sets the outline icon size to 100 %.</summary>
-    public Command FullSize => _fullSize ??= new Command(() => FrameZoom = 100);
+    public Command FullSize => _fullSize ??= new Command(() => IconZoom = 100);
     private Command? _fullSize;
     // Issue #105: a weapon's draft takes its size from the 3D preview (Preview.WeaponIconOf), so the SIZE card of the
     // outline icon sets the icon itself, also while Generate mode is open. Before this, SIZE did nothing in Generate mode.
     public double FrameZoom { get => ((IsWeaponIcon ? Cur : Src)?.Zoom ?? 1f) * 100; set { if (_draft is { } d && !IsWeaponIcon) SetDraft(d with { Zoom = Math.Clamp((float)(value / 100), 0.4f, 5f) }); else if (Cur is { } c) Reframe(c with { Zoom = (float)(value / 100) }); } }
+    /// <summary>
+    /// The SIZE row of the icon card (issue #131). It changes the current icon, also while Generate mode is open. An icon the
+    /// tool draws (an outfit render or camo crop, a weapon outline) is drawn again at the new zoom. A picture (the packaged
+    /// icon, a game icon, an upload, a head picture from the view) grows or shrinks about its centre (owner, Nov 22: "It's
+    /// supposed to be the icon that's already generated being adjusted").
+    /// </summary>
+    public double IconZoom
+    {
+        get => (PictureSizeOn ? _pictureScale ?? Cur?.Scale ?? 1f : Cur?.Zoom ?? 1f) * 100;
+        set
+        {
+            float z = Math.Clamp((float)(value / 100), 0.4f, 5f);
+            if (!PictureSizeOn) { if (Cur is { } c) Reframe(c with { Zoom = z }); return; }
+            _pictureScale = z;
+            _frameWait?.Cancel(); var cts = _frameWait = new CancellationTokenSource();
+            _ = Task.Delay(150, cts.Token).ContinueWith(t => { if (!t.IsCanceled) Avalonia.Threading.Dispatcher.UIThread.Post(() => ScalePicture(z)); }, TaskScheduler.Default);
+        }
+    }
+    private float? _pictureScale;
+    private void ScalePicture(float z)
+    {
+        // A picture still being made would write its icon last: the size waits for it.
+        if (IconBusy) { IconZoom = z * 100; return; }
+        _pictureScale = null;
+        try { _s.Checkpoint($"{Item.Id}:frame"); _s.Intake!.ScalePicture(Item, z); IconError = ""; }
+        catch (InvalidOperationException e) { IconError = "The icon can't be resized: " + e.Message; }
+        LoadIcon(); RaiseIcon(); _s.NotifyChanged();
+        if (_s.Intake!.IconSharersOf(Item) is { Count: > 0 } others) RefreshOthers?.Invoke(others);
+    }
+    /// <summary>The SIZE row of a picture icon. Not an outfit: its picture has the suit frame drawn in, and the frame would scale too.</summary>
+    public bool PictureSizeOn => CanUpload && Icon != null && Item is not OutfitItem && (Item as ExistingItem)?.Model is not OutfitItem
+        && (Cur == null || Cur.Style is IconStyle.Custom or IconStyle.Game);
+    /// <summary>The card's SIZE row: a picture, or an outfit render or camo crop. A weapon outline has its own card.</summary>
+    public bool CardSizeOn => FrameSizeOn || PictureSizeOn;
     public double CropMaxX => CanCrop ? _s.Intake!.CropBounds(Item).x : 0;
     public double CropMaxY => CanCrop ? _s.Intake!.CropBounds(Item).y : 0;
     public double CropX { get => Src?.CropX ?? 0; set { if (Src is { } c && (int)value != c.CropX) Apply(c with { CropX = (int)value }, "icon:x"); } }
@@ -986,7 +1027,7 @@ public sealed class ItemVm : Observable
 
     private void RaiseIcon()
     {
-        foreach (var n in new[] { nameof(CropOn), nameof(RenderOn), nameof(ScarfOn), nameof(ScarfSlot), nameof(StandardSlot), nameof(CropX), nameof(CropY), nameof(ContrastPct), nameof(BrightnessPct), nameof(IconError), nameof(FrameX), nameof(FrameY), nameof(FrameZoom), nameof(CanCrop), nameof(SlotOn), nameof(InGenerate), nameof(Draft), nameof(CanGenerateMode), nameof(IsCustomIcon), nameof(SourcePackaged), nameof(SourceGenerate), nameof(SourceUpload), nameof(SourceGame), nameof(GameIconName), nameof(IconSourceName), nameof(HasIconControls), nameof(HasIconPicture), nameof(OutlineOn), nameof(CanGenerate), nameof(CanPickGameIcon), nameof(PickerShown), nameof(CanPickPackaged), nameof(PackagedReason), nameof(GameReason), nameof(GenerateReason), nameof(UploadReason) }) Raise(n);
+        foreach (var n in new[] { nameof(CropOn), nameof(RenderOn), nameof(ScarfOn), nameof(ScarfSlot), nameof(StandardSlot), nameof(CropX), nameof(CropY), nameof(ContrastPct), nameof(BrightnessPct), nameof(IconError), nameof(FrameX), nameof(FrameY), nameof(FrameZoom), nameof(IconZoom), nameof(PictureSizeOn), nameof(CardSizeOn), nameof(CanCrop), nameof(SlotOn), nameof(InGenerate), nameof(Draft), nameof(CanGenerateMode), nameof(IsCustomIcon), nameof(SourcePackaged), nameof(SourceGenerate), nameof(SourceUpload), nameof(SourceGame), nameof(GameIconName), nameof(IconSourceName), nameof(HasIconControls), nameof(HasIconPicture), nameof(OutlineOn), nameof(FrameSizeOn), nameof(CanGenerate), nameof(CanPickGameIcon), nameof(PickerShown), nameof(CanPickPackaged), nameof(PackagedReason), nameof(GameReason), nameof(GenerateReason), nameof(UploadReason) }) Raise(n);
         OpenGamePicker.Raise(); PickPackaged.Raise(); PickGenerate.Raise(); UploadIcon.Raise();
         DefaultFraming.Raise(); GenerateFromDraft.Raise(); CancelGenerate.Raise();
         SyncSlots();
@@ -1020,8 +1061,10 @@ public sealed class ItemVm : Observable
     public bool HasGradeClash => GradeClash != null;
     /// <summary>A grade change of one member shows on the row of each other member.</summary>
     public void RaiseGradeClash() { Raise(nameof(GradeClash)); Raise(nameof(HasGradeClash)); Raise(nameof(ListTitle)); }
-    /// <summary>The title with the R&amp;D grade, when the item has one (owner, Nov 21: the 12 pellet items all read "Smoke Pellet").</summary>
-    public string ListTitle => Item.RdRow?.Grade is int g ? $"{Title} · Grade {g}" : Title;
+    /// <summary>The title with the R&amp;D grade, when the item has one (owner, Nov 21: the 12 pellet items all read "Smoke Pellet").
+    /// Grade 1 is every item's default, so it shows only in a series: a copy family, or items with the same title (owner, Nov 21: not on the scarf and goggles).</summary>
+    public string ListTitle => Item.RdRow?.Grade is int g && (g > 1 || InSeries) ? $"{Title} · Grade {g}" : Title;
+    private bool InSeries => _s.Project is { } p && (CopyFamily.Others(p, Item).Any() || p.Items.Any(i => i != Item && i.Title == Item.Title));
     public string? RemoveLock => Item is ExistingItem x && _s.Project?.Existing is { } data ? ExistingMod.RemoveLockOf(data, x) : null;
     public bool ActionsLocked => DuplicateLock != null || RemoveLock != null;
     /// <summary>The row's "i": the V Framework slots the item takes.</summary>

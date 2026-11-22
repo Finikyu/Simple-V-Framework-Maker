@@ -44,21 +44,45 @@ public sealed class HeadVm : Observable
     public string? NoAvatar => _h.Spec.NoAvatarReason;
 
     /// <summary>Issue #126: a second head option, this head with the game's bandana on top, for Snake (<see cref="BandanaCombo"/>).</summary>
-    public bool CanBandanaCombo => _owner == _h && _s.Game != null && _s.Project?.Items.Contains(_h) == true && _h.Spec.Branches.ContainsKey(PlayerBranch.Snake)
-        && !_h.Id.EndsWith("_bandana", StringComparison.Ordinal) && !GatedBandanas.IsGated(_h);
+    /// Issue #134: the head option of an existing V Framework mod takes one too (owner, Nov 21: "an Add bandana button").
+    public bool CanBandanaCombo => _s.Game != null && _s.Project?.Items.Contains(_owner) == true && _h.Spec.Branches.ContainsKey(PlayerBranch.Snake)
+        && BandanaCombo.HeadOf(_h.Id) == null && !GatedBandanas.IsGated(_h);
     public bool BandanaComboOn
     {
-        get => _s.Project != null && BandanaCombo.Of(_s.Project, _h) != null;
+        get => _s.Project != null && BandanaCombo.Of(_s.Project, _h, _infiniteCopy) != null;
         set
         {
             if (value == BandanaComboOn || !CanBandanaCombo) return;
             _s.Checkpoint();
-            try { if (value) BandanaCombo.Add(_s.Game!, _s.Project!, _h); else BandanaCombo.Remove(_s.Project!, _h); }
-            catch (Exception e) when (e is InvalidOperationException or System.IO.InvalidDataException) { DevLog.Info("edit", "bandana combo: " + e.Message); }
+            BandanaError = "";
+            try { if (value) BandanaCombo.Add(_s.Game!, _s.Project!, _h, _infiniteCopy); else BandanaCombo.Remove(_s.Project!, _h, _infiniteCopy); }
+            catch (Exception e) when (e is InvalidOperationException or System.IO.InvalidDataException) { DevLog.Info("edit", "bandana combo: " + e.Message); BandanaError = "Could not add the bandana: " + e.Message; }
             _s.NotifyChanged();
-            Raise();
+            Raise(); Raise(nameof(BandanaOffOn));
         }
     }
+    /// <summary>
+    /// Owner, Nov 22: "Infinite bandana" next to "Add Bandana Copy" selects the copy that the buttons add and remove: the
+    /// infinite copy (on) or the plain copy (off). Each copy is added and removed on its own.
+    /// </summary>
+    public bool InfiniteCopy
+    {
+        get => _infiniteCopy;
+        set
+        {
+            if (value == _infiniteCopy) return;
+            _infiniteCopy = value;
+            Raise(); Raise(nameof(BandanaComboOn)); Raise(nameof(BandanaOffOn));
+        }
+    }
+    private bool _infiniteCopy;
+    /// <summary>True when the head can take the combo and has none yet: the "Add bandana" button shows.</summary>
+    public bool BandanaOffOn => CanBandanaCombo && !BandanaComboOn;
+    public Command AddBandana => _addBandana ??= new Command(() => BandanaComboOn = true);
+    public Command RemoveBandana => _removeBandana ??= new Command(() => BandanaComboOn = false);
+    private Command? _addBandana, _removeBandana;
+    private string _bandanaError = "";
+    public string BandanaError { get => _bandanaError; private set => Set(ref _bandanaError, value); }
 
     public bool Wears(PlayerBranch who) => _h.Spec.Branches.ContainsKey(who);
     public void SetWears(PlayerBranch who, bool on)
@@ -72,7 +96,7 @@ public sealed class HeadVm : Observable
         ReloadFaces(); Raise(nameof(OnlyOne));
     }
 
-    public void Reload() { foreach (var w in Wearers) w.Reload(); ReloadFaces(); Raise(nameof(OnlyOne)); Raise(nameof(BandanaComboOn)); }
+    public void Reload() { foreach (var w in Wearers) w.Reload(); ReloadFaces(); Raise(nameof(OnlyOne)); Raise(nameof(BandanaComboOn)); Raise(nameof(BandanaOffOn)); }
 
     private void ReloadFaces()
     {

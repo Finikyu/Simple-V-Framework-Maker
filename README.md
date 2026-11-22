@@ -4,7 +4,7 @@ Simple V Framework Maker turns your Metal Gear Solid V: The Phantom Pain mods in
 
 The app makes one .mgsv file. You install it with SnakeBite or Diamond Mod Manager, as you install other mods.
 
-Version 0.2.3 is an early test version. Some functions are not tested in the game yet.
+Version 0.2.4 is an early test version. Some functions are not tested in the game yet.
 
 ## What you need
 

@@ -330,7 +330,14 @@
           </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
           <TextBlock Classes="muted" FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" Text="The characters this head has a model for. At least one stays on. When you turn one on again, it comes back as it was." />
           <TextBlock Name="NoAvatarNote" Foreground="{StaticResource WarnTextBrush}" FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" Text="{Binding NoAvatar}" IsVisible="{Binding NoAvatar, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-          <CheckBox Name="BandanaComboBox" Content="Also with the bandana (&quot;+ Bandana&quot;)" IsChecked="{Binding BandanaComboOn}" IsVisible="{Binding CanBandanaCombo}" ToolTip.Tip="Adds a second head option for Snake: this head with the game's bandana on top. It is available once the vanilla Bandana is developed." />
+          <!-- Issue #134: a button, as the owner asked. "Remove bandana" takes the "+ Bandana" head option out again. -->
+          <!-- Owner, Nov 22: "Add Bandana Copy", with "Infinite bandana" as a toggle next to it. -->
+          <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding CanBandanaCombo}">
+            <Button Name="AddBandanaButton" Content="Add Bandana Copy" Command="{Binding AddBandana}" IsVisible="{Binding BandanaOffOn}" ToolTip.Tip="Adds a second head option for Snake: a copy of this head with the game's bandana on top (&quot;+ Bandana&quot;). It is available once the vanilla Bandana is developed." />
+            <Button Name="RemoveBandanaButton" Content="Remove Bandana Copy" Command="{Binding RemoveBandana}" IsVisible="{Binding BandanaComboOn}" ToolTip.Tip="Takes the &quot;+ Bandana&quot; head option of this head out of the mod" />
+            <CheckBox Name="InfiniteBandanaToggle" Content="Infinite bandana" IsChecked="{Binding InfiniteCopy}" VerticalAlignment="Center" ToolTip.Tip="On: the buttons add and remove the infinite copy (&quot;+ Infinite Bandana&quot;, infinite ammo, like the game's Infinity Bandana). Off: the plain copy (&quot;+ Bandana&quot;). Each copy is added and removed on its own." />
+          </StackPanel>
+          <TextBlock Foreground="{StaticResource WarnTextBrush}" FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" Text="{Binding BandanaError}" IsVisible="{Binding BandanaError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
         </StackPanel></Border>
         <Border Name="FacesCard" Classes="card" IsVisible="{Binding HeadInfo, Converter={x:Static ObjectConverters.IsNotNull}}"><StackPanel Spacing="8" DataContext="{Binding HeadInfo}" x:DataType="app:HeadVm">
           <TextBlock Classes="lbl" Text="FACES" />
@@ -405,6 +412,12 @@
                 <StackPanel Spacing="4"><TextBlock Text="Upload an image" FontWeight="SemiBold" /><TextBlock Classes="muted" FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" Text="PNG or JPG, cropped to the icon window and converted." /><TextBlock FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" Foreground="{StaticResource AmberBrush}" Text="{Binding UploadReason}" IsVisible="{Binding UploadReason, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" /></StackPanel>
               </Button>
             </WrapPanel>
+            <!-- Issue #131 (owner, Nov 21: "SIZE should be every icon type"; Nov 22: it adjusts the icon already made): a picture, an outfit render or camo crop. -->
+            <Grid Name="IconSize" ColumnDefinitions="110,*,60" IsVisible="{Binding CardSizeOn}">
+              <TextBlock Classes="lbl" Text="SIZE" VerticalAlignment="Center" />
+              <Slider Grid.Column="1" Minimum="40" Maximum="500" Value="{Binding IconZoom}" />
+              <TextBlock Grid.Column="2" Text="{Binding IconZoom, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            </Grid>
             <Border Name="GamePicker" IsVisible="{Binding PickerShown}" Background="{StaticResource BgBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusCard}" Padding="12,8">
               <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Spacing="8">
@@ -437,8 +450,8 @@
               <!-- Owner, Nov 7: the weapon's attachments and angle are set in the 3D preview (Generate mode), not here. -->
               <Grid ColumnDefinitions="110,*,60,Auto">
                 <TextBlock Classes="lbl" Text="SIZE" VerticalAlignment="Center" />
-                <Slider Grid.Column="1" Minimum="40" Maximum="500" Value="{Binding FrameZoom}" />
-                <TextBlock Grid.Column="2" Text="{Binding FrameZoom, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                <Slider Grid.Column="1" Minimum="40" Maximum="500" Value="{Binding IconZoom}" />
+                <TextBlock Grid.Column="2" Text="{Binding IconZoom, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
                 <Button Grid.Column="3" Name="FullSizeButton" Content="100 %" Command="{Binding FullSize}" Margin="8,0,0,0" ToolTip.Tip="Set the size to 100 %" />
               </Grid>
             </StackPanel>
@@ -1109,6 +1122,12 @@
             <TextBlock Classes="muted" FontSize="{StaticResource SizeLabel}" TextWrapping="Wrap" IsVisible="{Binding !Generating.FollowsView}" Text="Drag the picture to move the model in the icon. Use the wheel to zoom. The icon does not change until you click Generate now." />
             <TextBlock Classes="muted" FontSize="{StaticResource SizeLabel}" TextWrapping="Wrap" IsVisible="{Binding Generating.GeneratesFromView}" Text="Turn, tilt, zoom and move the picture. The icon is a line drawing from this view. The icon does not change until you click Generate now." />
             <TextBlock Classes="muted" FontSize="{StaticResource SizeLabel}" TextWrapping="Wrap" IsVisible="{Binding Generating.IsWeaponIcon}" Text="Turn and tilt the picture, and switch the attachments on or off. The icon is a line drawing from this view, with these attachments. The weapon in the game does not change. The icon does not change until you click Generate now." />
+            <!-- A head or weapon icon is drawn at the zoom of the preview. SIZE is only the card's row of the current icon (owner, Nov 22), so this row is ZOOM. -->
+            <Grid ColumnDefinitions="100,*,44" IsVisible="{Binding Generating.FollowsView}">
+              <TextBlock Classes="lbl" Text="ZOOM" VerticalAlignment="Center" />
+              <Slider Name="HeadSizeSlider" Grid.Column="1" Minimum="0.4" Maximum="5" Value="{Binding Zoom}" ToolTip.Tip="The zoom of the picture. Generate now makes the icon at this zoom. The SIZE of the icon card changes the current icon." />
+              <TextBlock Grid.Column="2" Text="{Binding ZoomText}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            </Grid>
             <Button Name="DefaultViewButton" Content="Default view" Command="{Binding DefaultView}" IsVisible="{Binding Generating.FollowsView}" HorizontalAlignment="Left" ToolTip.Tip="Turn the picture back to the default view" />
             <StackPanel Spacing="8" IsVisible="{Binding !Generating.FollowsView}">
             <WrapPanel>
@@ -1133,11 +1152,11 @@
               <TextBlock Grid.Row="1" Classes="lbl" Text="MOVE UP/DOWN" VerticalAlignment="Center" Margin="0,4" />
               <Slider Grid.Row="1" Grid.Column="1" Minimum="-50" Maximum="50" Value="{Binding Generating.FrameY}" />
               <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Generating.FrameY, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
-              <TextBlock Grid.Row="2" Classes="lbl" Text="ZOOM" VerticalAlignment="Center" Margin="0,4" />
+              <TextBlock Grid.Row="2" Classes="lbl" Text="SIZE" VerticalAlignment="Center" Margin="0,4" />
               <Slider Grid.Row="2" Grid.Column="1" Minimum="40" Maximum="500" Value="{Binding Generating.FrameZoom}" />
               <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Generating.FrameZoom, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
             </Grid>
-            <Grid ColumnDefinitions="100,*,44" RowDefinitions="Auto,Auto,Auto,Auto" IsVisible="{Binding Generating.CropOn}">
+            <Grid ColumnDefinitions="100,*,44" RowDefinitions="Auto,Auto,Auto,Auto,Auto" IsVisible="{Binding Generating.CropOn}">
               <TextBlock Classes="lbl" Text="CROP SIDEWAYS" VerticalAlignment="Center" Margin="0,4" />
               <!-- Generating is null outside Generate mode. With no fallback the Maximum drops to the Slider's default of 100, and the Slider writes the clamped crop back into the icon. 65536 is above any ftex size. -->
               <Slider Grid.Column="1" Minimum="0" Maximum="{Binding Generating.CropMaxX, FallbackValue=65536}" Value="{Binding Generating.CropX}" />
@@ -1151,6 +1170,9 @@
               <TextBlock Grid.Row="3" Classes="lbl" Text="BRIGHTNESS" VerticalAlignment="Center" Margin="0,4" />
               <Slider Grid.Row="3" Grid.Column="1" Minimum="50" Maximum="150" Value="{Binding Generating.BrightnessPct}" />
               <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding Generating.BrightnessPct, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
+              <TextBlock Grid.Row="4" Classes="lbl" Text="SIZE" VerticalAlignment="Center" Margin="0,4" />
+              <Slider Grid.Row="4" Grid.Column="1" Minimum="40" Maximum="500" Value="{Binding Generating.FrameZoom}" />
+              <TextBlock Grid.Row="4" Grid.Column="2" Text="{Binding Generating.FrameZoom, StringFormat={}{0:0}%}" Classes="muted" HorizontalAlignment="Right" VerticalAlignment="Center" />
             </Grid>
             </StackPanel>
             <TextBlock Classes="lbl" Text="RESULT" />

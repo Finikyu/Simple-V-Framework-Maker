@@ -233,18 +233,33 @@ public static class HeadIcon
     /// </summary>
     public static List<FmdlMesh> GearMeshes(FmdlModel m)
     {
-        var g = m.Meshes.Where(x => !IsSkin(m, x) && !Placeholder(x) && !(x.MeshGroup >= 0 && x.MeshGroup < m.MeshGroups.Count && m.MeshGroups[x.MeshGroup].hidden)).ToList();
-        return g.Count > 0 ? g : m.Meshes.ToList();
+        // A whole Snake face (a "+ Bandana" head from an older SVFM build): his hair, eye patch and horn are the head, not
+        // gear (owner, Nov 22: the icon showed the vanilla head).
+        bool snakeFace = m.Meshes.Any(x => UsesTexture(m, x, "sna0_face0_def", "sna0_face1_def", "sna0_face2_def"));
+        var g = m.Meshes.Where(x => !IsSkin(m, x) && !Placeholder(x) && !(x.MeshGroup >= 0 && x.MeshGroup < m.MeshGroups.Count && m.MeshGroups[x.MeshGroup].hidden)
+            && !(snakeFace && UsesTexture(m, x, "_hair0_", "_pach_", "_horn0_"))).ToList();
+        return g.Count > 0 || snakeFace ? g : m.Meshes.ToList();
     }
 
-    /// <summary>A mesh too small to be seen (under 1 cm in every direction), or with no vertices.</summary>
+    /// <summary>
+    /// A mesh that is not seen: no vertices, under 1 cm in every direction, or only degenerate triangles. A bandana combo's
+    /// bandana model is a copy of a vanilla bandana face with the indices of its other meshes cleared
+    /// (<see cref="Formats.FmdlModel.KeepMeshes"/>), so its face, hair and eye patch stay in the file but draw nothing (issue #132).
+    /// </summary>
     public static bool Placeholder(FmdlMesh x)
     {
-        if (x.Positions.Length == 0) return true;
+        if (x.Positions.Length == 0 || AllDegenerate(x.Indices)) return true;
         var lo = x.Positions.Aggregate(new Vector3(float.MaxValue), Vector3.Min);
         var hi = x.Positions.Aggregate(new Vector3(float.MinValue), Vector3.Max);
         var size = hi - lo;
         return MathF.Max(size.X, MathF.Max(size.Y, size.Z)) < 0.01f;
+    }
+
+    private static bool AllDegenerate(ushort[] ix)
+    {
+        for (int i = 0; i + 2 < ix.Length; i += 3)
+            if (ix[i] != ix[i + 1] && ix[i + 1] != ix[i + 2] && ix[i] != ix[i + 2]) return false;
+        return true;
     }
 
     /// <summary>The bandana meshes of a Snake bandana face (face4/5/6): materials on the sna_bdn0 textures.</summary>

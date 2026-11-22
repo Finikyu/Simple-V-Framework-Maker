@@ -356,11 +356,23 @@ public static class ProjectBuilder
 {
     /// <summary>
     /// True when the build draws the infinity mark on the item's icon: a head option with infinite ammo whose icon file
-    /// the project ships and no other item uses. An existing V Framework mod is built as it is (no mark).
+    /// the project ships and no other item uses. A head of an existing V Framework mod gets it only when the edit turns
+    /// infinite ammo on (issue #133): a head that had it already keeps its icon as the mod ships it.
     /// </summary>
-    public static bool GetsInfinityMark(ModProject p, ProjectItem item) =>
-        p.Existing == null && item is HeadOptionItem { Spec: { InfiniteAmmo: true, IconFtexPath: { } icon } }
-        && item.Files.ContainsKey(icon + ".ftex") && !p.Items.Any(i => i != item && IntakeResult.IconPathOf(i) == icon);
+    public static bool GetsInfinityMark(ModProject p, ProjectItem item) => InfinityIconOf(p, item) != null;
+
+    /// <summary>The icon path (as the item's files spell it, no extension) that the build draws the infinity mark on, or null.</summary>
+    public static string? InfinityIconOf(ModProject p, ProjectItem item)
+    {
+        string? icon = item switch
+        {
+            HeadOptionItem { Spec: { InfiniteAmmo: true, IconFtexPath: { } i } } => i,
+            ExistingItem { Model: HeadOptionItem } x when x.Fields.Any(f => f.Label == "Infinite ammo" && f.Changed && f.Value is true) => IntakeResult.IconPathOf(x),
+            _ => null,
+        };
+        if (icon == null || p.Items.Any(i => i != item && string.Equals(IntakeResult.IconPathOf(i), icon, StringComparison.OrdinalIgnoreCase))) return null;
+        return item.Files.Keys.FirstOrDefault(k => k.Equals(icon + ".ftex", StringComparison.OrdinalIgnoreCase)) is { } key ? key[..^".ftex".Length] : null;
+    }
 
     /// <param name="p">The project.</param>
     /// <param name="game">When given, checks that nothing but the shared language packages lands on a vanilla path.</param>
@@ -508,7 +520,7 @@ public static class ProjectBuilder
         foreach (var item in p.Items)
         {
             var files = item.Files;
-            if (mark != null && GetsInfinityMark(p, item)) files = Rendering.HeadIcon.WithInfinityMark(files, ((HeadOptionItem)item).Spec.IconFtexPath!, mark);
+            if (mark != null && InfinityIconOf(p, item) is { } icon) files = Rendering.HeadIcon.WithInfinityMark(files, icon, mark);
             // The Avatar package of a bandana that waits for development is made from the game files (GatedBandanas).
             if (item is HeadOptionItem gh && GatedBandanas.IsGated(gh) && gh.Spec.Branches.ContainsKey(PlayerBranch.Avatar))
             {

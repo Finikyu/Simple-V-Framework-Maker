@@ -252,7 +252,7 @@ public sealed class PreviewVm : Observable
         var game = _s.Game;
         try
         {
-            var scene = game == null ? null : await Task.Run(() => OutfitPreview.ForHeadOption(game, PathDictionary.Bundled, h));
+            var scene = game == null ? null : await Task.Run(() => OutfitPreview.ForHeadOption(game, PathDictionary.Bundled, h, project: _s.Project));
             if (ticket != _loadTicket) return;
             if (scene == null)
             {
@@ -983,11 +983,11 @@ public sealed class PreviewVm : Observable
             if (ticket != _renderTicket) return;
             Image = ToBitmap(img);
             // A head option in Generate mode: the live result is the head icon that Generate now makes at this view (issue #23).
-            if (_gen is { GeneratesFromView: true, InGenerate: true })
+            if (_gen is { GeneratesFromView: true, InGenerate: true } headGen)
             {
                 var icon = await Task.Run(() => scene.RenderViewIcon(yaw, PictureWidth, PictureHeight, pitch, zoom, (float)panX, (float)panY, quick ? 2 : 0));
                 if (ticket != _renderTicket) return;
-                Result = ToBitmap(icon);
+                Result = ToBitmap(headGen.AsBuilt(icon));
             }
         }
         catch (Exception e) { RenderFailed(ticket, e); return; }

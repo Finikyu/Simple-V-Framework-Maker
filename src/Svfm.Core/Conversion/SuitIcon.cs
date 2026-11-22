@@ -105,13 +105,17 @@ public static class SuitIcon
 
     /// <summary>Fatigues icon from a camo texture (any size; scaled to 2048 first).</summary>
     public static RgbaImage FromCamoTexture(RgbaImage texture, byte[] mask, (int x, int y)? origin = null,
-        float contrast = DefaultContrast, float brightness = DefaultBrightness, float pivot = DefaultPivot)
+        float contrast = DefaultContrast, float brightness = DefaultBrightness, float pivot = DefaultPivot, float zoom = 1f)
     {
         if (texture.Width != 2048 || texture.Height != 2048) texture = Resize.Bilinear(texture, 2048, 2048);
         var (ox, oy) = origin ?? DefaultCropOrigin;
-        ox = Math.Clamp(ox, 0, 2048 - Width);
-        oy = Math.Clamp(oy, 0, 2048 - Height);
-        var crop = texture.Crop(ox, oy, Width, Height);
+        // SIZE (issue #131): above 100 % the fabric is drawn bigger, so a smaller window of the texture is cut and scaled up.
+        float z = Math.Clamp(zoom, 0.4f, 5f);
+        int cw = Math.Clamp((int)MathF.Round(Width / z), 1, 2048), ch = Math.Clamp((int)MathF.Round(Height / z), 1, 2048);
+        ox = Math.Clamp(ox, 0, 2048 - cw);
+        oy = Math.Clamp(oy, 0, 2048 - ch);
+        var crop = texture.Crop(ox, oy, cw, ch);
+        if (cw != Width || ch != Height) crop = Resize.Bilinear(crop, Width, Height);
         var lut = new byte[256];
         for (int v = 0; v < 256; v++) lut[v] = (byte)Math.Clamp((int)MathF.Round((pivot + contrast * (v - pivot)) * brightness), 0, 255);
         for (int i = 0; i < crop.Pixels.Length; i++)

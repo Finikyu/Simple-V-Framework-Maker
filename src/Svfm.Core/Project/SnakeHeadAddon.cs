@@ -223,6 +223,11 @@ public static class SnakeHeadAddon
         return sim;
     }
 
+    /// <summary>Snake's vanilla bandana face of Demon stage <paramref name="stage"/> (1-3, face4/5/6), or null when the game has none.</summary>
+    public static FmdlModel? BandanaFace(GameData game, int stage) =>
+        game.TryRead(string.Format(FacePkg, stage + 3) + ".fpk") is { } d
+        && FoxPackage.Read(d).Files.FirstOrDefault(f => f.Path.EndsWith("_cov.fmdl", StringComparison.Ordinal)) is { } f ? FmdlModel.Read(f.Data) : null;
+
     /// <summary>
     /// Issue #126: adds Snake's vanilla bandana of Demon stage <paramref name="stage"/> (1-3) to a head package: a copy of
     /// the bandana face model (face4/5/6) in which only the bandana meshes (sna_bdn0 textures: knot band and tails) draw,

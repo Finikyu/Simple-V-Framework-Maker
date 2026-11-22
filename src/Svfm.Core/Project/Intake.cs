@@ -104,8 +104,8 @@ public sealed class IntakeResult
     {
         var texture = CropTextureOf(item);
         return Recipes.TryGetValue(item.Id, out var r)
-            ? CamoConverter.CropIcon(Game!, r.Camo, texture, new IconChoice.CamoCrop(s.CropX, s.CropY, s.Contrast, s.Brightness))
-            : SuitIcon.FromCamoTexture(texture, SuitIcon.DrawnMask(), (s.CropX, s.CropY), s.Contrast, s.Brightness);
+            ? CamoConverter.CropIcon(Game!, r.Camo, texture, new IconChoice.CamoCrop(s.CropX, s.CropY, s.Contrast, s.Brightness), s.Zoom)
+            : SuitIcon.FromCamoTexture(texture, SuitIcon.DrawnMask(), (s.CropX, s.CropY), s.Contrast, s.Brightness, zoom: s.Zoom);
     }
 
     /// <summary>How far the crop window can move (the cropped texture's size less the 256x128 window).</summary>
@@ -127,7 +127,7 @@ public sealed class IntakeResult
         if (s.Style == IconStyle.Game) return SetGameIcon(item, s.GamePath ?? throw new InvalidOperationException("No game icon chosen."), s);
         if (IconLockOf(item) is { } why) throw new InvalidOperationException(why);
         EnsureOwnIconPath(item);
-        if (s.Style == IconStyle.Custom) icon = CustomIcons[$"{item.Id}#{s.Custom}"];
+        if (s.Style == IconStyle.Custom) icon = Scaled(CustomIcons[$"{item.Id}#{s.Custom}"], s.Scale);
         else if (s.Style == IconStyle.CamoCrop) icon = PreviewCrop(item, s);
         else if (s.Style == IconStyle.Outline) icon = RenderOutline(item, s);
         else if (item is ExistingItem x) icon = RenderExisting(x, s);
@@ -358,7 +358,7 @@ public sealed class IntakeResult
         else if (item is not ExistingItem) throw new InvalidOperationException("This item has no icon.");
         SetIconPath(item, path);
         Icons[item.Id] = img;
-        IconStates[item.Id] = state ?? (IconStates.GetValueOrDefault(item.Id) ?? IconSettings.ChestDefault) with { Style = IconStyle.Game, GamePath = path };
+        IconStates[item.Id] = state ?? (IconStates.GetValueOrDefault(item.Id) ?? IconSettings.ChestDefault) with { Style = IconStyle.Game, GamePath = path, Scale = 1f };
         return img;
     }
 
@@ -393,16 +393,58 @@ public sealed class IntakeResult
         EnsureOwnIconPath(item);
         int n = CustomIcons.Keys.Count(k => k.StartsWith(item.Id + "#", StringComparison.Ordinal)) + 1;
         CustomIcons[$"{item.Id}#{n}"] = icon;
-        var s = (IconStates.GetValueOrDefault(item.Id) ?? IconSettings.ChestDefault) with { Style = IconStyle.Custom, Custom = n, FromView = fromView };
+        var s = (IconStates.GetValueOrDefault(item.Id) ?? IconSettings.ChestDefault) with { Style = IconStyle.Custom, Custom = n, FromView = fromView, Scale = 1f };
         ApplyIcon(item, s);
         // One icon file is one icon in game: every item that uses it gets the picture, so the editor shows what the build writes.
         foreach (var o in IconSharersOf(item))
         {
             int m = CustomIcons.Keys.Count(k => k.StartsWith(o.Id + "#", StringComparison.Ordinal)) + 1;
             CustomIcons[$"{o.Id}#{m}"] = icon;
-            ApplyIcon(o, (IconStates.GetValueOrDefault(o.Id) ?? IconSettings.ChestDefault) with { Style = IconStyle.Custom, Custom = m, FromView = fromView });
+            ApplyIcon(o, (IconStates.GetValueOrDefault(o.Id) ?? IconSettings.ChestDefault) with { Style = IconStyle.Custom, Custom = m, FromView = fromView, Scale = 1f });
         }
         return s;
+    }
+
+    /// <summary>
+    /// The SIZE of a picture icon (issue #131; owner, Nov 22: "the icon that's already generated being adjusted"): an upload,
+    /// a head picture from the view, a game icon or the icon the mod packaged grows or shrinks about its centre. A game or
+    /// packaged icon first becomes a picture of the item's own, so the mod then carries the resized icon.
+    /// </summary>
+    /// <param name="item">The item.</param>
+    /// <param name="scale">The size: 1 is the picture as made.</param>
+    /// <returns>The settings that now describe the icon.</returns>
+    public IconSettings ScalePicture(ProjectItem item, float scale)
+    {
+        IconSettings? first = null;
+        // One icon file is one icon in game: the items of an existing mod that share it get the same size.
+        foreach (var it in IconSharersOf(item).Cast<ProjectItem>().Prepend(item))
+        {
+            var s = IconStates.GetValueOrDefault(it.Id);
+            if (s is not { Style: IconStyle.Custom })
+            {
+                if (Icons.GetValueOrDefault(it.Id) is not { } shown) continue;
+                int n = CustomIcons.Keys.Count(k => k.StartsWith(it.Id + "#", StringComparison.Ordinal)) + 1;
+                CustomIcons[$"{it.Id}#{n}"] = shown;
+                s = (s ?? IconSettings.ChestDefault) with { Style = IconStyle.Custom, Custom = n, FromView = false, GamePath = null };
+            }
+            s = s with { Scale = scale };
+            ApplyIcon(it, s);
+            first ??= s;
+        }
+        return first ?? throw new InvalidOperationException("This item has no icon.");
+    }
+
+    /// <summary>The picture grown or shrunk about its centre, at its own size. A smaller picture leaves a clear border.</summary>
+    public static RgbaImage Scaled(RgbaImage p, float scale)
+    {
+        if (scale == 1f) return p;
+        int w = Math.Max(1, (int)MathF.Round(p.Width * scale)), h = Math.Max(1, (int)MathF.Round(p.Height * scale));
+        var big = Resize.Bilinear(p, w, h);
+        var o = new RgbaImage(p.Width, p.Height);
+        int dx = (p.Width - w) / 2, dy = (p.Height - h) / 2, x0 = Math.Max(0, dx), x1 = Math.Min(p.Width, dx + w);
+        for (int y = Math.Max(0, dy); y < Math.Min(p.Height, dy + h); y++)
+            big.Pixels.AsSpan(((y - dy) * w + x0 - dx) * 4, (x1 - x0) * 4).CopyTo(o.Pixels.AsSpan((y * p.Width + x0) * 4));
+        return o;
     }
 
     /// <summary>The finished icon picture of a custom icon (for saving it in a project file).</summary>
@@ -505,7 +547,7 @@ public sealed class IntakeResult
         if (Icons.GetValueOrDefault(from.Id) is not { } img || (Icons.GetValueOrDefault(to.Id) is { } now && SameImage(now, img))) return;
         int n = CustomIcons.Keys.Count(k => k.StartsWith(to.Id + "#", StringComparison.Ordinal)) + 1;
         CustomIcons[$"{to.Id}#{n}"] = img;
-        ApplyIcon(to, (IconStates.GetValueOrDefault(to.Id) ?? IconSettings.ChestDefault) with { Style = IconStyle.Custom, Custom = n, FromView = false });
+        ApplyIcon(to, (IconStates.GetValueOrDefault(to.Id) ?? IconSettings.ChestDefault) with { Style = IconStyle.Custom, Custom = n, FromView = false, Scale = 1f });
     }
 
     /// <summary>The same picture: same size and same pixels.</summary>
@@ -1473,7 +1515,8 @@ public enum IconStyle { ChestRender, CamoCrop, Custom, Game, Outline }
 /// <param name="Pitch">For the Outline style: the tilt, in degrees; 0 is the default look.</param>
 /// <param name="HiddenModels">For the Outline style: the merged attachment models left out, sorted and joined by ";" (a text, so the record compares by value); null for none.</param>
 /// <param name="FromView">For the Custom style: the picture was generated from the view of the 3D preview (a head option, issue #17), not uploaded.</param>
-public sealed record IconSettings(IconStyle Style, bool WithScarf, int CropX, int CropY, float Contrast, float Brightness, float OffsetX = 0f, float OffsetY = 0f, float Zoom = 1f, int Custom = 0, string? GamePath = null, int Parts = IconSettings.PartSuppressor, bool FromView = false, float Yaw = 0f, float Pitch = 0f, string? HiddenModels = null)
+/// <param name="Scale">For the Custom style: the SIZE of the picture about its centre (issue #131); 1 is the picture as made.</param>
+public sealed record IconSettings(IconStyle Style, bool WithScarf, int CropX, int CropY, float Contrast, float Brightness, float OffsetX = 0f, float OffsetY = 0f, float Zoom = 1f, int Custom = 0, string? GamePath = null, int Parts = IconSettings.PartSuppressor, bool FromView = false, float Yaw = 0f, float Pitch = 0f, string? HiddenModels = null, float Scale = 1f)
 {
     /// <summary>Outline icons: which attachments the picture draws (bits of <c>Parts</c>).</summary>
     public const int PartSuppressor = 1, PartLight = 2, PartMagazine = 4;
