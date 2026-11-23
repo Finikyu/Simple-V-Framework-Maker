@@ -65,7 +65,7 @@ public sealed class ProjectEdits
 
     // ---- Undo ----
 
-    public sealed record SpecState(DevelopRow Develop, Dictionary<PlayerBranch, OutfitBranch> Branches, Dictionary<PlayerBranch, HeadBranch>? Heads = null, IReadOnlyList<AlsoUnder>? Also = null);
+    public sealed record SpecState(DevelopRow? Develop, Dictionary<PlayerBranch, OutfitBranch> Branches, Dictionary<PlayerBranch, HeadBranch>? Heads = null, IReadOnlyList<AlsoUnder>? Also = null);
     public sealed record BehaviourState(int Ammo = 1, double Fuse = 0, double Active = 0, bool Bruise = false, DogGearBehaviour? Dog = null, HorseTackBehaviour? Horse = null, bool InfiniteAmmo = false, Dictionary<string, string>? Weapon = null, SupportSnapshot? Support = null, string? Script = null, string? Preset = null, bool LockLifted = false);
     public sealed record ItemState(ProjectItem Item, string Title, Dictionary<string, Dictionary<string, string>> Text, IconSettings? Icon, SpecState? Spec, object[]? Fields = null, BehaviourState? Behaviour = null, IntakeResult.IconSnap? IconSnap = null, bool Synced = false);
     private sealed record Snapshot(string Name, string Version, string Author, string Website, string Description, List<ItemState> Items, Dictionary<string, List<string>> BonusOrder);
@@ -146,7 +146,7 @@ public sealed class ProjectEdits
 
     /// <summary>The R&amp;D row of an item (null for looks without a row, and for an item of an existing mod whose script gives it none).</summary>
     public static DevelopRow? DevelopOf(ProjectItem i) => i.RdRow;
-    public static void SetDevelop(ProjectItem i, DevelopRow d) => i.RdRow = d;
+    public static void SetDevelop(ProjectItem i, DevelopRow? d) => i.RdRow = d;
     /// <summary>Issue #64: gives an item the R&amp;D row of a vanilla item. Abilities are not in the vanilla data, so they stay.</summary>
     public static void CopyVanillaRow(ProjectItem i, Svfm.Core.Knowledge.VanillaDevelopRow row) { if (DevelopOf(i) is { } d) SetDevelop(i, row.Apply(d)); }
     /// <summary>The outfit whose branches the Abilities and Camo tabs edit: the item itself, or an existing outfit's model.</summary>
@@ -358,7 +358,7 @@ public sealed class ProjectEdits
                         foreach (var (k, b) in ni.Spec.Branches.ToList())
                             if (o.Spec.Branches.TryGetValue(k, out var ob)) ni.Spec.Branches[k] = b with { Base = b.Base with { IconFtexPath = ob.Base.IconFtexPath }, Variants = b.Variants.Select((v, n) => v with { IconFtexPath = n < ob.Variants.Count ? ob.Variants[n].IconFtexPath : null }).ToList() };
                     break;
-                case EditPart.Rd: if (o.Spec != null) SetDevelop(i, o.Spec.Develop with { UpgradeLineIds = DevelopOf(i)?.UpgradeLineIds }); break;
+                case EditPart.Rd: if (o.Spec != null) SetDevelop(i, o.Spec.Develop is { } od2 ? od2 with { UpgradeLineIds = DevelopOf(i)?.UpgradeLineIds } : null); break;
                 case EditPart.Stats when i is SupportWeaponItem st && o.Behaviour != null:
                     st.Spec.Ammo = o.Behaviour.Ammo; st.Spec.FuseTime = o.Behaviour.Fuse; st.Spec.ActiveTime = o.Behaviour.Active;
                     if (o.Behaviour.Support is { ThrowAs: { } ta } os0) st.Spec.SetThrowAs(ta, os0.ThrowAsAttack, os0.ThrowAsBlast);
@@ -464,6 +464,8 @@ public sealed class ProjectEdits
                 break;
             case EditSection.Texts: Text(false); break;
             case EditSection.Rd or EditSection.Deploy:
+                // Issue #136: a row added to an item whose script has none.
+                if (section == EditSection.Rd && o.Spec != null && o.Spec.Develop == null && DevelopOf(item) != null) rows.Add(new DiffRow("R&D row", "none", "added"));
                 if (o.Spec?.Develop is { } d0 && DevelopOf(item) is { } d1)
                 {
                     bool rd = section == EditSection.Rd;
@@ -696,8 +698,18 @@ public sealed class ProjectEdits
             else notApplied.Add(si.Title);
         // The "+ Bandana" heads (#126) are added by the Worn with card, not by the port: add them again.
         foreach (var si in sp.Items.Where(i => i.CopyOf == null && BandanaCombo.HeadOf(i.Id) != null && !originals.ContainsKey(i.Id)))
-            if (BandanaCombo.HeadOf(si.Id) is var (head, inf) && originals.GetValueOrDefault(head) is HeadOptionItem h && _intake.Game is { } game)
-                try { var c = BandanaCombo.Add(game, p, h, inf); RememberOriginal(c); originals[c.Id] = c; }
+            // The head of an existing V Framework mod is the model of its ExistingItem, not an item of the project.
+            if (BandanaCombo.HeadOf(si.Id) is var (head, inf) && _intake.Game is { } game
+                && (originals.GetValueOrDefault(head) as HeadOptionItem
+                    ?? p.Items.OfType<ExistingItem>().Select(x => x.Model).OfType<HeadOptionItem>().FirstOrDefault(m => m.Id == head)) is { } h)
+                try
+                {
+                    var c = BandanaCombo.Add(game, p, h, inf); RememberOriginal(c); originals[c.Id] = c;
+                    // The copy can take new names (an earlier build's files are in the mod): its saved text goes to its new text IDs,
+                    // or the game shows the row with no name (owner, 23 Nov).
+                    si.Text = si.Text.ToDictionary(kv => kv.Key.EndsWith("_name", StringComparison.Ordinal) && c.NameLangId is { } n ? n
+                        : kv.Key.EndsWith("_info", StringComparison.Ordinal) && c.InfoLangId is { } i ? i : kv.Key, kv => kv.Value);
+                }
                 catch (Exception e) when (e is InvalidOperationException or InvalidDataException or FileNotFoundException) { }
         var keep = sp.Items.Select(i => i.Id).ToHashSet();
         var removed = sp.Removed?.ToHashSet();
@@ -746,7 +758,7 @@ public sealed class ProjectEdits
         }
         if (HeadOf(it) is { } hio && si.HeadOff != null) foreach (var k in si.HeadOff) hio.Spec.Branches.Remove(k);
         if (si.Develop != null && (it is not OutfitItem || si.Branches != null)) RestoreSpec(it, new SpecState(si.Develop, si.Branches ?? [], null, si.Also));
-        else if (it is ExistingItem && si.Branches != null) RestoreSpec(it, new SpecState(new DevelopRow(), si.Branches, null, si.Also));
+        else if (it is ExistingItem && si.Branches != null) RestoreSpec(it, new SpecState(null, si.Branches, null, si.Also));
         if (si.SlotIcons != null)
         {
             // A damaged picture or a bad path loses the slot icons only: the slots then use the outfit icon.

@@ -113,17 +113,27 @@ public static class LuaWriter
         foreach (var (key, id) in follow.OrderBy(kv => kv.Key, StringComparer.Ordinal))
             w.Append($"  [{Str(key)}] = {id},\n");
         w.Append("}\n\n");
+        // A vanilla row with a blueprint (p05) is got only with its key item: the Infinity Bandana (37002, DESIGN_3010)
+        // reads as developed without it (owner, 23 Nov, #134). So the follow also needs the key item.
+        w.Append("local FOLLOW_BLUEPRINT = {\n");
+        foreach (var id in follow.Values.Distinct().Order())
+            if (Knowledge.GameKnowledge.VanillaDevelop(id)?.Blueprint is { } bp) w.Append($"  [{id}] = {Str(bp)},\n");
+        w.Append("}\n\n");
         w.Append("function this.FollowVanillaDevelop(developOnly)\n");
         w.Append("  local mb = V_TppMotherBaseManagement\n");
         w.Append("  if not (mb and mb.GetDevelopId and mb.IsEquipDeveloped and mb.SetEquipDeveloped and TppMotherBaseManagement) then return end\n");
         w.Append("  for key, vanillaId in pairs(FOLLOW_VANILLA) do\n");
         w.Append("    local id = mb.GetDevelopId(key)\n");
         w.Append("    if id then\n");
-        w.Append("      local want = TppMotherBaseManagement.IsEquipDevelopedFromDevelopID{ equipDevelopID = vanillaId } and true or false\n");
-        w.Append("      if want ~= mb.IsEquipDeveloped(id) then\n");
-        w.Append("        if want then mb.SetEquipDeveloped(id)\n");
-        w.Append("        elseif not developOnly and mb.SetEquipUndeveloped then mb.SetEquipUndeveloped(id) end\n");
-        w.Append("      end\n");
+        w.Append("      local bp = FOLLOW_BLUEPRINT[vanillaId]\n");
+        w.Append("      local bpId = bp and TppMotherBaseManagementConst and TppMotherBaseManagementConst[bp]\n");
+        w.Append("      local want = TppMotherBaseManagement.IsEquipDevelopedFromDevelopID{ equipDevelopID = vanillaId }\n");
+        w.Append("        and (bpId == nil or not TppMotherBaseManagement.IsGotDataBase or TppMotherBaseManagement.IsGotDataBase{ dataBaseId = bpId }) and true or false\n");
+        // A new row is unset, not undeveloped: IsEquipDeveloped reads false, but the head list shows it. So the undevelop
+        // is not gated on a change (owner, 23 Nov: the infinite copies showed with the Infinity Bandana not developed).
+        w.Append("      if want then\n");
+        w.Append("        if not mb.IsEquipDeveloped(id) then mb.SetEquipDeveloped(id) end\n");
+        w.Append("      elseif not developOnly and mb.SetEquipUndeveloped then mb.SetEquipUndeveloped(id) end\n");
         w.Append("    end\n");
         w.Append("  end\n");
         w.Append("end\n\n");
@@ -509,13 +519,21 @@ public static class LuaWriter
             w.Append($"      bluePrintId         = {DevelopRow.BluePrintLua(bp)},\n");
     }
 
-    private static void WriteDevelopRow(StringBuilder w, string keyExpr, string equipId, string nameLang, string? realLang, string? infoLang,
-        string? iconExpr, DevelopRow d, bool outfitGroup)
+    /// <summary>Issue #136: an R&amp;D row on its own, for an item of an existing mod whose script gives it none. Indented for LoadLibraries.</summary>
+    public static string DevelopRowBlock(string key, string? equipId, string devType, string nameLang, string? realLang, string? infoLang, string? iconPath, DevelopRow d, bool outfitGroup)
+    {
+        var w = new StringBuilder();
+        WriteDevelopRow(w, Str(key), equipId, nameLang, realLang, infoLang, iconPath != null ? Str(iconPath) : null, d, outfitGroup, devType);
+        return w.ToString();
+    }
+
+    private static void WriteDevelopRow(StringBuilder w, string keyExpr, string? equipId, string nameLang, string? realLang, string? infoLang,
+        string? iconExpr, DevelopRow d, bool outfitGroup, string devType = "Suit")
     {
         w.Append($"  V_TppMotherBaseManagement.AddToEquipDevelopTable({keyExpr}, {{\n");
         w.Append("    const = {\n");
-        w.Append($"      equipID             = {equipId},\n");
-        w.Append("      equipDevelopTypeID  = TppMbDev.EQP_DEV_TYPE_Suit,\n");
+        if (equipId != null) w.Append($"      equipID             = {equipId},\n");
+        w.Append($"      equipDevelopTypeID  = TppMbDev.EQP_DEV_TYPE_{devType},\n");
         w.Append($"      langEquipName       = {Str(nameLang)},\n");
         if (realLang != null) w.Append($"      langEquipRealName   = {Str(realLang)},\n");
         if (infoLang != null) w.Append($"      langEquipInfo       = {Str(infoLang)},\n");

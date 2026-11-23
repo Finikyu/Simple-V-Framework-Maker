@@ -249,7 +249,7 @@
             <TextBlock Classes="lbl" Text="NAME IN GAME" />
             <TextBox Text="{Binding Name}" />
             <TextBlock Classes="lbl" Text="DESCRIPTION" />
-            <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="90" />
+            <TextBox app:Spell.Check="True" Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="90" />
             <CheckBox Name="TwinSyncBox" IsVisible="{Binding HasTwin}" IsChecked="{Binding TwinSync}" Content="{Binding TwinSyncText}" />
           </StackPanel>
         </Border>
@@ -335,7 +335,7 @@
           <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding CanBandanaCombo}">
             <Button Name="AddBandanaButton" Content="Add Bandana Copy" Command="{Binding AddBandana}" IsVisible="{Binding BandanaOffOn}" ToolTip.Tip="Adds a second head option for Snake: a copy of this head with the game's bandana on top (&quot;+ Bandana&quot;). It is available once the vanilla Bandana is developed." />
             <Button Name="RemoveBandanaButton" Content="Remove Bandana Copy" Command="{Binding RemoveBandana}" IsVisible="{Binding BandanaComboOn}" ToolTip.Tip="Takes the &quot;+ Bandana&quot; head option of this head out of the mod" />
-            <CheckBox Name="InfiniteBandanaToggle" Content="Infinite bandana" IsChecked="{Binding InfiniteCopy}" VerticalAlignment="Center" ToolTip.Tip="On: the buttons add and remove the infinite copy (&quot;+ Infinite Bandana&quot;, infinite ammo, like the game's Infinity Bandana). Off: the plain copy (&quot;+ Bandana&quot;). Each copy is added and removed on its own." />
+            <CheckBox Name="InfiniteBandanaToggle" Content="Infinite bandana" IsChecked="{Binding InfiniteCopy}" VerticalAlignment="Center" ToolTip.Tip="On: the buttons add and remove the infinite copy (&quot;+ Infinity Bandana&quot;, infinite ammo, follows the R&amp;D of the game's Infinity Bandana). Off: the plain copy (&quot;+ Bandana&quot;). Each copy is added and removed on its own." />
           </StackPanel>
           <TextBlock Foreground="{StaticResource WarnTextBrush}" FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" Text="{Binding BandanaError}" IsVisible="{Binding BandanaError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
         </StackPanel></Border>
@@ -466,7 +466,7 @@
                 <Border Classes="card" Margin="0,0,0,12">
                   <StackPanel Spacing="8">
                     <TextBlock Classes="lbl" Text="{Binding Label}" />
-                    <TextBox Text="{Binding English}" AcceptsReturn="True" TextWrapping="Wrap" />
+                    <TextBox app:Spell.Check="True" Text="{Binding English}" AcceptsReturn="True" TextWrapping="Wrap" />
                     <Expander Header="Other languages">
                       <ItemsControl ItemsSource="{Binding Cells}">
                         <ItemsControl.ItemTemplate>
@@ -686,7 +686,11 @@
           </StackPanel>
         </StackPanel></StackPanel>
 
-        <StackPanel IsVisible="{Binding TabRd}" Spacing="12"><TextBlock Name="RdSyncedNote" Classes="muted" FontSize="{StaticResource SizeBody}" Text="{Binding Selected.SyncedNote}" IsVisible="{Binding Selected.TwinSync}" /><StackPanel Spacing="12" DataContext="{Binding Selected.Develop}" x:DataType="app:DevelopVm">
+        <StackPanel IsVisible="{Binding TabRd}" Spacing="12"><TextBlock Name="RdSyncedNote" Classes="muted" FontSize="{StaticResource SizeBody}" Text="{Binding Selected.SyncedNote}" IsVisible="{Binding Selected.TwinSync}" /><Border Classes="card" DataContext="{Binding Selected.Develop}" x:DataType="app:DevelopVm" IsVisible="{Binding RowOptional, FallbackValue=False}"><StackPanel Spacing="8">
+            <!-- Issue #136: the item's script gives it no R&D row; the build adds one just after the item's call. -->
+            <TextBlock Classes="lbl" Text="R&amp;D ROW" />
+            <CheckBox Name="RdAddRowBox" IsChecked="{Binding HasRow}" Content="Add an R&amp;D row (the mod's script has none for this item)" AutomationProperties.Name="Add an R&amp;D row" />
+          </StackPanel></Border><StackPanel Spacing="12" DataContext="{Binding Selected.Develop}" x:DataType="app:DevelopVm" IsEnabled="{Binding HasRow, FallbackValue=True}">
           <!-- Issue #98: the item unlocks with a game development; its own R&D values are then not used. -->
           <Border Classes="card"><StackPanel Spacing="8" IsEnabled="{Binding FollowEditable}">
             <TextBlock Classes="lbl" Text="FOLLOWS A VANILLA DEVELOPMENT" />
@@ -754,7 +758,7 @@
           </StackPanel>
         </StackPanel></StackPanel>
 
-        <StackPanel IsVisible="{Binding TabDeploy}"><StackPanel Spacing="12" DataContext="{Binding Selected.Develop}" x:DataType="app:DevelopVm">
+        <StackPanel IsVisible="{Binding TabDeploy}"><StackPanel Spacing="12" DataContext="{Binding Selected.Develop}" x:DataType="app:DevelopVm" IsEnabled="{Binding HasRow, FallbackValue=True}">
           <Border Classes="card"><StackPanel Spacing="8">
             <TextBlock Classes="lbl" Text="DEPLOYMENT" />
             <StackPanel Orientation="Horizontal" Spacing="8"><TextBlock Classes="lbl" Text="GMP PER DEPLOYMENT" VerticalAlignment="Center" Width="{StaticResource LabelWidth}" TextWrapping="Wrap" /><app:NumberBox Committed="{Binding UsageCost}" Minimum="0" Maximum="9999999" Increment="100" FormatString="0" Width="160" /></StackPanel>
@@ -916,7 +920,7 @@
                   </Panel></Border>
                   <Border Background="#1A1D19" Padding="8" MinHeight="120"><Panel>
                     <TextBlock Text="{Binding Selected.Description}" IsVisible="{Binding !Selected.CanEditText}" Foreground="#C8CCC4" FontSize="{StaticResource SizeBody}" TextWrapping="Wrap" />
-                    <TextBox Name="SortieDescBox" Text="{Binding Selected.EditDescription}" IsVisible="{Binding Selected.CanEditText}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="100" Padding="4" Foreground="#C8CCC4" FontSize="{StaticResource SizeBody}" AutomationProperties.Name="Description" />
+                    <TextBox app:Spell.Check="True" Name="SortieDescBox" Text="{Binding Selected.EditDescription}" IsVisible="{Binding Selected.CanEditText}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="100" Padding="4" Foreground="#C8CCC4" FontSize="{StaticResource SizeBody}" AutomationProperties.Name="Description" />
                   </Panel></Border>
                   <!-- Greyed out: a DD-only outfit has no bionic arm (issue #12). -->
                   <TextBlock Name="SortieArmNote" Text="{Binding Selected.ArmNote}" IsVisible="{Binding Selected.HasArmNote}" Foreground="#6A7066" FontFamily="fonts:Plex#IBM Plex Mono, Consolas, monospace" FontSize="{StaticResource SizeLabel}" TextWrapping="Wrap" Margin="0,8,0,0" />

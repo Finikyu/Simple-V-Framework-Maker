@@ -96,7 +96,7 @@ public sealed class OutfitItem : ProjectItem
     public override ProjectEdits.SpecState? TakeSpec() => new(Spec.Develop, new Dictionary<PlayerBranch, OutfitBranch>(Spec.Branches), null, Spec.AlsoUnder);
     public override void PutSpec(ProjectEdits.SpecState s)
     {
-        Spec.Develop = s.Develop; Spec.Branches.Clear();
+        Spec.Develop = s.Develop ?? Spec.Develop; Spec.Branches.Clear();
         foreach (var (k, v) in s.Branches) Spec.Branches[k] = v;
         if (s.Also != null) Spec.AlsoUnder = s.Also;
     }
@@ -162,7 +162,7 @@ public sealed class HeadOptionItem : ProjectItem
     public override ProjectEdits.SpecState? TakeSpec() => new(Spec.Develop, [], new Dictionary<PlayerBranch, HeadBranch>(Spec.Branches));
     public override void PutSpec(ProjectEdits.SpecState s)
     {
-        Spec.Develop = s.Develop;
+        Spec.Develop = s.Develop ?? Spec.Develop;
         if (s.Heads == null) return;
         Spec.Branches.Clear();
         foreach (var (k, v) in s.Heads) Spec.Branches[k] = v;

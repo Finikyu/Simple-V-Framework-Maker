@@ -75,8 +75,12 @@ public sealed class ExistingItem : ProjectItem
 {
     public required ItemKind ItemType { get; init; }
     public override ItemKind Kind => ItemType;
-    // An item whose script gives it no R&D row keeps none.
-    public override DevelopRow? RdRow { get => Develop; set { if (Develop != null) Develop = value; } }
+    // A row the script has is never taken out; an item whose script has none can get one (issue #136), and only then lose it.
+    public override DevelopRow? RdRow { get => Develop; set { if (DevelopOriginal != null ? value != null : CanTakeRow) Develop = value; } }
+    /// <summary>Issue #136: the script gives the item no R&amp;D row, and the build can add one just after its registration call.</summary>
+    public bool CanTakeRow => DevelopOriginal == null && Key != null && Calls.Count > 0 && (ItemType is ItemKind.Outfit or ItemKind.HeadOption || ItemType == ItemKind.BuddyOutfit && Model is BuddyOutfitItem);
+    /// <summary>The showInDevelopMenu key of a head option's call: V Framework hides the R&amp;D row of a head that leaves it out.</summary>
+    internal ExistingField? ShowInRdField { get; set; }
     public override string? NameLangId => NameId;
     public override string? InfoLangId => InfoId;
     public override ProjectEdits.BehaviourState? TakeBehaviour() => Script is { } sc ? new(Script: sc.ToJson(), Preset: Preset, LockLifted: LockLifted) : null;
@@ -89,9 +93,9 @@ public sealed class ExistingItem : ProjectItem
     public override string? OwnIconPath { get => IconPathWritten ?? IntakeResult.ShippedIconOf(this); set => IconPathWritten = IconPath is { } p && ExistingMod.IconStem(p) == value ? null : value; }
     public override ProjectEdits.SpecState? TakeSpec() => Model switch
     {
-        OutfitItem o => new(Develop ?? new DevelopRow(), new Dictionary<PlayerBranch, OutfitBranch>(o.Spec.Branches), null, o.Spec.AlsoUnder),
-        HeadOptionItem h => new(Develop ?? new DevelopRow(), [], new Dictionary<PlayerBranch, HeadBranch>(h.Spec.Branches)),
-        _ => base.TakeSpec(),
+        OutfitItem o => new(Develop, new Dictionary<PlayerBranch, OutfitBranch>(o.Spec.Branches), null, o.Spec.AlsoUnder),
+        HeadOptionItem h => new(Develop, [], new Dictionary<PlayerBranch, HeadBranch>(h.Spec.Branches)),
+        _ => Develop != null || CanTakeRow ? new(Develop, []) : null,
     };
     public override void PutSpec(ProjectEdits.SpecState s)
     {
@@ -362,14 +366,46 @@ public static partial class ExistingMod
         var blocks = m.Spec.AlsoUnder.Select(m.AlsoUnderSpec).Where(e => e.Branches.Count > 0).Select(LuaWriter.ExtendBlock).ToList();
         if (blocks.Count == 0) return null;
         if (item.Call.locked is { } l) return $"also under other outfits: the looks can't be added ({l})";
+        return InsertAfterCall(sources, item, blocks, siteNow, "also under other outfits");
+    }
+
+    /// <summary>The text ID of the name of an R&amp;D row the build adds (issue #136): the item's own name ID, else a new one that gets the item's title.</summary>
+    internal static string NewRowNameId(ExistingItem item) => item.NameId ?? $"svfm_{item.Id}_name";
+
+    /// <summary>
+    /// Issue #136: writes the R&amp;D row the user gave an item whose script has none, just after the item's registration
+    /// call, so that the script makes both at the same time. A head option also gets showInDevelopMenu (see Build).
+    /// </summary>
+    /// <returns>Why the row can't be added, or null.</returns>
+    private static string? InsertRow(Dictionary<string, string> sources, ExistingItem item, Func<string, string, int, int> siteNow)
+    {
+        if (item.DevelopOriginal != null || item.Develop is not { } d || item.Key is not { } key) return null;
+        if (item.Call.locked is { } l) return $"R&D row: the row can't be added ({l})";
+        if (d.FollowsVanillaDevelopId != null) return "R&D row: a new row can't follow a vanilla row in an existing script";
+        string? equip = null, type = "Suit";
+        bool group = false;
+        switch (item.ItemType)
+        {
+            case ItemKind.Outfit: equip = "TppEquip.EQP_SUIT"; group = item.Model is OutfitItem m && LuaWriter.IsMultiLook(m.Spec.Branches); break;
+            case ItemKind.HeadOption: equip = "TppEquip.EQP_None"; break;
+            case ItemKind.BuddyOutfit when item.Model is BuddyOutfitItem bo: type = bo.Spec.DevelopType; break;
+            default: return null;
+        }
+        string block = LuaWriter.DevelopRowBlock(key, equip, type, NewRowNameId(item), item.RealNameId, item.InfoId, IconText(item), d, group);
+        return InsertAfterCall(sources, item, [block], siteNow, "R&D row");
+    }
+
+    /// <summary>Puts the blocks (lines indented by two spaces) just after the item's registration call, at the call's own indent.</summary>
+    private static string? InsertAfterCall(Dictionary<string, string> sources, ExistingItem item, List<string> blocks, Func<string, string, int, int> siteNow, string what)
+    {
         var (module, callPath, site, _) = item.Call;
         site = siteNow(module, callPath, site);
         string src = sources[module];
         var sites = LuaSource.FindCalls(src, callPath);
-        if (site >= sites.Count) return "also under other outfits: the place in the script was not found";
+        if (site >= sites.Count) return $"{what}: the place in the script was not found";
         int start = sites[site].Start, end = sites[site].End;
         // "return V_Player.RegisterOutfit(...)" ends its block: nothing can follow it there.
-        if (src[..start].TrimEnd().EndsWith("return", StringComparison.Ordinal)) return "also under other outfits: the script returns the outfit's call, so no call can follow it";
+        if (src[..start].TrimEnd().EndsWith("return", StringComparison.Ordinal)) return $"{what}: the script returns the item's call, so no call can follow it";
         int after = end;
         while (after < src.Length && src[after] is ' ' or '\t') after++;
         if (after < src.Length && src[after] == ';') end = after + 1;
@@ -377,12 +413,12 @@ public static partial class ExistingMod
         int next = end;
         while (next < src.Length && src[next] is ' ' or '\t') next++;
         if (next < src.Length && src[next] is not ('\r' or '\n') && (!src[next..].StartsWith("--", StringComparison.Ordinal) || src[next..].StartsWith("--[", StringComparison.Ordinal)))
-            return "also under other outfits: the outfit's call is part of a longer line, so no call can follow it";
+            return $"{what}: the item's call is part of a longer line, so no call can follow it";
         if (next < src.Length && src[next] == '-') { while (next < src.Length && src[next] is not ('\r' or '\n')) next++; end = next; }
         int lineStart = src.LastIndexOf('\n', Math.Max(0, start - 1)) + 1;
         string indent = new(src[lineStart..start].TakeWhile(c => c is ' ' or '\t').ToArray());
         string nl = src.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-        // ExtendBlock indents its lines by two spaces; the call's own indent takes their place.
+        // The blocks indent their lines by two spaces; the call's own indent takes their place.
         var lines = string.Concat(blocks).TrimEnd('\n').Split('\n').Select(x => indent + (x.StartsWith("  ", StringComparison.Ordinal) ? x[2..] : x));
         sources[module] = src[..end] + nl + string.Join(nl, lines) + src[end..];
         return null;
@@ -429,6 +465,17 @@ public static partial class ExistingMod
     /// declares (no AddToEquipIdTable row). The item does not exist in game, so the script never runs, and the tool can't
     /// read the item's model or stats. One message for each such item.
     /// </summary>
+    /// <summary>Each package of the mod that lists a file more than once, with the paths it repeats (a doubled .sim crashed the game, 23 Nov).
+    /// A package without a foxfpk header is skipped: other checks report a damaged package.</summary>
+    public static IEnumerable<(string Path, FoxPackage Package, List<string> Doubled)> DoubledPackages(MgsvMod mod)
+    {
+        foreach (var (path, bytes) in mod.ArchiveFiles)
+            if ((path.EndsWith(".fpk", StringComparison.Ordinal) || path.EndsWith(".fpkd", StringComparison.Ordinal)) && TryRead(bytes) is { } pk
+                && pk.Files.GroupBy(f => f.Path).Where(g => g.Count() > 1).Select(g => g.Key).ToList() is { Count: > 0 } doubled)
+                yield return (path, pk, doubled);
+        static FoxPackage? TryRead(byte[] b) { try { return FoxPackage.Read(b); } catch (InvalidDataException) { return null; } }
+    }
+
     private static List<string> OrphanThrowScripts(List<(string path, string src, SandboxResult run)> runs)
     {
         var declared = runs.SelectMany(r => r.run.Calls).Where(c => c.Path.EndsWith(".AddToEquipIdTable", StringComparison.Ordinal))
@@ -546,6 +593,9 @@ public static partial class ExistingMod
             findings.Add(new IntakeFinding("Other V Framework calls in the script: " + string.Join(", ", data.OtherCalls.Select(kv => kv.Value > 1 ? $"{kv.Key} ×{kv.Value}" : kv.Key)), true,
                 "Kept exactly as they are; the tool changes only the names, descriptions and settings it lists."));
         foreach (var n in data.Notes) findings.Add(new IntakeFinding("Script problem", false, n));
+        foreach (var (path, _, doubled) in DoubledPackages(mod))
+            findings.Add(new IntakeFinding("A package lists a file more than once", true,
+                $"{path}: {string.Join(", ", doubled)}. The game can crash on it. The build keeps one entry of each file."));
         if (project.Items.Count == 0) return null;
         data.Opened.AddRange(project.Items.OfType<ExistingItem>());
         return project;
@@ -698,7 +748,10 @@ public static partial class ExistingMod
                         foreach (var k in Abilities.Keys)
                             item.Fields.Add(MakeField($"Abilities · {display}", k.Label, k.Type, modulePath, calls, 0, [field, "abilities", k.Name], src, written, writtenAsFlag: false));
             if (kind == ItemKind.HeadOption)
+            {
                 item.Fields.Add(MakeField("Abilities", "Infinite ammo", FieldType.Bool, modulePath, calls, 0, ["abilities", "infiniteAmmo"], src, written, false));
+                if (rowTable == null) item.ShowInRdField = MakeField("Head", "showInDevelopMenu", FieldType.Bool, modulePath, calls, 0, ["showInDevelopMenu"], src, written, false);
+            }
             if (kind == ItemKind.BuddyOutfit) BindBuddy(item, args, modulePath, calls, src, written);
         }
         project.Items.Add(item);
@@ -1240,6 +1293,13 @@ public static partial class ExistingMod
         var warnings = new List<string>();
         var b = MgsvBuilder.From(data.Source);
         b.Name = p.Name; b.Version = p.Version; b.Author = p.Author; b.Website = p.Website; b.Description = p.Description;
+        // An earlier SVFM run put the Avatar bandana .sim into a bandana copy's .fpkd twice; the game crashes on it (owner, 23 Nov).
+        foreach (var (path, pk, _) in DoubledPackages(data.Source))
+        {
+            var keep = pk.Files.DistinctBy(f => f.Path).ToList();
+            pk.Files.Clear(); pk.Files.AddRange(keep);
+            b.AddArchiveFile(path, pk.Write());
+        }
         // A head whose infinite ammo the edit turns on gets the infinity mark on its icon (issue #133).
         var mark = game != null && p.Items.Any(i => ProjectBuilder.GetsInfinityMark(p, i)) ? Rendering.HeadIcon.InfinityMark(game) : null;
         foreach (var item in p.Items.OfType<ExistingItem>())
@@ -1254,7 +1314,9 @@ public static partial class ExistingMod
             var ops = new List<(string[] path, string? lua)>();
             var remove = new List<ExistingField>();
             foreach (var why in ApplyDevelop(item, remove).Concat(ApplyOutfit(item, ops, remove)).Concat(ApplyHeads(item, ops)).Concat(ApplyIconPath(item))) errors.Add($"\"{item.Title}\" · {why}.");
-            foreach (var f in item.Fields.Concat(item.DevelopFields).Concat(item.SpecFields).Concat(item.IconFields).Where(f => f.Changed))
+            // Issue #136: V Framework hides the R&D row of a head option whose call leaves showInDevelopMenu out (CustomHeadRegistry.cpp).
+            if (item.ShowInRdField is { } sr) sr.Value = item.Develop != null ? true : sr.Original;
+            foreach (var f in item.Fields.Concat(item.DevelopFields).Concat(item.SpecFields).Concat(item.IconFields).Concat(item.ShowInRdField is { } sf ? [sf] : []).Where(f => f.Changed))
             {
                 string who = $"\"{item.Title}\" · {(f.Group == "Outfit" ? string.Join(".", f.Path) : f.Label)}";
                 if (f.Locked != null) { errors.Add($"{who}: can't be changed ({f.Locked})."); continue; }
@@ -1326,11 +1388,28 @@ public static partial class ExistingMod
         // A removed head option leaves its key in no list of the script (headOptions, FOLLOW_VANILLA): the game would look up a head that is gone.
         foreach (var gone in data.Opened.Where(o => o.ItemType == ItemKind.HeadOption && o.Key != null && p.Items.All(i => i.Id != o.Id) && RemoveLockOf(data, o) == null))
             foreach (var module in sources.Keys.ToList()) sources[module] = WithoutListedKey(sources[module], gone.Key!);
+        // A "+ Bandana" copy (#126) of a head of the mod goes in every list of the script that offers the head, right after it:
+        // the mod's own ExtendVanillaOutfit calls are not items of the project, so BandanaCombo.Add can't list it there (owner, 23 Nov).
+        // A copy built by an earlier SVFM run is an item of the mod: its key is "...:" + Pascal(head id + "_bandana[_inf]") [+ n].
+        // Infinite copies first, so each plain copy ends up right after its head, before the infinite one.
+        var modHeads = p.Items.OfType<ExistingItem>().Select(x => x.Model).OfType<HeadOptionItem>().Where(m => m.Spec.Key != null).ToList();
+        var copies = new List<(string head, string copy, bool inf)>();
+        foreach (var combo in p.Items.OfType<HeadOptionItem>())
+            if (BandanaCombo.HeadOf(combo.Id) is var (head, inf) && combo.Spec.Key is { } ck && modHeads.FirstOrDefault(m => m.Id == head) is { } h)
+                copies.Add((h.Spec.Key!, ck, inf));
+        foreach (var built in modHeads)
+            foreach (var h in modHeads)
+                foreach (var inf in new[] { false, true })
+                    if (System.Text.RegularExpressions.Regex.IsMatch(built.Spec.Key!, ":" + Naming.Pascal(h.Id + (inf ? "_bandana_inf" : "_bandana")) + @"\d*$"))
+                        copies.Add((h.Spec.Key!, built.Spec.Key!, inf));
+        foreach (var (hk, ck, _) in copies.OrderByDescending(c => c.inf))
+            foreach (var module in sources.Keys.ToList()) sources[module] = WithListedKeyAfter(sources[module], hk, ck);
         // A call that comes after a removed call of the same name in its module is now one place nearer the start.
         int SiteNow(string module, string path, int site) => site - cut.Count(c => c.module == module && c.path == path && c.site < site);
         // New calls last: they would move the place of every later ExtendVanillaOutfit call that a field points to.
         foreach (var item in p.Items.OfType<ExistingItem>())
         {
+            if (InsertRow(sources, item, SiteNow) is { } rowWhy) errors.Add($"\"{item.Title}\" · {rowWhy}.");
             if (InsertAlso(sources, item, SiteNow) is { } why) errors.Add($"\"{item.Title}\" · {why}.");
             else if (item.ItemType == ItemKind.Outfit && item.Model is OutfitItem m) foreach (var (path, bytes) in m.BonusFiles()) b.AddArchiveFile(path, bytes);
         }
@@ -1485,6 +1564,16 @@ public static partial class ExistingMod
         return System.Text.RegularExpressions.Regex.Replace(src, @"\{[ \t]*" + q + @"[ \t]*\}", "{}");
     }
 
+    /// <summary>The script with <paramref name="key"/> added right after each <c>"after"</c> entry of a list that does not hold it yet.</summary>
+    internal static string WithListedKeyAfter(string src, string after, string key)
+    {
+        string q = System.Text.RegularExpressions.Regex.Escape("\"" + after + "\""), k = System.Text.RegularExpressions.Regex.Escape("\"" + key + "\"");
+        // One list = one {...} with no nested table; the key is added only to a list that has "after" and not the key.
+        return System.Text.RegularExpressions.Regex.Replace(src, @"\{[^{}]*\}", m =>
+            !System.Text.RegularExpressions.Regex.IsMatch(m.Value, @"(?<=[{,]\s*)" + q + @"(?=\s*[,}])") || System.Text.RegularExpressions.Regex.IsMatch(m.Value, k) ? m.Value
+            : System.Text.RegularExpressions.Regex.Replace(m.Value, @"(?<=[{,]\s*)" + q + @"(?=\s*[,}])", "$0, \"" + key + "\""));
+    }
+
     private static (int start, int end)? StatementOf(string src, LuaCallSite call, out string why)
     {
         why = "";
@@ -1527,6 +1616,9 @@ public static partial class ExistingMod
         bool Edited(string id, Dictionary<string, string> per) => ModText.Languages.Any(l =>
             TextIn(per, l.Item1) is { } t && langs.TryGetValue(l.Item1, out var ss) && ss.Select(s => s.File.Get(FoxHash.StrCode32(id))).FirstOrDefault(x => x != null) is { } shipped && t != shipped);
         var texts = items.SelectMany(i => i.Text).GroupBy(kv => kv.Key).ToDictionary(g => g.Key, g => g.Select(kv => kv.Value).FirstOrDefault(v => Edited(g.Key, v)) ?? g.First().Value);
+        // Issue #136: the name of an added R&D row whose item has no name ID of its own is the item's title.
+        foreach (var i in items.Where(i => i.Develop != null && i.DevelopOriginal == null && i.NameId == null))
+            if (texts.TryAdd(NewRowNameId(i), new() { ["eng"] = i.Title })) ids.Add(NewRowNameId(i));
         string engBase = langs.TryGetValue("eng", out var eng) && eng.Count > 0 ? eng[0].Base : "svfm_text";
         var created = new Dictionary<string, List<LangSlot>>(StringComparer.Ordinal);
         // An ID that no language file has yet (a name added in the tool) gets the English text in every language file the

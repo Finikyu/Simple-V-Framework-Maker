@@ -16,7 +16,7 @@ namespace Svfm.Core.Project;
 /// </summary>
 public static class BandanaCombo
 {
-    public const int BandanaDevelopId = 37001;
+    public const int BandanaDevelopId = 37001, InfiniteBandanaDevelopId = 37002;
 
     // Owner, Nov 22: a plain copy and an infinite copy can each be added and removed on their own.
     private const string Suffix = "_bandana", InfiniteSuffix = "_bandana_inf";
@@ -43,6 +43,11 @@ public static class BandanaCombo
         if (!h.Spec.Branches.TryGetValue(PlayerBranch.Snake, out var snake) || snake.Fv2 == null || snake.Fpk == null)
             throw new InvalidOperationException($"\"{h.Title}\" has no Snake head, so it has no bandana combo.");
         var (key, prefix) = p.NewItemNames(IdOf(h, infinite));
+        // An existing mod built by SVFM can already hold a copy of this head (now an item of the mod, or removed but its
+        // files kept): the new copy takes names of its own, so its key and files do not clash (owner, 23 Nov).
+        for (int n = 2; p.Items.Any(i => i.Key == key) || p.Existing?.Source.ArchiveFiles.Keys.Any(f =>
+            f.Contains($"/plfova_{prefix}_s", StringComparison.Ordinal) || f.Contains($"/ui_{prefix}_alp.", StringComparison.Ordinal)) == true; n++)
+            (key, prefix) = p.NewItemNames(IdOf(h, infinite) + n);
         var stages = snake.FaceStages.Count > 0 ? snake.FaceStages : new Dictionary<int, (string fv2, string fpk)> { [1] = (snake.Fv2, snake.Fpk) };
         var notes = new List<string>();
         var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
@@ -81,15 +86,17 @@ public static class BandanaCombo
             for (int k = 1; k <= 6; k++) if (Load($"{icon}.{k}.ftexs") is { } mip) files[$"{own}.{k}.ftexs"] = mip;
             icon = own;
         }
-        string title = (h.Title.Length > 0 ? h.Title : h.Id) + (infinite ? " + Infinite Bandana" : " + Bandana");
+        string title = (h.Title.Length > 0 ? h.Title : h.Id) + (infinite ? " + Infinity Bandana" : " + Bandana");
+        // The infinite copy follows the Infinity Bandana, not the plain one (owner, 23 Nov).
+        int follows = infinite ? InfiniteBandanaDevelopId : BandanaDevelopId;
         var spec = new HeadOptionSpec
         {
             SnakeFaceOnly = h.Spec.SnakeFaceOnly, NoAvatarReason = h.Spec.NoAvatarReason, Key = key, NameLang = $"{prefix}_name", RealNameLang = $"{prefix}_name", InfoLang = $"{prefix}_info",
             IconFtexPath = icon, InfiniteAmmo = infinite || h.Spec.InfiniteAmmo,
-            Develop = new DevelopRow { InitiallyAvailable = false, GmpCost = 0, Grade = 1, FollowsVanillaDevelopId = BandanaDevelopId,
-                UsageGmpCost = Knowledge.GameKnowledge.VanillaDevelop(BandanaDevelopId)?.UsageGmp ?? 0 },
+            Develop = new DevelopRow { InitiallyAvailable = false, GmpCost = 0, Grade = 1, FollowsVanillaDevelopId = follows,
+                UsageGmpCost = Knowledge.GameKnowledge.VanillaDevelop(follows)?.UsageGmp ?? 0 },
         };
-        spec.Header.Add($"{title}: \"{h.Title}\" with the game's bandana; available once the vanilla Bandana ({BandanaDevelopId}) is developed.");
+        spec.Header.Add($"{title}: \"{h.Title}\" with the game's bandana; available once the vanilla {(infinite ? "Infinity Bandana" : "Bandana")} ({follows}) is developed.");
         var first = newStages.OrderBy(kv => kv.Key).First().Value;
         spec.Branches[PlayerBranch.Snake] = snake with { Fv2 = first.fv2, Fpk = first.fpk, FaceStages = snake.FaceStages.Count > 0 ? newStages : [] };
         // The Avatar's own band does not show under a custom head (owner, Nov 20: not under FACE SCARF), so the combo's

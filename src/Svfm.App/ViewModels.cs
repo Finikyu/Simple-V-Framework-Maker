@@ -524,7 +524,7 @@ public sealed class ItemVm : Observable
         if (item is HeadOptionItem hoi) HeadInfo = new HeadVm(s, hoi);
         // An existing head option: "Worn with" edits the head read from its script.
         if (item is ExistingItem { Model: HeadOptionItem eh }) HeadInfo = new HeadVm(s, eh, item);
-        if (ProjectEdits.DevelopOf(item) != null) Develop = new DevelopVm(s, item);
+        if (ProjectEdits.DevelopOf(item) != null || item is ExistingItem { CanTakeRow: true }) Develop = new DevelopVm(s, item);
         UpgradeLines = new UpgradeLinesVm(s, this, item);
         Stats = StatsVm.For(s, item);
         MoreStats.AddRange(StatsVm.More(s, item));
@@ -1136,8 +1136,17 @@ public sealed class DevelopVm(Session s, ProjectItem item) : Observable
 {
     // Issue #25: a head option has no grade row.
     public bool GradeShown => item.Kind != ItemKind.HeadOption;
-    private DevelopRow Dev => ProjectEdits.DevelopOf(item)!;
-    private void Mutate(string field, Func<DevelopRow, DevelopRow> f) { s.Checkpoint($"{item.Id}:{field}"); ProjectEdits.SetDevelop(item, f(Dev)); s.NotifyChanged(); }
+    // Issue #136: an item of an existing mod whose script gives it no row shows a blank row until the user adds one.
+    private static readonly DevelopRow Blank = new();
+    private DevelopRow Dev => ProjectEdits.DevelopOf(item) ?? Blank;
+    private void Mutate(string field, Func<DevelopRow, DevelopRow> f) { if (!HasRow) return; s.Checkpoint($"{item.Id}:{field}"); ProjectEdits.SetDevelop(item, f(Dev)); s.NotifyChanged(); }
+    /// <summary>Issue #136: the script gives the item no R&amp;D row, so the user can add one (or take the added one out).</summary>
+    public bool RowOptional => item is ExistingItem { CanTakeRow: true };
+    public bool HasRow
+    {
+        get => ProjectEdits.DevelopOf(item) != null;
+        set { if (value == HasRow) return; s.Checkpoint($"{item.Id}:d:row"); ProjectEdits.SetDevelop(item, value ? new DevelopRow() : null); s.NotifyChanged(); Raise(""); }
+    }
     public bool GradeOn { get => Dev.Grade != null; set { if (value != GradeOn) { Mutate("d:grade", d => d with { Grade = value ? 1 : null }); Raise(); Raise(nameof(Grade)); } } }
     // #124: the game supports grades 1 to 12. A new value is limited to that; an old value above 12 stays until the user changes it.
     public decimal Grade { get => Dev.Grade ?? 1; set { if (value == Grade) return; Mutate("d:g", d => d with { Grade = (int)Math.Clamp(value, 1, CopyFamily.MaxGrade) }); Raise(); Raise(nameof(GradeHigh)); Raise(nameof(GradeMax)); } }

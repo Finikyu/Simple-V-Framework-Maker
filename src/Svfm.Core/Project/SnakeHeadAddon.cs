@@ -211,7 +211,8 @@ public static class SnakeHeadAddon
         if (game.TryRead(AvatarFacePkg + ".fpkd") is { } avd
             && FoxPackage.Read(avd).Files.Where(f => f.Path.EndsWith(".sim", StringComparison.Ordinal)).ToList() is [var simFile])
         {
-            fpkd.Files.Add(simFile);
+            // The head's own Avatar package can hold it already; a second entry crashes the game (owner, 23 Nov).
+            if (!fpkd.Files.Any(f => f.Path == simFile.Path)) fpkd.Files.Add(simFile);
             sim = FoxHash.PathCode64(simFile.Path);
         }
         else notes.Add($"{AvatarFacePkg}: no cloth .sim found for the Avatar bandana; its tails do not move.");

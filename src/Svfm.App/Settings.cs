@@ -45,6 +45,10 @@ public sealed class Settings
     public bool DeveloperMode { get; set; }
     /// <summary>Developer tab: a new port with a long name gets a coded ID (see <c>Intake.UniqueIds</c>). Off by default.</summary>
     public bool UniqueModIds { get; set; }
+    /// <summary>Issue #135: the spelling of the spell check, "UK" or "US" (the switch in the top bar).</summary>
+    public string SpellLanguage { get; set; } = "UK";
+    /// <summary>Issue #135: the words the user added with "Add to dictionary".</summary>
+    public List<string> SpellWords { get; set; } = [];
     /// <summary>Projects saved or opened lately, newest first (at most 6).</summary>
     public List<RecentProject> Recent { get; set; } = [];
 

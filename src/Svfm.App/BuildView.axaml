@@ -95,7 +95,7 @@
             <TextBlock Text="Author" FontWeight="SemiBold" />
             <TextBox Text="{Binding ModAuthor}" />
             <TextBlock Text="Description" FontWeight="SemiBold" />
-            <TextBox Text="{Binding ModDescription}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="140" />
+            <TextBox app:Spell.Check="True" Text="{Binding ModDescription}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="140" />
             <TextBlock Text="File type" FontWeight="SemiBold" Margin="0,8,0,0" />
             <TextBlock Text=".mgsv (SnakeBite and DMM)" Classes="muted" />
             <TextBlock Text="Version" FontWeight="SemiBold" />

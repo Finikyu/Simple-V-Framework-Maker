@@ -7,6 +7,8 @@
   <ItemGroup>
     <!-- Runs the Lua of an existing V Framework mod in a sandbox (every game and V Framework call is recorded, not run). -->
     <PackageReference Include="MoonSharp" Version="2.0.0" />
+    <!-- Spell check of descriptions and other long text (issue #135); managed, so the release stays one .exe. -->
+    <PackageReference Include="WeCantSpell.Hunspell" Version="7.0.1" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="AppShots" /> <!-- the UI checks force a failing icon maker -->
@@ -15,5 +17,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Knowledge\Data\*.json" LogicalName="Svfm.Knowledge.%(Filename).json" />
     <EmbeddedResource Include="Archives\Data\qar_dictionary.txt.gz" LogicalName="Svfm.Archives.qar_dictionary.txt.gz" />
+    <!-- Hunspell dictionaries from LibreOffice dict-en; the licences are in Text\Dictionaries\LICENSE_*.txt. -->
+    <EmbeddedResource Include="Text\Dictionaries\*.gz" LogicalName="Svfm.Spell.%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

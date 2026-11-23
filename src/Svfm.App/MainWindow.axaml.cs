@@ -1,3 +1,4 @@
+using Svfm.Core.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -17,6 +18,7 @@ public sealed partial class MainWindow : Window, IDialogs
 
     public MainWindow(Session session)
     {
+        Spell.Init(session.Settings);
         InitializeComponent();
         Title = $"Simple V Framework Maker v{typeof(MainWindow).Assembly.GetName().Version?.ToString(3)}"; // #74: the version is in the title
         DataContext = _vm = new MainVm(session, this);
@@ -27,6 +29,12 @@ public sealed partial class MainWindow : Window, IDialogs
         search.KeyDown += (_, e) => { if (e.Key == Key.Enter) { _vm.Editor?.RunFieldSearch(); e.Handled = true; } };
         Avalonia.Threading.Dispatcher.UIThread.UnhandledException += (_, e) => { e.Handled = true; _vm.ReportError(e.Exception); };
         Closing += OnClosing;
+        // Issue #135: File > Spelling, UK or US English.
+        var uk = this.FindControl<MenuItem>("SpellUkItem")!; var us = this.FindControl<MenuItem>("SpellUsItem")!;
+        void ShowSpelling() { uk.IsChecked = Spell.Language == SpellLanguage.UK; us.IsChecked = !uk.IsChecked; }
+        ShowSpelling();
+        uk.Click += (_, _) => { Spell.SetLanguage(SpellLanguage.UK); ShowSpelling(); };
+        us.Click += (_, _) => { Spell.SetLanguage(SpellLanguage.US); ShowSpelling(); };
     }
 
     /// <summary>Asks before the window closes with unsaved changes (a close from code, such as the one after "yes", goes through).</summary>

@@ -55,6 +55,11 @@
                   location." This is reachable from every screen, not just the first one.
                 -->
                 <MenuItem Name="SettingsItem" Header="Settings…" InputGesture="Ctrl+OemComma" Command="{Binding OpenSettingsCommand}" ToolTip.Tip="The game folder and the mod manager's mods folder" />
+                <!-- Issue #135: the spelling of the spell check in description boxes. -->
+                <MenuItem Name="SpellMenu" Header="Spelling" ToolTip.Tip="The spelling of the spell check in description boxes">
+                  <MenuItem Name="SpellUkItem" Header="UK English" ToggleType="Radio" GroupName="Spelling" />
+                  <MenuItem Name="SpellUsItem" Header="US English" ToggleType="Radio" GroupName="Spelling" />
+                </MenuItem>
                 <MenuItem Name="DevScreenItem" Header="Developer screen" InputGesture="F12" ToggleType="CheckBox" IsChecked="{Binding ShowDev, Mode=OneWay}" Command="{Binding ToggleDev}" />
               </MenuFlyout>
             </Button.Flyout>
